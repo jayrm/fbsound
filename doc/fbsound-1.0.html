@@ -1,0 +1,1271 @@
+<html>
+  <head>
+    <title>FBSound API (english)</title>
+  </head>
+  <body>
+
+  <table width="100%" cellpadding="12" border="0">
+  <tr><td>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">FBSound API</font>
+      </td></tr>
+    </table></p>
+    This document describes the FBSound API version 1.0.<br />
+    All commands with parameters are listed. If you need clarification on any details, please take a look in the "/test" folder too. Every available command is used in the examples "testXYZ.bas" <br /><br />
+
+    FBSound is a <b>free</b> soundlib primarily for games and demos. The API interface is written for the open source FreeBASIC compiler. It supports dynamically loadable plugin's.<br />
+    Linux x86 (alsa, dsp, arts)<br />
+    libplug-alsa-32.so, libplug-dsp-32.so, libplug-arts-32.so<br />
+    <br />
+    Linux x86_64 (alsa)<br />
+    libplug-alsa-64.so<br />
+    <br />
+    Windows x86 (DirectSound, MultiMediaDevice,)<br />
+    plug-ds-32.dll, plug-mm-32.dll<br />
+    <br />
+    Windows x86_64 (DirectSound, MultiMediaDevice,)<br />
+    plug-ds-64.dll, plug-mm-64.dll<br />
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Install FBSound.</font>
+      </td></tr>
+    </table></p>
+
+    Extract your FBSound download included with the folder tree.<br />
+    <br />
+    fbsound-1.0/<br />
+    fbsound-1.0/data<br />
+    fbsound-1.0/doc<br />
+    fbsound-1.0/lib<br />
+    fbsound-1.0/inc<br />
+    fbsound-1.0/src<br />
+    fbsound-1.0/tests<br /><br />
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Explanation about the type of parameters in this document.</font>
+      </td></tr>
+    </table></p>
+    <b>n</b>Param means a number (integer)<br />
+    <b>s</b>Param means a floating point number (single)<br />
+    <b>bln</b>Param means boolean (true or false)<br />
+    <b>str</b>Param means chars (string)<br />
+    <b>@n</b>Param means a ptr on number (integer)<br />
+    <b>@s</b>Param means a ptr on floating point number (single)<br />
+    <b>@lp</b>Param means a ptr on short ptr (16 bit samples)<br />
+    <b>@bln</b>Param means a ptr on boolean (true or false)<br />
+    <b>[</b>Param<b>]</b> means this param are optional<br />
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: init/start/stop/exit FBSound.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Init">fbs_Init</a></b>([nRate],[nChannels],[nBuffers],[nFrames],[nIndex]) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Setup any available playback devices. (internal: <code><b><a href="#fbs_Start">fbs_Start()</a></b></code> will be called too)
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Start">fbs_Start</a></b>() as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        (optional) Start the sound threads.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Stop">fbs_Stop</a></b>() as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        (optional) Stop all running threads.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Exit">fbs_Exit</a></b>() as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        (optional) Remove FBSound (internal: <code><b><a href="#fbs_Stop">fbs_Stop()</a></b></code>
+        will be called if any threads are running)
+      </td></tr>
+    </table></p>
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: get/set plugin values.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_PlugPath">fbs_Set_PlugPath</a></b>(strNewPath) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        (optional) Set the folder where <code><b><a href="#fbs_Init">fbs_Init()</a></b></code>
+        should load dynamic plugins from (default = exepath).
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugPath">fbs_Get_PlugPath</a></b>() as string</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the folder where fbs_Init() load dynamic plugins from.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugOuts">fbs_Get_PlugOuts</a></b>() as integer</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the number of available playback plugins.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugName">fbs_Get_PlugName</a></b>() as string</code> <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the name of the current pluin.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugDevice">fbs_Get_PlugDevice</a></b>() as string</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the name of the current playback device.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugError">fbs_Get_PlugError</a></b>() as string</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the error description if fbs_Init() returns False.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugRate">fbs_Get_PlugRate</a></b>() as integer</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current playback rate in Hz.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_Plugbits">fbs_Get_PlugBits</a></b>() as integer</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the number of bits per sample. (16 bit)
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugChannels">fbs_Get_PlugChannels</a></b>() as integer</code> <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current number of playback channels (1 = mono, 2 = stereo).
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugBuffers">fbs_Get_PlugBuffers</a></b>() as integer</code>    <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current number of playback buffers. (3 = default).
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugFrames">fbs_Get_PlugFrames</a></b>() as integer</code>    <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current number of frames per buffer. (2048 = default).
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugBuffersize">fbs_Get_PlugChannels</a></b>() as integer</code>  <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current buffersize in bytes. (default: 2048 * 16bits * 2Channels) \ 8bits = 8192 bytes)
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugFramesize">fbs_Get_PlugFramesize</a></b>() as integer</code>  <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current framesize in bytes. (default: (16bits * 2Channels) \ 8bits = 4 bytes)
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlugRunning">fbs_Get_PlugRunning</a></b>() as boolean</code>   <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current state of the playback device True/False. See:
+        <code><b><a href="#fbs_Start">fbs_Start()</a></b></code> /
+        <code><b><a href="#fbs_Stop">fbs_Stop()</a></b></code> (default: True after calling
+        <code><b><a href="#fbs_Init">fbs_Init()</a></b></code>)
+      </td></tr>
+    </table></p>
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: get/set properties of FBSound.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlayingSounds">fbs_Get_PlayingSounds</a></b>() as integer</code>  <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the number of current playing sounds. See:
+        <code><b><a href="#fbs_Play_Wave">fbs_Play_Wave()</a></b></code> /
+        <code><b><a href="#fbs_Play_Sound">fbs_Play_Sound()</a></b></code>.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlayingStreams">fbs_Get_PlayingStreams</a></b>() as integer</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the number of current playing Streams. See:
+        <code><b><a href="#fbs_Play_Stream">fbs_Play_MP3Stream()</a></b></code>.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlayedBytes">fbs_Get_PlayedBytes</a></b>() as integer</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the number of played bytes since <code><b><a href="#fbs_Init">fbs_Init()</a></b></code> was called.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlayedSamples">fbs_Get_PlayedSamples</a></b>() as integer</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the number of played samples since <code><b><a href="#fbs_Init">fbs_Init()</a></b></code> was called.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_PlayTime">fbs_Get_PlayTime</a></b>() as double</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the high resolution play time in seconds since <code><b><a href="#fbs_Init">fbs_Init()</a></b></code> was called.
+      </td></tr>
+
+      <tr><td>
+        <code><b><a href="#fbs_Get_MasterVolume">fbs_Get_MasterVolume</a></b>(@sVolume) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current main volume (default = 1.0) after <code><b><a href="#fbs_Init">fbs_Init()</a></b></code> was called.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_MasterVolume">fbs_Set_MasterVolume</a></b>(sVolume) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the main volume.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_MaxChannels">fbs_Get_MaxChannels</a></b>(@nChannels) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current number of playable sounds/channels in parallel. (default = 128).
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_MaxChannels">fbs_Set_MaxChannels</a></b>(nChannels) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the number of playable sounds in parallel.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_MasterFilter">fbs_Set_MasterFilter</a></b>(nFilter,sHZ,sDB,[sOctave],[blnEnabled]) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set params of 10 posible master band EQ's.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Enable_MasterFilter">fbs_Enable_MasterFilter</a></b>(nFilter) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Enable one of 10 posible master band EQ's.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Disable_MasterFilter">fbs_Disable_MasterFilter</a></b>(nFilter) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Disable one of 10 posible master band EQ's.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Volume_2_dB">fbs_Volume_2_dB</a></b>(sVolume) as single</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Tanslate volume in dB.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_dB_2_Volume">fbs_dB_2_Volume</a></b>(sdB) as single</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Tanslate dB in volume.
+      </td></tr>
+    </table></p>
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: load/create/remove wave objects in memory.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Load_WAVFile">fbs_Load_WAVFile</a></b>(strFilename,@hWave) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Load any *.wav file in memory.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Load_MP3File">fbs_Load_MP3File</a></b>(strFilename,@hWave [,strTmpFile as string]) as boolean</code>    <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Load any *.mp3 *.mp2 *.mp file in memory
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Load_OGGFile">fbs_Load_OGGFile</a></b>(strFilename,@hWave [,strTmpFile as string]) as boolean</code>    <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Load any *.ogg file in memory
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Load_MODFile">fbs_Load_MODFile</a></b>(strFilename,@hWave [,strTmpFile as string]) as boolean</code>    <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Load any *.mod *.xm *.ts *.s3m file in memory
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Create_Wave">fbs_Create_Wave</a></b>(nSamples,@hWave,@lpSamples) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Create a new wave with <i>nSamples</i> samples in memory.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Create_Sound">fbs_Create_Sound</a></b>(hWave,@hSound) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Create a playable sound hSound from the loaded wave <i>hWave</i>.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Destroy_Sound">fbs_Destroy_Sound</a></b>(@hSound) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Remove any sound from memory.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Destroy_Wave">fbs_Destroy_Wave</a></b>(@hWave) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Remove any wave from memory.
+      </td></tr>
+    </table></p>
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: create/remove a stream object.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Create_MP3Stream">fbs_Create_MP3Stream</a></b>(strFilename) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Prepare a Stream for real-time decoding.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_End_MP3File">fbs_End_MP3Stream</a></b>() as boolean</code>    <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Stop and remove an MP3Stream and its real-time decoder
+      </td></tr>
+    </table></p>
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: play waves/sounds/streams.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Play_Wave">fbs_Play_Wave</a></b>(hWave,[nLoops],[sSpeed],[sVolume],[sPan],[@hSound]) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Play a loaded hWave object and create an optional hSound object from it.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Play_Sound">fbs_Play_Sound</a></b>(hSound,[nLoops]) as boolean</code>    <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Play a created hSound object.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Play_MP3Stream">fbs_Play_MP3Stream</a></b>() as boolean</code>    <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Play a prepared stream object.
+      </td></tr>
+    </table></p>
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: get properties of an wave object.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_WavePointers">fbs_Get_WavePointers</a></b>(hWave,[@lpStart],[@lpEnd],[@nChannels]) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get current pointers, channels, and samples from playing sound.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_WaveLength">fbs_Get_WaveLength</a></b>(hWave,@ms) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get length of sound in milli seconds ms/1000 = seconds.
+      </td></tr>
+    </table></p>
+
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: get/set properties of an sound object.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_SoundLoops">fbs_Get_SoundLoops</a></b>(hSound,@nLoops) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current number of sound loops.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_SoundLoops">fbs_Set_SoundLoops</a></b>(hSound,nLoops) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the new number of sound loops.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_SoundSpeed">fbs_Get_SoundSpeed</a></b>(hSound,@sSpeed) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the passed sound's playback speed.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_SoundSpeed">fbs_Set_SoundSpeed</a></b>(hSound,sSpeed) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the passed sound's playback speed.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_SoundVolume">fbs_Get_SoundVolume</a></b>(hSound,@sVolume) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the passed sound's volume.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_SoundVolume">fbs_Set_SoundVolume</a></b>(hSound,sVolume) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the passed sound's volume.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_SoundPan">fbs_Get_SoundPan</a></b>(hSound,@sPan) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the passed sound's panning position.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_SoundPan">fbs_Set_SoundPan</a></b>(hSound,sPan) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the passed sound's panning position.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_SoundMuted">fbs_Get_SoundMuted</a></b>(hSound,@blnMuted) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the passed sound's muted state.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_SoundMuted">fbs_Set_SoundMuted</a></b>(hSound,blnMuted) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the passed sound's muted state.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_SoundPaused">fbs_Get_SoundPaused</a></b>(hSound,@blnPaused) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the passed sound's pause state.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_SoundPaused">fbs_Set_SoundPaused</a></b>(hSound,blnPaused) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the passed sound's pause state.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_SoundPointers">fbs_Get_SoundPointers</a></b>(hSound,[@lpStart],[@lpPlay],[@lpEnd]) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get pointers from sound object.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_SoundPointers">fbs_Set_SoundPointers</a></b>(hSound,[lpStart],[lpPlay],[lpEnd]) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set pointers from sound object.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_SoundPosition">fbs_Get_SoundPosition</a></b>(hSound,@sPosition) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get current playback position (0.0-1.0) from sound object.
+      </td></tr>
+    </table></p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: get/set properties of a stream.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_SreamVolume">fbs_Get_StreamVolume</a></b>(@sVolume) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the passed stream's volume.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_StreamVolume">fbs_Set_StreamVolume</a></b>(sVolume) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the passed stream's volume.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_StreamPan">fbs_Get_StreamPan</a></b>(@sPan) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the passed stream's panning position.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_StreamPan">fbs_Set_StreamPan</a></b>(sPan) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set the passed stream's panning position.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Get_StreamBuffer">fbs_Get_StreamBuffer</a></b>(@lpBuffer,@nChannels,@nSamples) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Get the current stream's sample buffer.
+      </td></tr>
+    </table></p>
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: set/enable/disable user defined buffer callbacks.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_MasterCallback">fbs_Set_MasterCallback</a></b>(@Callback as BUFFERCALLBACK) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set a buffer callback sub for the master channel. (samples are processed <b>after</b> the mixer pipeline)
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Enable_MasterCallback">fbs_Enable_MasterCallback</a></b>() as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Enable the master buffer callback.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Disable_MasterCallback">fbs_Disable_MasterCallback</a></b>() as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Disable the master buffer callback.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_SoundCallback">fbs_Set_SoundCallback</a></b>(hSound,@Callback as BUFFERCALLBACK) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set a buffer callback sub for any sound. (samples are processed <b>before</b> the mixer pipeline)
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Enable_SoundCallback">fbs_Enable_SoundCallback</a></b>(hSound) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Enable sound buffer callback.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Disable_SoundCallback">fbs_Disable_SoundCallback</a></b>(hSound) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Disable sound buffer callback.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_StreamCallback">fbs_Set_StreamCallback</a></b>(@Callback as BUFFERCALLBACK) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set a buffer callback sub for a stream. (samples are processed <b>before</b> the mixer pipeline)
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Enable_StreamCallback">fbs_Enable_StreamCallback</a></b>() as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Enable stream buffer callback.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Disable_StreamCallback">fbs_Disable_StreamCallback</a></b>() as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Disable stream buffer callback.
+      </td></tr>
+    </table></p>
+
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">Function Summary: set/enable/disable user defined load callback.</font>
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Set_LoadCallback">fbs_Set_LoadCallback</a></b>(@Callback as LOADCALLBACK) as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Set a load callback sub for file loading.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Enable_LoadCallback">fbs_Enable_LoadCallback</a></b>() as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Enable the load callback.
+      </td></tr>
+      <tr><td>
+        <code><b><a href="#fbs_Disable_LoadCallback">fbs_Disable_LoadCallback</a></b>() as boolean</code><br />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        Disable the load callback.
+      </td></tr>
+    </table></p>
+
+    <p>&nbsp;</p>
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+2">The FBSound API in more details:</font>
+      </td></tr>
+    </table></p>
+
+    <a name="fbs_Init">
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">function: fbs_Init()</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <pre><b>fbs_Init</b>([nRate],[nChannesl],[nBuffers],[nFrames],[nPluinIndex],[nDevceIndex]) as boolean</pre>
+      Setup a playback device. This function is the key to use FBSound and must be the first call.
+    </p>
+    <code>
+      #include "../inc/fbsound.bi"<br /><br />
+      const data_path = "../data/"<br /><br />
+      ' only if not same as exe path<br />
+      ' fbs_Set_PlugPath("./path_of_plugins")<br /><br />
+      fbs_Init()<br />
+    </code>
+    <br />
+    <br />
+
+    <p><table border="0">
+      <tr><td>
+        &nbsp;&nbsp;&nbsp;
+        <b>Parameters:</b>
+      </td></tr>
+      <tr><td>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <code>nRate as integer</code> (Playback rate in Hz.) <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Range</b>: (6000-11025, 22050, 32000, 44100, 48000, 96000)
+        <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Default</b>: 44100
+        <br /> &nbsp;
+
+      </td></tr>
+      <tr><td>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <code>nChannels as integer</code> (Number of playback channels.)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Range</b>: 1 = mono, 2 = stereo
+        <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Default</b>: 2 (stereo)
+        <br /> &nbsp;
+
+      </td></tr>
+      <tr><td>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <code>nBuffers as integer</code> (Number of playback buffers.)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Default</b>: 3
+        <br /> &nbsp;
+
+      </td></tr>
+      <tr><td>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <code>nFrames as integer</code> (Number of frames per buffer.)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Default</b>: 2048
+        <br /> &nbsp;
+
+      </td></tr>
+      <tr><td>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <code>nIndex as integer</code> (Specify which device should be used by default.)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Range</b>: 0 = first, 1 = second, ...
+        <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Default</b>: 0 (first device)
+        <br /> &nbsp;
+
+      </td></tr>
+    </table></p>
+
+    <p><table border="0">
+      <tr><td>
+        &nbsp;&nbsp;&nbsp;<b>Returns:</b>
+      </td></tr>
+      <tr><td>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+      </td></tr>
+    </table></p>
+
+
+    <a name="fbs_Start">
+    <a name="fbs_Stop">
+    <a name="fbs_Exit">
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: fbs_Start(), fbs_Stop(), fbs_Exit().</font>
+      </td></tr>
+    </table></p>
+    <p>
+      There is normally no need to use these functions manually.<br />
+      <code><b>fbs_Start()</b></code> will be called internally from <code><b><a href="#fbs_Init">fbs_Init</a></b>(). If any FreeBASIC program ends, <code><b>fbs_Stop()</b></code> and <code><b>fbs_Exit()</b></code> will be called internally too.<br /><br />
+      There is one reason to use these functions manually:<br />
+      If you want to change the FBSound setup via <code><b><a href="#fbs_Init">fbs_Init</a></b>() first call <code><b>fbs_Stop()</b></code> then <code><b>fbs_Exit()</b></code>. all playing waves/sounds/streams are stopped and removed from memory. Now use <code><b><a href="#fbs_Init">fbs_Init</a></b>() with any new setup and reload/create waves/sounds/streams. (The old will be invalid)
+    </p>
+    <p><table border="0">
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;
+          <b>Parameters:</b>
+        </td></tr>
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <code>none</code><br />
+        </td></tr>
+    </table></p>
+    <p><table border="0">
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;
+          <b>Returns:</b>
+        </td></tr>
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+        </td></tr>
+    </table></p>
+
+    <a name="fbs_Set_PlugPath">
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">sub: fbs_Set_PlugPath().</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <pre><b>fbs_Set_PlugPath</b>(strNewPath)</pre>
+      Normally <code><b><a href="#fbs_Init">fbs_Init</a></b>() searches in the exepath for available dynamically loadable plugins/outs. If the exepath is not the folder with the dynamic libs you must call  <code><b>fbs_Set_PlugPath</b>("newpath/")</code> before you can use <code><b><a href="#fbs_Init">fbs_Init</a></b>().
+    </p><br /><br />
+    <code>
+      fbs_Set_PlugPath("../lib/")<br />
+      fbs_Init()<br />
+    </code>
+    <p><table border="0">
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;<b>Parameter:</b>
+        </td></tr>
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <code>NewPath as string</code><br />
+        </td></tr>
+    </table></p>
+
+    <a name="fbs_Load_WAVFile">
+    <a name="fbs_Load_MP3File">
+    <a name="fbs_Load_OGGFile">
+    <a name="fbs_Load_MODFile">
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: fbs_Load_WAVFile(), fbs_Load_MP3File(), fbs_Load_OGGFile(), fbs_Load_MODFile().</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>fbs_Load_WAVFile(strFileName,@hWave)<br />
+            fbs_Load_MP3File(strFileName,@hWave)<br />
+            fbs_Load_OGGFile(strFileName,@hWave)<br />
+            fbs_Load_MODFile(strFileName,@hWave)<br />
+      </code>
+      This functions load media files into the pool of memory waves.<br />
+      The returned hWave is the ID of the new created wave and can be used with <code><b><a href="#fbs_Play_Wave">fbs_Play_Wave</a></b>().
+    </p>
+    <code>
+      dim as integer hWave1,hWave2,hWave2,hWave4<br />
+      fbs_Init()<br />
+      fbs_Load_WAVFile("anyfile.wav",@hWave1)<br />
+      fbs_Load_MP3File("anyfile.mp3",@hWave2)<br />
+      fbs_Load_OGGFile("anyfile.ogg",@hWave3)<br />
+      fbs_Load_MODFile("anyfile.xxx",@hWave4)<br />
+      ' (.xxx) .mod, .it, .s3m or .xm<br />
+      fbs_Play_Wave(hWave1)<br />
+      fbs_Play_Wave(hWave2)<br />
+      fbs_Play_Wave(hWave3)<br />
+      fbs_Play_Wave(hWave4)<br />
+      sleep<br />
+    </code>
+
+    <p><table border="0">
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;Parameters:
+        </td></tr>
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <code>FileName as string</code> (The file's name.)<br />
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <code>@hWave as integer</code> (The hWave to create.)<br />
+        </td></tr>
+    </table></p>
+    <p><table border="0">
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;Returns:
+        </td></tr>
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+        </td></tr>
+    </table></p>
+
+    <a name="fbs_Play_Wave">
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">function: fbs_Play_Wave().</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>fbs_Play_Wave(hWave, [nLoops], [sSpeed], [sVolume], [sPan],[@hSound])</code><br />
+      Start playback of an hWave object.<br />
+      The wave can be loaded from either <code><b><a href="#fbs_Load_WAVFile">fbs_Load_WAVFile</a></b>(), <code><b><a href="#fbs_Load_MP3File">fbs_Load_MP3File</a></b>(), <code><b><a href="#fbs_Load_OGGFile">fbs_Load_OGGFile</a></b>(), <code><b><a href="#fbs_Load_MODFile">fbs_Load_MODFile</a></b>()<br />
+      or created by <code><b><a href="#fbs_Create_Wave">fbs_Create_Wave</a></b>(). Optional you can create an hSound object too. See <code><b><a href="#GetSet_SoundProperties">get / set sound properties.</a></b>
+    </p>
+    <code>
+      dim as integer hWave<br />
+      fbs_Load_WAVFile("anywave.wav",@hWave)<br />
+      fbs_Play_Wave(hWave)<br />
+    </code>
+    Play an hWave object.<br /><br />
+
+    <code>fbs_Play_Wave(hWave,3)</code><br />
+    Loop hWave 3 times<br /><br />
+
+    <code>fbs_Play_Wave(hWave,2,,,-1.0)</code><br />
+    Loop hWave 2 times on the left channel<br /><br />
+
+    <code>fbs_Play_Wave(hWave,,1.5)</code><br />
+    Play hWave with 150% of the normal speed<br /><br />
+
+    <p><table border="0">
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;Parameters:
+        </td></tr>
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <code>hWave as integer</code> (The ID of the wave in memory.)<br />
+          <br />
+
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <code>nLoops as integer</code> (Number of times to loop the sample.)<br />
+          &nbsp;&nbsp;&nbsp;<b>Range</b>: 1 to 2<sup>31</sup> <br />
+          &nbsp;&nbsp;&nbsp;<b>Default</b>: 1 <br />
+          <br />
+
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <code>sSpeed as single</code> (The sample's playback speed.)<br />
+          &nbsp;&nbsp;&nbsp;<b>Range</b>: -4.0 (400% speed backwards) to +4.0 (400% speed forwards) <br />
+          &nbsp;&nbsp;&nbsp;<b>Default</b>: 1.0 (100% speed forwards)<br />
+          <br />
+
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <code>sPan as single</code> (The sample's stereo location.)<br />
+          &nbsp;&nbsp;&nbsp;<b>Range</b>: -1.0 (full left) to +1.0 (full right) <br />
+          &nbsp;&nbsp;&nbsp;<b>Default</b>: 0.0 (center)<br />
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <code>@hSound</code> (optional: the new created hSound object.)<br />
+        </td></tr>
+    </table></p>
+    <p><table border="0">
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;Returns:
+        </td></tr>
+        <tr><td>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+        </td></tr>
+    </table></p>
+
+    <a name="fbs_Create_Sound">
+    <a name="fbs_Play_Sound">
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: fbs_Create_Sound() and fbs_Play_Sound().</font>
+      </td></tr>
+    </table></p>
+    <p>
+    <code>
+      <code>
+      fbs_Create_Sound(hWave,@hSound) as boolean<br />
+      fbs_Play_Sound(hSound, [nLoops]) as boolean<br />
+      </code>
+      Create an hSound object from loaded hWave object with <code><b>fbs_Create_Sound()</b></code>.<br />
+      Start the hSound playback with  <code><b>fbs_Play_Sound()</b></code><br /><br />
+      The main difference between playing an hWave handle with <code><b><a href="#fbs_Play_Wave">fbs_Play_Wave()</a></b> and playing an hSound handle with <code><b>fbs_Play_Sound()</b></code> is that you can change all properties of a playing hSound while it is playing/created/stopped or paused.<br /><br />
+      See <b><a href="#GetSet_SoundProperties">get/set sound properties.</a></b>
+    </p>
+    <code>
+      dim as integer hWave,hSound<br />
+      fbs_Load_WAVFile("anywave.wav",@hWave)<br />
+      fbs_Create_Sound(hWave,@hSound)<br />
+      fbs_Play_Sound(hSound)<br />
+      sleep<br />
+    </code>
+    <br />
+    Create and play an hSound object:<br /><br />
+
+    <code>fbs_Play_Sound(hSound,3)</code><br />
+    Loop hSound 3 times<br /><br />
+
+    <p><table border="0">
+      &nbsp;&nbsp;&nbsp;Parameters:<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <code>hWave as integer</code> (The hWave to use.)<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <code>@hSound as integer</code> (The hSound to create.)<br />
+    </table></p>
+    <p><table border="0">
+      &nbsp;&nbsp;&nbsp;Returns:<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+    </table></p>
+
+    <a name="fbs_Get_WavePointers">
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">function: fbs_Get_WavePointes().</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>
+        fbs_Get_WavePointers (hWave,@lpStart,@lpEnd,@nChannels) as boolean<br />
+      </code>
+    </p>
+    <p>
+    <table border="0">
+       &nbsp;&nbsp;&nbsp;Parameters:<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>hWave as integer</code> (The hWave whose properties to get.) <br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>@lpStart as short ptr</code> (The address of first sample in memory.) <br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>@lpEnd as short ptr</code> (The address of last sample in memory.) <br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>@nChannesl integer ptr</code> (The number of channels.) <br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
+       <br />
+    </p>
+    <p><table border="0">
+      &nbsp;&nbsp;&nbsp;Returns:<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+    </table></p>
+    <a name="GetSet_SoundProperties">
+    <a name="fbs_Get_SoundLoops">
+    <a name="fbs_Set_SoundLoops">
+    <a name="fbs_Get_SoundSpeed">
+    <a name="fbs_Set_SoundSpeed">
+    <a name="fbs_Get_SoundVolume">
+    <a name="fbs_Set_SoundVolume">
+    <a name="fbs_Get_SoundPan">
+    <a name="fbs_Set_SoundPan">
+    <a name="fbs_Get_SoundMutes">
+    <a name="fbs_Set_SoundMuted">
+    <a name="fbs_Get_SoundPaused">
+    <a name="fbs_Set_SoundPaused">
+    <a name="fbs_Get_SoundPointers">
+    <a name="fbs_Set_SoundPointers">
+    <a name="fbs_Get_SoundPosition">
+    <a name="fbs_Get_SoundProperties">
+    <a name="fbs_Set_SoundProperties">
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: get/set sound properties.</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>
+        fbs_Get_SoundLoops (hSound,@nLoops&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Set_SoundLoops (hSound, nLoops&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Get_SoundSpeed (hSound,@sSpeed&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Set_SoundSpeed (hSound, sSpeed&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Get_SoundVolume (hSound,@sVolume&nbsp;&nbsp;) as boolean<br />
+        fbs_Set_SoundVolume (hSound, sVolume&nbsp;&nbsp;) as boolean<br />
+        fbs_Get_SoundPan(hSound,@sPan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Set_SoundPan(hSound, sPan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Get_SoundMuted (hSound,@blnMuted&nbsp;) as boolean<br />
+        fbs_Set_SoundMuted (hSound, blnMuted&nbsp;) as boolean<br />
+        fbs_Get_SoundPaused (hSound,@blnPaused) as boolean<br />
+        fbs_Set_SoundPaused (hSound, blnPaused) as boolean<br />
+        fbs_Get_SoundPointers (hSound,@lpStart,@lpPlay,@lpEnd) as boolean<br />
+        fbs_Set_SoundPointers (hSound,lpStart,lpPlay,lpEnd) as boolean<br />
+        fbs_Get_SoundPosition (hSound,@sPosition) as boolean<br />
+      </code>
+    </p>
+  After you have created an hSound object with <code><b><a href="#fbs_Create_Sound">fbs_Create_Sound()</a></b>, you can set any and all of its properties. It does not matter if the hSound is playing / freshly created / paused or muted, you can change the properties at any time.<br /> <br />
+    <b>The advantage:</b> for an hWave object some of these properties can only be set once with <code><b><a href="#fbs_Play_Wave">fbs_Play_Wave()</a></b><br />
+
+    <p><table border="0">
+       &nbsp;&nbsp;&nbsp;Parameters:<br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>hSound as integer</code> (The hSound whose properties to set.) <br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>nLoops as integer</code> (The number of times to loop the hSound.) <br />
+       &nbsp;&nbsp;&nbsp;<b>Range</b>: 1 to 2<sup>31</sup><br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: 1<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>sSpeed as single</code> (The playback speed of the hSound.)<br />
+       &nbsp;&nbsp;&nbsp;<b>Range</b>: -4.0 (400% speed backwards) to +4.0 (400% speed forwards) <br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: 1.0 (100% speed forwards)<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>sVolume as single</code> (The hSound's playback volume.) <br />
+       &nbsp;&nbsp;&nbsp;<b>Range</b>: 0.0 to 2.0<br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: 1.0<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>sPan as single</code> (The hSound's stereo location.)<br />
+       &nbsp;&nbsp;&nbsp;<b>Range</b>: -1.0 (full left) to +1.0 (full right) <br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: 0.0 (center)<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>blnMuted as boolean</code> (The muted state of the hSound.)<br />
+       &nbsp;&nbsp;&nbsp;<b>Range</b>: True (no sound while playing default) or False (sound on)<br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: False<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>blnPaused as boolean</code> (The paused state of the hSound.)<br />
+       &nbsp;&nbsp;&nbsp;<b>Range</b>: True (paused) or False (normal play)<br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: False<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>lpStart as short ptr</code> (The first playable sample of the hSound.)<br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>lpPlay as short ptr</code> (The play position of the hSound.)<br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>lpEnd as short ptr</code> (The last playable sample of the hSound.)<br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
+       <br />
+
+    </table></p>
+    <p><table border="0">
+      &nbsp;&nbsp;&nbsp;Returns:<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+    </table></p>
+
+
+    <a name="fbs_Create_MP3Stream">
+    <a name="fbs_Play_MP3Stream">
+    <a name="fbs_Get_PlayingStreams">
+    <a name="fbs_End_MP3Stream">
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: create/play/end an MP3Stream.</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>
+        fbs_Create_MP3Stream(strFilename) as boolean<br />
+        fbs_Play_MP3Stream() as boolean<br />
+        fbs_Get_PlayingStreams() as integer<br />
+        fbs_End_MP3Stream() as boolean<br />
+      </code>
+    </p>
+    Prepare an MP3Stream and it's real time decoder with <code><b>fbs_Create_MP3Stream("filename")</b></code> and begin stream playback with
+    <code><b>fbs_Play_MP3Stream()</b></code><br /><br />
+    <code>
+    ' prepare the real time decoder<br />
+    fbs_Create_MP3Stream("../data/legends.mp3)<br />
+    ' start stream playback<br />
+    fbs_Play_MP3Stream()<br />
+    sleep<br />
+    </code><br /><br />
+
+    <code>
+    ' prepare the real time decoder<br />
+    fbs_Create_MP3Stream("../data/legends.mp3)<br />
+    ' start stream playback<br />
+    fbs_Play_MP3Stream()<br />
+    ' wait of first decoded sound buffer<br />
+    while fbs_Get_PlayingStreams()=0:sleep 10:wend<br /><br />
+
+    print "wait on end of stream or hit any key to quit."<br />
+    while inkey="" and fbs_Get_PlayingStreams()>0<br />
+      sleep 1000<br />
+    wend<br />
+    </code><br />
+
+    <p><table border="0">
+       &nbsp;&nbsp;&nbsp;Parameters:<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>strFilename as string</code> (The *.mp3 *.mp2 or *.mp FileName.) <br />
+       <br />
+    </table></p>
+    <p><table border="0">
+      &nbsp;&nbsp;&nbsp;Returns:<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+    </table></p>
+
+
+    <a name="fbs_Get_StreamVolume">
+    <a name="fbs_Set_StreamVolume">
+    <a name="fbs_Get_StreamPan">
+    <a name="fbs_Set_StreamPan">
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: get/set stream properties.</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>
+        fbs_Get_StreamVolume(@sVolume) as boolean<br />
+        fbs_Set_StreamVolume( sVolume) as boolean<br />
+        fbs_Get_StreamPan(@sPan) as boolean<br />
+        fbs_Set_StreamPan( sPan) as boolean<br />
+      </code>
+    </p>
+
+    <p><table border="0">
+       &nbsp;&nbsp;&nbsp;Parameters:<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>sVolume as single</code> (The hSound's playback volume.) <br />
+       &nbsp;&nbsp;&nbsp;<b>Range</b>: 0.0 to 2.0<br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: 1.0<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>sPan as single</code> (The hSound's stereo location.)<br />
+       &nbsp;&nbsp;&nbsp;<b>Range</b>: -1.0 (full left) to +1.0 (full right) <br />
+       &nbsp;&nbsp;&nbsp;<b>Default</b>: 0.0 (center)<br />
+      <br />
+    </table></p>
+    <p><table border="0">
+      &nbsp;&nbsp;&nbsp;Returns:<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+    </table></p>
+
+    <a name="fbs_Set_MasterCallback">
+    <a name="fbs_Enable_MasterCallback">
+    <a name="fbs_Disable_MasterCallback">
+
+    <a name="fbs_Set_SoundCallback">
+    <a name="fbs_Enable_SoundCallback">
+    <a name="fbs_Disable_SoundCallback">
+
+    <a name="fbs_Set_StreamCallback">
+    <a name="fbs_Enable_StreamCallback">
+    <a name="fbs_Disable_StreamCallback">
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: set/enable/disable user defined buffer callbacks.</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>
+        type BUFFERCALLBACK as sub ( <br />
+        &nbsp;&nbsp;byval lpSamples      as short ptr, _ <br />
+        &nbsp;&nbsp;byval nChannels      as integer  , _ <br />
+        &nbsp;&nbsp;byval nSamples&nbsp; as integer  )<br /><br />
+
+        fbs_Set_MasterCallback(@YourCallback as BUFFERCALLBACK) as boolean<br />
+        fbs_Enable_MasterCallback() as boolean<br />
+        fbs_Disable_MasterCallback() as boolean<br /><br />
+
+        fbs_Set_SoundCallback(hSound,@YourCallback as BUFFERCALLBACK) as boolean<br />
+        fbs_Enable_SoundCallback(hSound) as boolean<br />
+        fbs_Disable_SoundCallback(hSound) as boolean<br /><br />
+
+        fbs_Set_StreamCallback(@YourCallback as BUFFERCALLBACK) as boolean<br />
+        fbs_Enable_StreamCallback() as boolean<br />
+        fbs_Disable_StreamCallback() as boolean<br />
+      </code>
+    </p>
+    After you have set and enabled a buffer callback it will be called for every new sound buffer.<br /><br />
+    The master buffer callback is called with all ready to use samples and is processed <b>after</b> the dsp and mixer pipeline. After this callback the buffer is sent to the current playback device.<br /><br />
+
+    The sound buffer callback is called for any sound object passed as an <i>hSound</i> and is processed <b>before</b> the dsp and mixer pipeline.<br /><br />
+
+    The stream buffer callback is called after a new buffer is decoded and is processed <b>before</b> the dsp and mixer pipeline.<br /><br />
+
+    You can read and write any sample of a new buffer from inside the callback. But be sure your sub will need not too much time because
+    the dsp and mixer thread will wait until your callback sub finishes.<br /><br />
+
+    <p><table border="0">
+       &nbsp;&nbsp;&nbsp;Parameters:<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>hSound as integer</code> (The sound ID.)<br />
+       <br />
+
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>@YourCallback as BUFFERCALLBACK</code> (Defined in fbstypes.bi)
+    </table></p>
+    <p><table border="0">
+      &nbsp;&nbsp;&nbsp;Returns:<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+    </table></p>
+
+    <a name="fbs_Set_LoadCallback">
+    <a name="fbs_Enable_LoadCallback">
+    <a name="fbs_Disable_LoadCallback">
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: set/enable/disable user defined load callback.</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>
+        type LOADCALLBACK as sub (byval Percent as integer)<br /><br />
+
+        fbs_Set_LoadCallback(@YourLoadCallback as LOADCALLBACK) as boolean<br />
+        fbs_Enable_LoadCallback() as boolean<br />
+        fbs_Disable_LoadCallback() as boolean<br /><br />
+
+      </code>
+    </p>
+    After you have set and enabled a load callback it will be called for every active file loading.<br /><br />
+    Please take a look in the /test folder.<br />
+
+    <a name="fbs_Set_MasterFilter">
+    <a name="fbs_Enable_MasterFilter">
+    <a name="fbs_Disable_MasterFilter">
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: set/enable/disable one of 10 posible master band EQ's.</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>
+        fbs_Set_MasterFilter(nFilter,sHz,sdB,[sOctave=1.0],[blnEnable=False]) as boolean<br />
+        fbs_Enable_MasterFilter(nFilter) as boolean<br />
+        fbs_Disable_MasterFilter(nFilter) as boolean<br /><br />
+      </code>
+    </p>
+    You can set/enable/disable 10 posible master band EQ's.<br /><br />
+    The filters processed <b>after</b> the mixer pipeline. After this dsp section the buffer is sent to the current playback device.<br /><br />
+
+    <p><table border="0">
+       &nbsp;&nbsp;&nbsp;
+       Parameters:<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>nFilter as integer</code> (The filter ID 0-9.)<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>sHz as single</code> (The center frequenc in Hz.)<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>sdB as single</code> (The band volume in dB.)<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>sOctave as single</code> (The optional band width in octaves default=1.0.)<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>blnOnOff as boolean</code> (The optional en/disable switch default=False)<br />
+       <br />
+    </table></p>
+    <p><table border="0">
+      &nbsp;&nbsp;&nbsp;Returns:<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+    </table></p>
+
+    <a name="fbs_Volume_2_dB">
+    <a name="fbs_dB_2_Volume">
+
+    <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
+      <tr><td bgcolor="#ddddff">
+        <font size="+1">functions: simple translatition between volume and dB</font>
+      </td></tr>
+    </table></p>
+    <p>
+      <code>
+        fbs_Volume_2_dB(byval Volume) as single<br />
+        fbs_dB_2_Volume(byval dB as single) as single<br />
+        <br />
+      </code>
+    </p>
+
+    <p><table border="0">
+       &nbsp;&nbsp;&nbsp;Parameters:<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>dB as single</code> (dB to volume)<br />
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <code>volume as single</code> (volume to dB.)<br />
+       <br />
+    </table></p>
+    <p><table border="0">
+      &nbsp;&nbsp;&nbsp;Returns:<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>as single</code> the translated value.<br />
+    </table></p>
+
+  </tr></td>
+  </table>
+</html>
