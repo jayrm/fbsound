@@ -1,16 +1,24 @@
 '  #######################
 ' # fbs_create_wave.bas #
 '#######################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' example of:
 ' fbs_Create_Wave(nSamples,@hWAve,@lpSamples)
 
 const data_path = "../data/"
+
 chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
+
+if fbs_Init()=false then
+  print "error: FBS_INIT() " & FBS_Get_PlugError()
+  beep : sleep : end 1
+end if
+
 
 dim as integer nSamples = 44100
 dim as integer hWave,hSound
@@ -22,7 +30,8 @@ dim as FBS_SAMPLE ptr pS,pP,pE
 dim as integer sw=640,sh=480
 screenres sw,sh
 
-fbs_Init
+
+
 fbs_Create_Wave(nSamples,@hWave,@pSamples)
 for i as integer=0 to nSamples-1
   ' right channel
@@ -45,6 +54,6 @@ for x as integer=0 to sw-1
 next
 
 fbs_Play_Sound(hSound,-1) ' loop endless
-? "playing cleean sin wave endless"
+print "playing clean sin wave endless"
 sleep
 end

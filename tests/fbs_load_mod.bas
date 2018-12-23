@@ -1,7 +1,9 @@
 '  ####################
 ' # fbs_load_mod.bas #
 '####################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
 ' short test for:
 ' fbs_Load_MODFile("*.mod")
 
@@ -15,6 +17,7 @@ chdir(exepath())
 dim as integer hWave
 
 if fbs_Init() then
+  print "load: jimi.mod" 
   if fbs_Load_MODFile(data_path & "jimi.mod",@hWave) then
     print "ok"
     dim as integer ms

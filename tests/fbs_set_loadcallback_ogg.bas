@@ -1,7 +1,8 @@
 '  ################################
 ' # fbs_set_loadcallback_ogg.bas #
 '################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' example of:
 

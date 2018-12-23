@@ -1,12 +1,14 @@
 '  ########################################
 ' # fbs_load_and_reloading_mp3stream.bas #
 '########################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
 ' simple speed test
 ' streaming decoding and reloading MP3.
 
+
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
@@ -24,7 +26,7 @@ while inkey=""
   fbs_Create_MP3Stream(data_path & "atem.mp3")
   ? "ok"
   ? "wait on start: ";
-  fbs_Play_MP3Stream
+  fbs_Play_MP3Stream()
   while fbs_Get_PlayingStreams()=0:sleep 10:wend
   ? "ok"
   ? "wait on end  : ";

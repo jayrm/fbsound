@@ -10,6 +10,12 @@
 
 #include once "../inc/fbscpu.bi"
 
+#ifdef __FB_OUT_DLL__
+#define API_EXPORT EXPORT
+#else
+#define API_EXPORT
+#endif
+ 
 
 #if defined(NOMP3) and defined(NOMOD)
  ' no streams
@@ -116,7 +122,7 @@ dim shared _MaxChannels         as integer
 dim shared _seed                as integer
 
 #ifndef NOGETKEYCODE
-function fbs_Get_KeyCode() As FBS_KEYCODES
+function fbs_Get_KeyCode() As FBS_KEYCODES API_EXPORT
   dim as string  key=inkey() 
   dim as integer keycode=len(key)
   If keycode Then
@@ -127,21 +133,21 @@ function fbs_Get_KeyCode() As FBS_KEYCODES
 end function
 #endif
 
-function FBS_Get_PlugPath() as string
+function FBS_Get_PlugPath() as string API_EXPORT
   return _PlugPath
 end function
 
-sub FBS_Set_PlugPath(byval NewPath as string)
+sub FBS_Set_PlugPath(byval NewPath as string) API_EXPORT
   _PlugPath=NewPath
 end sub
 
-function FBS_Get_MaxChannels(byval lpMaxChannels as integer ptr) as boolean
+function FBS_Get_MaxChannels(byval lpMaxChannels as integer ptr) as boolean API_EXPORT
   if lpMaxChannels=NULL then return false
   *lpMaxChannels=_MaxChannels
   return true
 end function
 
-function FBS_Set_MaxChannels(byval MaxChannels as integer) as boolean
+function FBS_Set_MaxChannels(byval MaxChannels as integer) as boolean API_EXPORT
   if MaxChannels<1   then MaxChannels=  1
   if MaxChannels>512 then MaxChannels=512
   _MaxChannels=MaxChannels
@@ -160,7 +166,7 @@ function FBS_Set_MasterFilter(byval nFilter as integer, _
                               byval Center  as single, _
                               byval dB      as single, _
                               byval Octave  as single = 1.0, _
-                              byval OnOff   as boolean=True) as boolean
+                              byval OnOff   as boolean=True) as boolean API_EXPORT
 
   if _IshFilter(nFilter)=false then return false  
   _Set_EQFilter(@_MasterFilters(nFilter), _
@@ -173,13 +179,13 @@ function FBS_Set_MasterFilter(byval nFilter as integer, _
    return true
 end function
 
-function FBS_Enable_MasterFilter (byval nFilter as integer) as boolean
+function FBS_Enable_MasterFilter (byval nFilter as integer) as boolean API_EXPORT
   if _IshFilter(nFilter)=false then return false
   _MasterFilters(nFilter).Enabled=True
    return true
 end function
 
-function FBS_Disable_MasterFilter (byval nFilter as integer) as boolean
+function FBS_Disable_MasterFilter (byval nFilter as integer) as boolean API_EXPORT
   if _IshFilter(nFilter)=false then return false
   _MasterFilters(nFilter).Enabled=False
    return true
@@ -205,7 +211,7 @@ sub _MIXER(byval lpOChannels as any ptr, _
   next
 end sub
 
-function FBS_Set_MasterVolume(byval Volume as single) as boolean
+function FBS_Set_MasterVolume(byval Volume as single) as boolean API_EXPORT
   if (_ISInit=false) then return false
   if (Volume<0.001) then
     Volume = 0.0
@@ -216,20 +222,24 @@ function FBS_Set_MasterVolume(byval Volume as single) as boolean
   return true
 end function
 
-function FBS_Get_MasterVolume(byval lpVolume as single ptr) as boolean
+function FBS_Get_MasterVolume(byval lpVolume as single ptr) as boolean API_EXPORT
   if _ISInit=false then return false
   *lpVolume=_MasterVolume
   return true
 end function
 
 #ifndef NODSP
+
 sub FBS_PitchShift(byval d as short ptr, _      ' output samples
                    byval s as short ptr, _      ' input samples
                    byval v as single   , _      ' value of shift pow(2,note*1.0/12.0)
-                   byval n as integer  ) ' number of samples
+                   byval n as integer  )  API_EXPORT ' number of samples
   if (_ISInit=false) then exit sub
+ #ifndef __FB_64BIT__  
   _PitchShift(d,s,v,fbs_Get_PlugRate(),n)
+ #endif 
 end sub
+ 
 #endif
 
 
@@ -873,91 +883,91 @@ sub _fbs_exit() destructor
 #endif
 end sub
 
-function FBS_Get_NumOfPlugouts() as integer
+function FBS_Get_NumOfPlugouts() as integer  API_EXPORT
   return _nPlugs
 end function
 
-function FBS_Get_PlugError() as string
+function FBS_Get_PlugError() as string  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).plug_error()
 end function
 
-function FBS_Get_PlugName() as string
+function FBS_Get_PlugName() as string  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).PlugName
 end function
 
 public _
-function FBS_Get_PlugDevice() as string
+function FBS_Get_PlugDevice() as string  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).DeviceName
 end function
 
 public _
-function FBS_Get_PlugBuffersize() as integer
+function FBS_Get_PlugBuffersize() as integer  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).Buffersize
 end function
 
 public _
-function FBS_Get_PlugBuffers() as integer
+function FBS_Get_PlugBuffers() as integer  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).nBuffers
 end function
 
 public _
-function FBS_Get_PlugFramesize() as integer
+function FBS_Get_PlugFramesize() as integer  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).Framesize
 end function
 
 public _
-function FBS_Get_PlugFrames() as integer
+function FBS_Get_PlugFrames() as integer  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).nFrames
 end function
 
 public _
-function FBS_Get_PlugRate() as integer
+function FBS_Get_PlugRate() as integer  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).Fmt.nRate
 end function
 
 public _
-function FBS_Get_PlugBits() as integer
+function FBS_Get_PlugBits() as integer  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).Fmt.nBits
 end function
 
 public _
-function FBS_Get_PlugChannels() as integer
+function FBS_Get_PlugChannels() as integer  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).Fmt.nChannels
 end function
 
 public _
-function FBS_Get_PlugSigned() as boolean
+function FBS_Get_PlugSigned() as boolean  API_EXPORT
   if _Plug>-1 then return _Plugs(_Plug).Fmt.Signed
 end function
 
 public _
-function FBS_Get_PlugRunning() as boolean
+function FBS_Get_PlugRunning() as boolean  API_EXPORT
   return _IsRunning
 end function
 
 public _
-function FBS_Get_PlayingSounds() as integer
+function FBS_Get_PlayingSounds() as integer  API_EXPORT
   if (_IsRunning=true) then return _nPlayingSounds
 end function
 
 #if defined(NOMP3) and defined(NOMOD)
   ' no streams
 #else
-function FBS_Get_PlayingStreams() as integer
+function FBS_Get_PlayingStreams() as integer  API_EXPORT
   if (_IsRunning=0) then return 0
   return _nPlayingStreams
 end function
 #endif
 
-function FBS_Get_PlayedBytes() as integer
+function FBS_Get_PlayedBytes() as integer  API_EXPORT
   if (_IsInit=true) then return _nPlayedBytes
 end function
 
-function FBS_Get_PlayedSamples() as integer
+function FBS_Get_PlayedSamples() as integer  API_EXPORT
   if FBS_Get_PlayedBytes>0 then return int(FBS_Get_PlayedBytes()\_Plugs(_Plug).Framesize)
 end function
 
-function FBS_Get_PlayTime() as double
+function FBS_Get_PlayTime() as double  API_EXPORT
   if FBS_Get_PlayedSamples>0 then return cdbl(FBS_Get_PlayedSamples()/_Plugs(_Plug).fmt.nRate)
 end function
 
@@ -966,7 +976,7 @@ function FBS_Init(byval nRate        as integer, _
                   byval nBuffers     as integer, _
                   byval nFrames      as integer, _
                   byval nPlugIndex   as integer, _
-                  byval nDeviceIndex as integer) as boolean
+                  byval nDeviceIndex as integer) as boolean  API_EXPORT
 
   dim as integer     i
   dim as boolean  ret
@@ -1073,14 +1083,14 @@ function FBS_Init(byval nRate        as integer, _
   end if
 end function
 
-function FBS_Start() as boolean
+function FBS_Start() as boolean  API_EXPORT
   dprint("FBS_Start()")
   if _Plug=-1 then return false  
   _IsRunning = _Plugs(_Plug).plug_start()
   return _IsRunning
 end function
 
-function FBS_Stop() as boolean
+function FBS_Stop() as boolean  API_EXPORT
   dim as boolean ret
   dprint("FBS_Stop()")
   if _Plug = -1 then return true
@@ -1092,7 +1102,7 @@ function FBS_Stop() as boolean
   return ret
 end function
 
-function FBS_Exit() as boolean
+function FBS_Exit() as boolean  API_EXPORT
   dprint("FBS_Exit()")
   dim as integer i
   if _Plug = -1 then return true
@@ -1177,7 +1187,7 @@ end function
 
 function FBS_Create_Wave(byval nSamples as integer    , _
                          byval hWave    as integer ptr, _
-                         byval pWave    as any ptr ptr) as boolean
+                         byval pWave    as any ptr ptr) as boolean  API_EXPORT
   dim as any ptr pNew
   dim as integer nBytes,index
   if (hWave = NULL) then return false
@@ -1217,7 +1227,7 @@ function FBS_Create_Wave(byval nSamples as integer    , _
 end function
 
 function FBS_Load_WAVFile(byref Filename as string, _
-                          byval hWave    as integer ptr) as boolean
+                          byval hWave    as integer ptr) as boolean  API_EXPORT
 
   dim as integer nBytes
   if (hWave = NULL) then return false  
@@ -1571,7 +1581,7 @@ end function
 
 function FBS_Load_MP3File(byref Filename as string , _
                           byval phWave   as integer ptr , _
-                          byref _usertmpfile_  as string) as boolean
+                          byref _usertmpfile_  as string) as boolean  API_EXPORT
   static as integer tmpid = 0
   dim as string outtmp
 
@@ -1625,7 +1635,7 @@ function FBS_Load_MP3File(byref Filename as string , _
 end function
 
 
-function FBS_Set_MP3StreamVolume(byval Volume as single) as boolean
+function FBS_Set_MP3StreamVolume(byval Volume as single) as boolean  API_EXPORT
   if _MP3Stream.InUse=false then return false  
   if Volume>2.0    then Volume=2.0
   if Volume<0.0001 then Volume=0.0
@@ -1633,14 +1643,14 @@ function FBS_Set_MP3StreamVolume(byval Volume as single) as boolean
    return true
 end function
 
-function FBS_Get_MP3StreamVolume(byval pVolume as single ptr) as boolean
+function FBS_Get_MP3StreamVolume(byval pVolume as single ptr) as boolean  API_EXPORT
   if _MP3Stream.InUse = false then return false  
   if pVolume = NULL then return false  
   *pVolume = _MP3Stream.Volume
    return true
 end function
 
-function FBS_Set_MP3StreamPan(byval Pan as single) as boolean
+function FBS_Set_MP3StreamPan(byval Pan as single) as boolean  API_EXPORT
   if _MP3Stream.InUse=false then return false  
   if Pan<-1.0 then Pan=-1.0
   if Pan> 1.0 then Pan= 1.0
@@ -1650,14 +1660,14 @@ function FBS_Set_MP3StreamPan(byval Pan as single) as boolean
    return true
 end function
 
-function FBS_Get_MP3StreamPan(byval pPan as single ptr) as boolean
+function FBS_Get_MP3StreamPan(byval pPan as single ptr) as boolean  API_EXPORT
   if pPan = NULL then return false  
   if _MP3Stream.InUse = false then return false  
   *pPan = _MP3Stream.Pan
    return true
 end function
 
-function FBS_Create_MP3Stream (byref Filename as string) as boolean
+function FBS_Create_MP3Stream (byref Filename as string) as boolean  API_EXPORT
   if _IsInit          = false then return false   ' not init
   if _MP3Stream.InUse = true  then return false  
   
@@ -1716,7 +1726,7 @@ function FBS_Create_MP3Stream (byref Filename as string) as boolean
 end function
 
 function FBS_Play_MP3Stream (byval Volume  as single , _
-                             byval Pan     as single) as boolean
+                             byval Pan     as single) as boolean  API_EXPORT
 
   if _MP3Stream.InUse=false then return false
   
@@ -1748,7 +1758,7 @@ end function
 
 function FBS_Get_MP3StreamBuffer(byval ppBuffer  as short ptr ptr, _
                                  byval pnChannels as integer ptr  , _
-                                 byval pnSamples  as integer ptr  ) as boolean
+                                 byval pnSamples  as integer ptr  ) as boolean  API_EXPORT
   if _MP3Stream.InUse = false then return false
   *ppBuffer  = cptr(short ptr,_MP3Stream.pPlay)
   *pnChannels = _Plugs(_Plug).fmt.nChannels
@@ -1756,7 +1766,7 @@ function FBS_Get_MP3StreamBuffer(byval ppBuffer  as short ptr ptr, _
    return true
 end function
 
-function FBS_End_MP3Stream() as boolean
+function FBS_End_MP3Stream() as boolean  API_EXPORT
   if (_MP3Stream.InUse=false) then return true
 
   ' end streaming
@@ -1776,7 +1786,7 @@ end function
 
 ' create hWave from *.it *.xm *.sm3 or *.mod file
 function FBS_Load_MODFile(byref Filename as string     , _
-                          byval hWave    as integer ptr) as boolean
+                          byval hWave    as integer ptr) as boolean  API_EXPORT
   dprint("FBS_Load_MODFile()")
   if hWave=NULL  then return false  
   *hWave=-1
@@ -1947,7 +1957,7 @@ end function
 
 function FBS_Load_OGGFile(byref Filename as string , _
                           byval phWave  as integer ptr , _
-                          byref _usertmpfile_  as string) as boolean
+                          byref _usertmpfile_  as string) as boolean  API_EXPORT
   static as integer     tmpid=0
   dim as ubyte ptr      pPCM
   dim as _PCM_FILE_HDR  WaveHdr
@@ -2109,7 +2119,7 @@ function _IshSound(byval hSound as integer) as boolean
   return true
 end function
 
-function FBS_Destroy_Wave(byval phWave as integer ptr) as boolean
+function FBS_Destroy_Wave(byval phWave as integer ptr) as boolean  API_EXPORT
   dim as integer hWave,hSound
   if (phWave=NULL) then return false  
   hWave = *phWave
@@ -2149,7 +2159,7 @@ function FBS_Destroy_Wave(byval phWave as integer ptr) as boolean
    return true
 end function
 
-function FBS_Destroy_Sound(byval phSound as integer ptr) as boolean
+function FBS_Destroy_Sound(byval phSound as integer ptr) as boolean  API_EXPORT
   if (phSound=NULL)         then return false  
   var hSound = *phSound
   if _IshSound(hSound)=false then return false  
@@ -2173,7 +2183,7 @@ function FBS_Destroy_Sound(byval phSound as integer ptr) as boolean
 end function
 
 function FBS_Set_SoundSpeed(byval hSound as integer, _
-                            byval Speed  as single) as boolean
+                            byval Speed  as single) as boolean  API_EXPORT
 
   if _IshSound(hSound)=false then return false   ' not init
 
@@ -2196,7 +2206,7 @@ function FBS_Set_SoundSpeed(byval hSound as integer, _
 end function
 
 function FBS_Get_SoundSpeed(byval hSound as integer , _
-                            byval pSpeed  as single ptr) as boolean
+                            byval pSpeed  as single ptr) as boolean  API_EXPORT
   if pSpeed=NULL then return false  
   if _IshSound(hSound)=false then return false  
   *pSpeed = _Sounds(hSound).Speed
@@ -2204,7 +2214,7 @@ function FBS_Get_SoundSpeed(byval hSound as integer , _
 end function
 
 function FBS_Set_SoundVolume(byval hSound as integer, _
-                             byval Volume as single) as boolean
+                             byval Volume as single) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false  
   if Volume>2.0    then Volume=2.0
   if Volume<0.0001 then Volume=0.0
@@ -2213,7 +2223,7 @@ function FBS_Set_SoundVolume(byval hSound as integer, _
 end function
 
 function FBS_Get_SoundVolume(byval hSound as integer , _
-                             byval pVolume as single ptr) as boolean
+                             byval pVolume as single ptr) as boolean  API_EXPORT
   if pVolume=NULL then return false  
   if _IshSound(hSound)=false then return false  
   *pVolume = _Sounds(hSound).Volume
@@ -2221,7 +2231,7 @@ function FBS_Get_SoundVolume(byval hSound as integer , _
 end function
 
 function FBS_Set_SoundPan(byval hSound as integer, _
-                          byval Pan    as single) as boolean
+                          byval Pan    as single) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false
   if Pan<-1.0 then Pan=-1.0
   if Pan> 1.0 then Pan= 1.0
@@ -2232,7 +2242,7 @@ function FBS_Set_SoundPan(byval hSound as integer, _
 end function
 
 function FBS_Get_SoundPan(byval hSound as integer, _
-                          byval pPan as single ptr) as boolean
+                          byval pPan as single ptr) as boolean  API_EXPORT
   if pPan=NULL then return false  
   if _IshSound(hSound) = false then return false  
   *pPan = _Sounds(hSound).Pan
@@ -2240,14 +2250,14 @@ function FBS_Get_SoundPan(byval hSound as integer, _
 end function
 
 function FBS_Set_SoundLoops(byval hSound as integer, _
-                            byval nLoops as integer=1) as boolean
+                            byval nLoops as integer=1) as boolean  API_EXPORT
   if _IshSound(hSound)=false   then return false   ' not init
   if nLoops<0 then nLoops=&H7FFFFFFF ' endless !!!
   _Sounds(hSound).nLoops=nLoops
   return true
 end function
 function FBS_Get_SoundLoops(byval hSound as integer, _
-                            byval pnLoops as integer ptr) as boolean
+                            byval pnLoops as integer ptr) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false
   if pnLoops=NULL             then return false
   *pnLoops = _Sounds(hSound).nLoops
@@ -2255,13 +2265,13 @@ function FBS_Get_SoundLoops(byval hSound as integer, _
 end function
 
 function FBS_Set_SoundMuted(byval hSound as integer, _
-                            byval Muted  as boolean) as boolean
+                            byval Muted  as boolean) as boolean  API_EXPORT
   if _IshSound(hSound)=false   then return false   ' not init
   _Sounds(hSound).Muted=Muted
   return true
 end function
 function FBS_Get_SoundMuted(byval hSound as integer, _
-                            byval pMuted  as boolean ptr) as boolean
+                            byval pMuted  as boolean ptr) as boolean  API_EXPORT
   if pMuted=NULL                then return false  
   if _IshSound(hSound)=false   then return false  
   *pMuted = _Sounds(hSound).Muted
@@ -2269,13 +2279,13 @@ function FBS_Get_SoundMuted(byval hSound as integer, _
 end function
 
 function FBS_Set_SoundPaused(byval hSound as integer, _
-                             byval Paused as boolean) as boolean
+                             byval Paused as boolean) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false  
   _Sounds(hSound).Paused=Paused
   return true
 end function
 function FBS_Get_SoundPaused(byval hSound as integer, _
-                             byval pPaused as boolean ptr) as boolean
+                             byval pPaused as boolean ptr) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false
   if (pPaused=NULL)           then return false
   *pPaused = _Sounds(hSound).Paused
@@ -2285,7 +2295,7 @@ end function
 function fbs_Get_WavePointers(byval hWave       as integer            , _
                               byval ppWaveStart as short ptr ptr=NULL , _
                               byval ppWaveEnd   as short ptr ptr=NULL , _
-                              byval pnChannels  as integer ptr  =NULL ) as boolean
+                              byval pnChannels  as integer ptr  =NULL ) as boolean  API_EXPORT
   if _IshWave(hWave)=false then return false
   if (ppWaveStart<>NULL) then *ppWaveStart = cptr(short ptr,_Waves(hWave).pStart)
   if (ppWaveEnd  <>NULL) then *ppWaveEnd   = cptr(short ptr,_Waves(hWave).pStart+_Waves(hWave).nBytes)
@@ -2296,7 +2306,7 @@ end function
 function fbs_Get_SoundPointers(byval hSound    as integer       , _
                                byval ppStart as short ptr ptr=NULL , _
                                byval ppPlay  as short ptr ptr=NULL , _
-                               byval ppEnd   as short ptr ptr=NULL) as boolean
+                               byval ppEnd   as short ptr ptr=NULL) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false
   if (ppStart<>NULL) then *ppStart  =cptr(short ptr,_Sounds(hSound).pUserStart)
   if (ppPlay <>NULL) then *ppPlay   =cptr(short ptr,_Sounds(hSound).pPlay     )
@@ -2305,7 +2315,7 @@ function fbs_Get_SoundPointers(byval hSound    as integer       , _
 end function
 
 function fbs_Get_SoundPosition(byval hSound    as integer, _
-                               byval pPosition as single ptr) as boolean
+                               byval pPosition as single ptr) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false  
   if (pPosition=NULL) then return false  
   *pPosition=0.0
@@ -2326,7 +2336,7 @@ function fbs_Set_SoundPointers( _
   byval hSound     as integer , _
   byval pNewStart as short ptr=NULL, _
   byval pNewPlay  as short ptr=NULL, _
-  byval pNewEnd   as short ptr=NULL) as boolean
+  byval pNewEnd   as short ptr=NULL) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false
   dim as byte ptr pNew
 
@@ -2379,7 +2389,7 @@ end function
 
 
 function fbs_Get_WaveLength(byval hWave as integer , _
-                            byval lpMS  as integer ptr) as boolean
+                            byval lpMS  as integer ptr) as boolean  API_EXPORT
    if _IshWave(hWave)=false then return false
    if (lpMS=NULL) then return false
    dim as double ms
@@ -2394,7 +2404,7 @@ function fbs_Get_WaveLength(byval hWave as integer , _
 end function
 
 function fbs_Get_SoundLength(byval hSound as integer, _
-                             byval pMS   as integer ptr) as boolean
+                             byval pMS   as integer ptr) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false  
   if (pMS=NULL) then return false
   dim as double ms
@@ -2416,7 +2426,7 @@ function FBS_Play_Wave(byval hWave  as integer           , _
                        byval Speed  as single      = 1.0 , _
                        byval Volume as single      = 1.0 , _
                        byval Pan    as single      = 0.0 , _
-                       byval hSound as integer ptr = NULL) as boolean
+                       byval hSound as integer ptr = NULL) as boolean  API_EXPORT
 
   if _IshWave(hWave)=false then return false ' not a right hWave
   if nLoops<1 then nLoops=&H7FFFFFFF
@@ -2490,7 +2500,7 @@ function FBS_Play_Wave(byval hWave  as integer           , _
 end function
 
 function FBS_Create_Sound(byval hWave  as integer  , _
-                          byval hSound as integer ptr) as boolean
+                          byval hSound as integer ptr) as boolean  API_EXPORT
   if hSound = NULL           then return false  
   if _IshWave(hWave) = false then return false   ' not a right hWave
   dim as integer index = -1
@@ -2539,7 +2549,7 @@ function FBS_Create_Sound(byval hWave  as integer  , _
 end function
 
 function FBS_Play_Sound(byval hSound as integer    , _
-                        byval nLoops as integer = 1) as boolean
+                        byval nLoops as integer = 1) as boolean  API_EXPORT
   if _IshSound(hSound) = false then return false  
   if nLoops<1 then nLoops = &H7FFFFFFF
   with _Sounds(hSound)
@@ -2556,40 +2566,40 @@ end function
 '#############################
 
 ' load
-function FBS_Set_LoadCallback(byval pCallback as FBS_LOADCALLBACK) as boolean
+function FBS_Set_LoadCallback(byval pCallback as FBS_LOADCALLBACK) as boolean  API_EXPORT
   if (_IsInit = false) then return false
   _EnabledLoadCallback = false
   _LoadCallback = pCallback
    return true
 end function
 
-function FBS_Enable_LoadCallback() as boolean
+function FBS_Enable_LoadCallback() as boolean  API_EXPORT
   if (_IsInit = false) then _EnabledLoadCallback = false : return false
   _EnabledLoadCallback = true
   return true
 end function
 
-function FBS_Disable_LoadCallback() as boolean
+function FBS_Disable_LoadCallback() as boolean  API_EXPORT
   if (_IsInit = false) then _EnabledLoadCallback = false : return false
   _EnabledLoadCallback = false
   return true
 end function
 
 ' master
-function FBS_Set_MasterCallback(byval lpCallback as FBS_BUFFERCALLBACK) as boolean
+function FBS_Set_MasterCallback(byval lpCallback as FBS_BUFFERCALLBACK) as boolean  API_EXPORT
   if (_IsInit = false) then return false
   _EnabledMasterCallback = false
   _MasterCallback = lpCallBack
    return true
 end function
 
-function FBS_Enable_MasterCallback() as boolean
+function FBS_Enable_MasterCallback() as boolean  API_EXPORT
   if (_IsInit = false) then _EnabledMasterCallback = false : return false
   _EnabledMasterCallback = true
   return true
 end function
 
-function FBS_Disable_MasterCallback() as boolean
+function FBS_Disable_MasterCallback() as boolean  API_EXPORT
   if (_IsInit = false) then _EnabledMasterCallback = false : return false
   _EnabledMasterCallback = false
   return true
@@ -2597,21 +2607,21 @@ end function
 
 ' sound
 function FBS_Set_SoundCallback(byval hSound    as integer, _
-                               byval pCallback as FBS_BUFFERCALLBACK) as boolean
+                               byval pCallback as FBS_BUFFERCALLBACK) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false  
   _Sounds(hSound).EnabledCallback = false
   _Sounds(hSound).Callback = pCallBack
    return true
 end function
 
-function FBS_Enable_SoundCallback(byval hSound as integer) as boolean
+function FBS_Enable_SoundCallback(byval hSound as integer) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false  
   if _Sounds(hSound).Callback = NULL then return false  
   _Sounds(hSound).EnabledCallback = true
   return true
 end function
 
-function FBS_Disable_SoundCallback(byval hSound as integer) as boolean
+function FBS_Disable_SoundCallback(byval hSound as integer) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false  
   if _Sounds(hSound).Callback = NULL then return false  
   _Sounds(hSound).EnabledCallback = false
@@ -2622,21 +2632,21 @@ end function
    ' no streams
  #else
   #ifndef NOMP3
-function FBS_Set_MP3StreamCallback(byval pCallback as FBS_BUFFERCALLBACK) as boolean
+function FBS_Set_MP3StreamCallback(byval pCallback as FBS_BUFFERCALLBACK) as boolean  API_EXPORT
   if _MP3Stream.InUse = false then return false  
   _MP3Stream.EnabledCallback = false
   _MP3Stream.Callback = pCallBack
   return true
 end function
 
-function FBS_Enable_MP3StreamCallback() as boolean
+function FBS_Enable_MP3StreamCallback() as boolean  API_EXPORT
   if _MP3Stream.InUse = false then return false  
   if _MP3Stream.Callback = NULL then return false  
   _MP3Stream.EnabledCallback = true
   return true
 end function
 
-function FBS_Disable_MP3StreamCallback() as boolean
+function FBS_Disable_MP3StreamCallback() as boolean  API_EXPORT
   if _MP3Stream.InUse = false then return false  
   if _MP3Stream.Callback = NULL then return false  
   _MP3Stream.EnabledCallback = false
@@ -2645,21 +2655,21 @@ end function
   #endif ' NOMP3
 
   #ifndef NOMOD
-function FBS_Set_MODStreamCallback(byval pCallback as FBS_BUFFERCALLBACK) as boolean
+function FBS_Set_MODStreamCallback(byval pCallback as FBS_BUFFERCALLBACK) as boolean  API_EXPORT
   if _MODStream.InUse = false then return false  
   _MODStream.EnabledCallback = false
   _MODStream.Callback = pCallBack
   return true
 end function
 
-function FBS_Enable_MODStreamCallback() as boolean
+function FBS_Enable_MODStreamCallback() as boolean  API_EXPORT
   if _MODStream.InUse = false then return false  
   if _MODStream.Callback = NULL then return false  
   _MODStream.EnabledCallback = true
   return true
 end function
 
-function FBS_Disable_MODStreamCallback() as boolean
+function FBS_Disable_MODStreamCallback() as boolean  API_EXPORT
   if _MODStream.InUse = false then return false  
   if _MODStream.Callback = NULL then return false  
   _MODStream.EnabledCallback = false

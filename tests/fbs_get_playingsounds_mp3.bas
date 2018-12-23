@@ -1,7 +1,8 @@
 '  #################################
 ' # fbs_get_playingsounds_mp3.bas #
 '#################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' example of:
 ' fbs_Get_PlayingSounds()

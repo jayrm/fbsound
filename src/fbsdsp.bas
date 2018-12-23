@@ -4,6 +4,13 @@
 ' Copyright 2005-2018 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
+
+#ifdef __FB_OUT_DLL__
+#define API_EXPORT EXPORT
+#else
+#define API_EXPORT
+#endif
+
 ' FBSOUND digital signal math
 
 #include once "../inc/fbsdsp.bi"
@@ -25,28 +32,28 @@ const FFTFL      as integer = FFTSIZE-FFTSS
 const FFTEXPD    as single  = (PI2*FFTSS)/FFTSIZE
 
 public _
-function fbs_Pow(byval x as double, byval y as double) as double export
+function fbs_Pow(byval x as double, byval y as double) as double API_EXPORT
   return x^y
 end function
 
 public _
-function fbs_Rad2Deg(byval r as double) as double export
+function fbs_Rad2Deg(byval r as double) as double API_EXPORT
   return r*Rad2Deg
 end function
 
 public _
-function fbs_Deg2Rad(byval d as double) as double export
+function fbs_Deg2Rad(byval d as double) as double API_EXPORT
   return d*Deg2Rad
 end function
 
 
 public _
-function fbs_Volume_2_DB(byval volume as single) as single export
+function fbs_Volume_2_DB(byval volume as single) as single API_EXPORT
   return 20.0f*log(volume)/Log(10)
 end function
 
 public _
-function fbs_DB_2_Volume(byval dB as single) as single export
+function fbs_DB_2_Volume(byval dB as single) as single API_EXPORT
   return 10.0f ^ (dB * 0.05f)
 end function
 
@@ -683,7 +690,7 @@ sub _FFT_Win_Output( _
   end asm
 end sub
 
-
+'private _
 sub _PitchShiftMono_asm( _
   byval  d as short ptr, _ ' output samples
   byval  s as short ptr, _ ' input samples
@@ -804,6 +811,7 @@ sub _PitchShiftMono_asm( _
   next
 end sub
 
+'private _
 sub _PitchShiftStereo_asm( _
   byval  d as short ptr, _ ' output samples
   byval  s as short ptr, _ ' input  samples
@@ -994,7 +1002,6 @@ sub _PitchShiftStereo_asm( _
   next
 end sub
 
-public _
 sub _Set_EQFilter(byval lpFilter as fbs_filter ptr, _
                   byval Center   as single       , _
                   byval dB       as single = 0.0 , _
@@ -1041,7 +1048,7 @@ end sub
 '# out(t) = b0*in(t) + b1*in(t-1) + b2*in(t-2) + a1*out(t-1) + a2*out(t-2) #
 '# in(t-2)=in(t-1):in(t-1)=in(t)         Out(t-2)=Out(t-1):Out(t-1)=Out(t) #
 '###########################################################################
-public _
+'private _
 sub _Filter_Mono_asm16(byval  d as any ptr, _
                        byval  s as any ptr, _
                        byval  f as fbs_filter ptr, _
@@ -1139,7 +1146,7 @@ sub _Filter_Mono_asm16(byval  d as any ptr, _
  end asm
 end sub
 
-public _
+'private _
 sub _Filter_Stereo_asm16(byval  d as any ptr, _
                          byval  s as any ptr, _
                          byval  f as fbs_filter ptr, _

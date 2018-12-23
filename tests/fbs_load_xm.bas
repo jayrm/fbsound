@@ -1,7 +1,8 @@
 '  ###################
 ' # fbs_load_xm.bas #
 '###################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' short test for:
 ' fbs_Load_MODFile("*.xm")

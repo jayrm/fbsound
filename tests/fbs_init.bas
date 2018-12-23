@@ -1,7 +1,8 @@
 '  ################
 ' # fbs_init.bas #
 '################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' example of: 
 ' fbs_Set_PlugPath()

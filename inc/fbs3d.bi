@@ -1,14 +1,11 @@
-'  ############
-' # fbs3d.bi #
-'############
-' Copyright 2005-2018 by D.J.Peters (Joshy)
-' d.j.peters@web.de
 #ifndef __FBS_3D_BI__
 #define __FBS_3D_BI__
 
-#include once "fbstypes.bi"
-
-#ifndef NO3D
+'  ############
+' # fbs3d.bi #
+'############
+' Copyright 2005-2019 by D.J.Peters (Joshy)
+' d.j.peters@web.de
 
 type FBS_V3D
   as single   x,y,z
@@ -206,20 +203,7 @@ sub fbs_Get_VolumePan(byval v as single ptr     , _
       *v=0
     endif
   end if
-#if 0
-  s.lastvolumes(s.wp)=*v
-  s.lastpans   (s.wp)=*p
-  s.wp+=1:if s.wp=4 then s.wp=0
-  *v=0:*p=0
-  for i=0 to 3
-    *v+=s.lastvolumes(i)
-    *v+=s.lastpans   (i)
-  next
-  *v=*v * 0.25
-  *p=*p * 0.25
-#endif
-end sub
 
-#endif ' NO3D
+end sub
 
 #endif ' __FBS_3D_BI__

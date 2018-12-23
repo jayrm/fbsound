@@ -1,14 +1,14 @@
 '  ############################
 ' # fbs_set_masterfilter.bas #
 '############################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' fbs_Volume_2_dB()
 ' fbs_Set_MasterFilter()
 ' fbs_Enable_MasterFilter()
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")

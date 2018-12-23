@@ -1,7 +1,8 @@
 '  ########################
 ' # fbs_destroy_wave.bas #
 '########################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' example of: 
 ' fbs_Destroy_Wave(@hWave)

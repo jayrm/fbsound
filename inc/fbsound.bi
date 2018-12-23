@@ -4,8 +4,9 @@
 '  ##############
 ' # fbsound.bi #
 '##############
-' Copyright 2005 - 2018 by D.J.Peters (Joshy)
+' Copyright 2005 - 2019 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
+
 
 #ifdef __FB_WIN32__
  #ifndef __FB_64BIT__
@@ -15,11 +16,11 @@
  #endif 
 #else
  #ifdef  __FB_LINUX__
-  #ifndef __FB_64BIT__
-   #libpath "../lib/lin32/"
-  #else
-   #libpath "../lib/lin64/"
-  #endif 
+   #ifndef __FB_64BIT__
+    #libpath "../lib/lin32/"
+   #else
+    #libpath "../lib/lin64/"
+   #endif
  #else
    #error 666: Build target must be Windows or Linux !
  #endif
@@ -44,9 +45,6 @@
 #ifndef NOOGG
 #include once "vorbis.bi"
 #endif
-
-
-#inclib "fbsound"
 
 declare function FBS_Init(byval nRate        as integer=44100, _
                           byval nChannels    as integer=    2, _

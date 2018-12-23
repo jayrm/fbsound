@@ -1,54 +1,8 @@
-fbsound 1.0: (first full 32/64-bit version)
+fbsound 1.1: 
+is a dynmaic lib now
 
-added:
-lib/win32/libdumb.a
-lib/win32/libdsp.a
-lib/win32/libcpu.a
-lib/win32/libmad.a
-lib/win32/libogg.a
-lib/win32/libvorbis.a
-lib/win32/libvorbisfile.a
-lib/win32/libfbsound.a
-lib/win32/libplug-mm-32.dll.a
-lib/win32/libplug-ds-32.dll.a
-
-lib/win64/libdumb.a
-lib/win64/libdsp.a
-lib/win64/libcpu.a
-lib/win64/libmad.a
-lib/win64/libogg.a
-lib/win64/libvorbis.a
-lib/win64/libvorbisfile.a
-lib/win64/libfbsound.a
-lib/win64/libplug-mm-64.dll.a
-lib/win64/libplug-ds-64.dll.a
-
-lib/lin32/libdumb.a
-lib/lin32/libdsp.a
-lib/lin32/libcpu.a
-lib/lin32/libmad.a
-lib/lin32/libogg.a
-lib/lin32/libvorbis.a
-lib/lin32/libvorbisfile.a
-lib/lin32/libfbsound.a
-lib/lin32/libplug-alsa-32.so
-lib/lin32/libplug-dsp-32.so
-lib/lin32/libplug-arts-32.so
-
-lib/lin64/libdumb.a
-lib/lin64/libdsp.a
-lib/lin64/libcpu.a
-lib/lin64/libmad.a
-lib/lin64/libogg.a
-lib/lin64/libvorbis.a
-lib/lin64/libvorbisfile.a
-lib/lin64/libfbsound.a
-lib/lin64/libplug-alsa-64.dll.a
-
-fbSound 0.21:
-new:
-ported all assembler code for 64-bit
-
+fbsound 1.0: 
+first full 32/64-bit version
 
 fbSound 0.20
 added: win32/libogg.a win32/libvorbis.a win32/libvorbisfile.a

@@ -1,14 +1,15 @@
 '  ################################
 ' # fbs_set_loadcallback_mp3.bas #
 '################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
 ' example of:
 
 ' fbs_Set_LoadCallback()
 ' fbs_Load_MP3File()
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")

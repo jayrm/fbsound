@@ -1,12 +1,13 @@
 '  ###########################
 ' # fbs_set_soundspeed2.bas #
 '###########################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
 ' example of:
 ' fbs_Set_SoundSpeed()
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
@@ -61,15 +62,15 @@ while len(inkey)=0
     if ob<>mb then
       ' left mouse button
       if (mb and 1)=1 then
-        fbs_Get_SoundPaused hSound,@paused
+        fbs_Get_SoundPaused(hSound,@paused)
         paused = not paused ' toggle
-        fbs_Set_SoundPaused hSound, paused
+        fbs_Set_SoundPaused(hSound, paused)
       end if
       ' right mouse button
       if (mb and 2)=2 then
-        fbs_Get_SoundMuted hSound,@muted
+        fbs_Get_SoundMuted(hSound,@muted)
         muted = not muted ' toggle
-        fbs_Set_SoundMuted hSound, muted
+        fbs_Set_SoundMuted(hSound, muted)
       end if
       ob=mb
       locate 6,1: print "pause: " + str(paused) + " mute: " + str(muted)
@@ -77,14 +78,14 @@ while len(inkey)=0
     ' x mouse
     if ox<>mx then
       pan=(mx-320)*(1.0/320.0)
-      fbs_Set_SoundPan hSound,Pan
+      fbs_Set_SoundPan(hSound,Pan)
       ox=mx
       locate 7,1:print "pan  => " + str(pan) + "<               "
     end if
     ' y mouse
     if oy<>my then
       Speed=1.0+(my-240)*(2/240)
-      fbs_Set_SoundSpeed hSound,Speed
+      fbs_Set_SoundSpeed(hSound,Speed)
       oy=my
       locate 8,1:print "speed=> " + str(speed) + "< " +str(fbs_Get_PlugRate()*speed) + " Hz.             "
     end if

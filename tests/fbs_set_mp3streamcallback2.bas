@@ -1,7 +1,8 @@
 '  ##################################
 ' # fbs_set_mp3streamcallback2.bas #
 '##################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' Example2 for user defined STREAM callbacks:
 

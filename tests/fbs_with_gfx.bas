@@ -1,13 +1,15 @@
 '  ####################
 ' # fbs_with_gfx.bas #
 '####################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
+' fbs_with_gfx.bas
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+' fbs_Set_PlugPath("./path_to_pugins")
 
 const scr_w = 640
 const scr_h = 480
@@ -117,10 +119,11 @@ end sub
 '
 ' main
 '
-dim as double  last,now
+dim as double  tLast,tNow
 dim as single  ang=0.1,angstep=0,speed=1
 dim as single  x=mapsize\2,z=mapsize\2,r,g,b,w,cfstep=6.28/128
-dim as integer KeyCode,fps,frames,i,col2
+dim as integer a,fps,frames,i,col2
+dim as string  k
 ScreenRes scr_w,scr_h ',,,1
 
 if fbs_Init(22050) then
@@ -142,20 +145,27 @@ for i=1 to 254
 next
 palette 255,255,255,255
 
-last=timer
-while keycode<>27
+tLast=timer()
+while a<>27
   screenlock:cls
   DrawFrame x,z,ang
-  color 255:? "[esc]=quit [cursor]=move around FPS:" & str(fps)
+  color 255
+  ? "[esc]=quit [cursor]=move around fps: " & fps
   screenunlock
-
-  keycode=fbs_Get_KeyCode()
-  if keycode>0 then
-    select case keycode
-      case k_left :angstep-=0.0001
-      case k_right:angstep+=0.0001
-      case k_up   :speed  +=0.01
-      case k_down :speed  -=0.01
+  
+  frames+=1
+  if frames mod 24=0 then 
+    tNow=timer() : fps = 24/(tNow-tLast) : tLast = tNow
+  end if
+  
+  k=inkey:a=len(k)
+  if a then
+    a=asc(right(k,1))
+    select case a
+      case 75 : angstep-=0.0001 ' left
+      case 77 : angstep+=0.0001 ' right
+      case 72 : speed  +=0.01   ' up
+      case 80 : speed  -=0.01   ' down
     end select
   else
     sleep 10
@@ -163,11 +173,4 @@ while keycode<>27
   x+=cos(ang)*speed
   z+=sin(ang)*speed
   ang+=angstep
-  frames+=1
-  if frames=24 then
-    now=timer
-    fps=cint(24.0/(now-last))
-    frames=0:swap now,last
-  end if
 wend
-end

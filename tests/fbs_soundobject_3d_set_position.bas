@@ -1,13 +1,14 @@
 '  #######################################
 ' # fbs_soundobject_3d_set_position.bas #
 '#######################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 #include "../inc/fbs3d.bi"
+
 ' test of:
 ' fbs_Set_Position
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
@@ -33,7 +34,7 @@ end sub
 dim as FBS_SOUNDOBJECT  listner
 dim as FBS_SOUNDOBJECT  source
 dim as single           volume,pan,oldVolume,oldPan,w
-dim as integer          hWave,hSound,KeyCode,i
+dim as integer          hWave,hSound,i
 screenres 640,480
 fbs_Init()
 fbs_Load_WAVFile   (data_path & "pcar.wav",@hWave)
@@ -44,8 +45,7 @@ fbs_Play_Sound     (hSound,100)
 
 
 
-while (KeyCode<>k_escape)
-  KeyCode=fbs_Get_KeyCode()
+while inkey()=""
   fbs_Set_Position(source,cos(w)*300,0,10)
   screenlock:cls
     DrawObject(listner,"listner",1)
@@ -60,4 +60,4 @@ while (KeyCode<>k_escape)
   sleep 50
   w+=0.01
 wend
-end
+

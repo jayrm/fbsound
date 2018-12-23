@@ -27,7 +27,7 @@
 
 '#define NOCALLBACK
 
-'#define NOGETKEYCODE
+#define NOGETKEYCODE
 
 #ifdef __FB_WIN32__
 ' windows

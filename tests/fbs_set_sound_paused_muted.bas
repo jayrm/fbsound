@@ -1,7 +1,9 @@
 '  ##################################
 ' # fbs_set_sound_paused_muted.bas #
 '##################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
 ' example of:
 
 ' fbs_Get_SoundPaused(hSound,@paused)
@@ -10,7 +12,6 @@
 ' fbs_Set_SoundMuted (hSound, muted )
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
@@ -48,14 +49,14 @@ end if
 while (KeyCode<>27)
   KeyCode=asc(Inkey)
   if KeyCode=asc("p") then
-    fbs_Get_SoundPaused hSound,@paused
+    fbs_Get_SoundPaused(hSound,@paused)
     paused xor = True ' togle pause on/off
-    fbs_Set_SoundPaused hSound, paused
+    fbs_Set_SoundPaused(hSound, paused)
     ? "[esc]=quit [p]=" & str(paused) & " [m]=" & str(muted)
   elseif KeyCode=asc("m") then
-    fbs_Get_SoundMuted hSound,@muted
+    fbs_Get_SoundMuted(hSound,@muted)
     muted xor = True ' togle muting on/off
-    fbs_Set_SoundMuted hSound, muted
+    fbs_Set_SoundMuted(hSound, muted)
     ? "[esc]=quit [p]=" & str(paused) & " [m]=" & str(muted)
   end if
   sleep 50

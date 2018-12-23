@@ -1,7 +1,8 @@
 '  ##############################
 ' # fbs_set_mastercallback.bas #
 '##############################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' Example for user defined MASTER callbacks:
 
@@ -15,8 +16,8 @@
 ' all callbacks in FBSOUND are from type BUFFERCALLBACK
 ' defined in "fbstypes.bi"
 
+
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
@@ -34,14 +35,14 @@ sub MyCallback(byval lpSamples as FBS_SAMPLE ptr, _
 
   cls
   index=0
-  pset(0,240+lpSamples[index]):index+=nChannels
+  pset(0,240+lpSamples[index] shr 5):index+=nChannels
   for x=1 to max_x
     line -(x,240 + (lpSamples[index] shr 5)),2
     index+=nChannels
   next
   if nChannels=2 then
     index=1
-    pset(0,240+lpSamples[index]):index+=2
+    pset(0,240+lpSamples[index] shr 5):index+=2
     for x=1 to max_x
       line -(x,240 + (lpSamples[index] shr 5)),4
       index+=2
@@ -81,13 +82,13 @@ while (key<>27) and (fbs_Get_PlayingSounds>0)
   if key=asc("c") then
     Callback xor=True ' togle callback on/off
     if Callback=true then 
-      fbs_Enable_MasterCallback
+      fbs_Enable_MasterCallback()
     else 
-      fbs_Disable_MasterCallback
+      fbs_Disable_MasterCallback()
     end if
     WindowTitle "[esc]=quit [c]=" & str(Callback)
   elseif key=27 then
-    fbs_Disable_MasterCallback
+    fbs_Disable_MasterCallback()
   end if
   sleep 100 ' time for WindowTitle and keyboards events
 wend

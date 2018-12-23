@@ -1,12 +1,13 @@
 '  #############################
 ' # fbs_get_soundposition.bas #
 '#############################
-#include "../inc/fbsound.bi"
-' short test for:
+
+#include "../inc/fbsound_dynamic.bi"
+
+' short test of:
 ' fbs_Get_SoundPosition()
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
@@ -20,8 +21,6 @@ windowtitle "[any key] = quit fbs_Get_SoundPosition()"
 fbs_Init()
 fbs_Load_MP3File(data_path & "fox.mp3",@.hWave)
 fbs_Create_Sound(hWave,@hSound)
-
-
 fbs_Play_Sound(hSound)
 dim as ubyte c=1
 dim as single position

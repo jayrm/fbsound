@@ -1,7 +1,8 @@
  '  ######################################
 ' # fbs_get_playingsounds_mp3stream.bas #
 '#######################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' same as "fbs_get_playingsounds_mp3.bas" but with MP3 streaming
 
@@ -11,6 +12,7 @@
 ' fbs_Get_PlayingStreams()
 
 const data_path = "../data/"
+
 chdir(exepath())
 
 ' only if not same as exe path
@@ -41,8 +43,7 @@ roffset=-1.12528145737525
 ioffset=-0.2838605380885302
 zoom   = 0.05332073216078524
 
-screenres scr_width,scr_height,,8
-  
+screenres scr_width,scr_height
 
 ' in this example i use same samplerate as the mp3 file!
 if fbs_Init(22050)=true then

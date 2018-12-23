@@ -1,7 +1,8 @@
 '  #################################
 ' # fbs_set_mp3streamcallback.bas #
 '#################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' Example for user defined MP3 stream callbacks:
 
@@ -18,7 +19,6 @@
 ' All callbacks in FBSOUND are from type BUFFERCALLBACK defined in "fbstypes.bi"
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")

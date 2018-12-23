@@ -1,7 +1,8 @@
 '  #############################
 ' # fbs_load_and_play_wav.bas #
 '#############################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' example of:
 ' fbs_Load_WAVFile()
@@ -45,7 +46,7 @@ dim as integer KeyCode
 while KeyCode<>27
   KeyCode=asc(Inkey())
   if KeyCode=asc("p") then
-    fbs_Play_Wave hWave,4 ' optional 4 times
+    fbs_Play_Wave(hWave,4) ' optional 4 times
   else
     sleep 100
   end if

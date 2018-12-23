@@ -1,19 +1,20 @@
 '  ########################
 ' # fbs_get_play_xyz.bas #
 '########################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' example of:
-
 ' fbs_Get_PlayTime()
 ' fbs_Get_PlayedSamples()
 ' fbs_Get_PlayedBytes()
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
+
+chdir(exepath())
 
 dim as boolean ok
 ok=fbs_Init()
@@ -49,13 +50,14 @@ dim as integer KeyCode
 
 
 while (KeyCode<>27)
-  KeyCode=asc(Inkey) 
+  KeyCode=asc(Inkey()) 
 	if KeyCode=asc("s") then
 	  Status xor = True ' togle printing on/off
 	elseif KeyCode=asc("p") then 
-	  fbs_PLay_Wave hWave,16
+	  fbs_PLay_Wave(hWave,16)
   end if
   if Status=True then
+    cls
     ? "playtime in sec. =" & str(fbs_Get_PlayTime())
     ? "played samples   =" & str(fbs_Get_PlayedSamples())
     ? "played bytes     =" & str(fbs_Get_PlayedBytes())

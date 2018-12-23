@@ -1,7 +1,13 @@
 '  ##############################
 ' # fbs_load_mp3file_mixer.bas #
 '##############################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
+#ifdef NOMP3
+print "sorry no mp3 loader ! ..."
+sleep : end
+#else
 
 ' example of:
 ' fbs_Set_PlugPath()
@@ -42,7 +48,7 @@ for i=0 to 9
 next
 
 
-fbs_Play_Wave hWave(0)
+fbs_Play_Wave(hWave(0))
 while fbs_Get_PlayingSounds()=0:sleep 10:wend
 
 '
@@ -52,7 +58,7 @@ do
   if maxSounds<100 then
     SoundN=rnd*9
     ' play hWave(0-9) 2-5 times in random speed 0.5 to 1.5
-    fbs_Play_Wave hWave(SoundN),2+rnd*3,0.5+rnd
+    fbs_Play_Wave(hWave(SoundN),2+rnd*3,0.5+rnd)
     sleep 20
   end if
   new_nSounds=fbs_Get_PlayingSounds()
@@ -65,3 +71,4 @@ do
   if inkey=chr(27) then exit do
 loop while (old_nSounds>0)
 
+#endif

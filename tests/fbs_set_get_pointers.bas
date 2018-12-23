@@ -1,14 +1,15 @@
 '  ############################
 ' # fbs_set_get_pointers.bas #
 '############################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
 ' short test for 
 ' fbs_Get_WavePointers (hWave ,[@lpStart],[@lpEnd] ,[@nChannels])
 ' fbs_Get_SoundPointers(hSound,[@lpStart],[@lpPlay],[@lpEnd])
 ' fbs_Set_SoundPointers(hSound,[lpStart] ,[lpPlay] ,[lpEnd])
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")

@@ -1,16 +1,14 @@
 '  #############################
 ' # fbs_mp3stream_preview.bas #
 '##############################
-#include "../inc/fbsound.bi"
 
-' same as "test12.bas" but with streaming
+#include "../inc/fbsound_dynamic.bi"
 
 ' example of:
 ' fbs_End_MP3Stream()
 
 ' scan the whole data folder for wav and mp3 files 
 ' and play it as short preview
-
 const data_path = "../data/"
 chdir(exepath())
 

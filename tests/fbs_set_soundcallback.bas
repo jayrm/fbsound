@@ -1,7 +1,8 @@
 '  #############################
 ' # fbs_set_soundcallback.bas #
 '#############################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' Example for user defined SOUND callback:
 
@@ -10,7 +11,7 @@
 ' fbs_Disable_SoundCallback
 
 ' In this example i use the SoundBuffer callback
-' It is the Buffer with samples before the filenameer pileline
+' It is the Buffer with samples before the mixer pileline
 
 ' This is a very simple phase shift and only an "how to" use callbacks.
 ' Better and advanced sound FXs are in the DSP section of FBSOUND.
@@ -19,7 +20,6 @@
 ' defined in "fbstypes.bi"
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")

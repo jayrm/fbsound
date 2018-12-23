@@ -1,7 +1,13 @@
 '  #################################
 ' # fbs_get_playingsounds_ogg.bas #
 '#################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
+#ifdef NOOGG
+print "sorry no ogg loader available ! ..."
+sleep : end
+#else
 
 ' same as "test6.bas" but with OGG loader
 
@@ -10,6 +16,7 @@
 ' fbs_Get_PlayingSounds()
 
 const data_path = "../data/"
+
 chdir(exepath())
 
 ' only if not same as exe path
@@ -40,8 +47,9 @@ roffset=-1.12528145737525
 ioffset=-0.2838605380885302
 zoom   = 0.05332073216078524
 
+screenres scr_width,scr_height
+
 ' in this example i use same samplerate as the ogg file!
-screenres scr_width,scr_height,8,,1
 if fbs_Init(22050)=true then
   setmouse ,,0
   print "wait while decode 'legends.ogg' in memory ..."
@@ -53,8 +61,6 @@ if fbs_Init(22050)=true then
     beep:sleep:end 1
   end if
 end if
-
-
 
 'color table
 for l=1 to 254
@@ -325,3 +331,4 @@ data -0.0, 0.0, 20.0
 data  0.0, 0.0, 1.0
 data -1.0,-1.0,-1.0
 
+#endif

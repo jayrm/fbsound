@@ -1,13 +1,13 @@
 '  ######################################
 ' # fbs_get_streambuffer_mp3stream.bas #
 '######################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' example for:
 ' fbs_GetStreamBuffer(@lpBuffer,@nChannels,@nSamples)
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")

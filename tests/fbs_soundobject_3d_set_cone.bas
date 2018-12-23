@@ -1,13 +1,14 @@
 '  ###################################
 ' # fbs_soundobject_3d_set_cone.bas #
 '###################################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 #include "../inc/fbs3d.bi"
+
 ' test of:
 ' fbs_Set_Cone
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
@@ -25,9 +26,10 @@ sub DrawObject(byref o as FBS_SOUNDOBJECT, _
   circle (x,y),30,7
   draw string step (-len(t)*4,-4),t 
   if o.maxrange>0.0 then 
-    circle (x,y),o.maxrange,15
     if (o.penumbra>0.0) then
-      line (x,y)-step( o.dir.x*o.maxrange, -o.dir.z*o.maxrange),3
+       
+      line (x,y)-step( o.dir.x*o.maxrange, _
+                      -o.dir.z*o.maxrange),3
       draw string step(0-len("maxrange")*4,0),"maxrange"
       line (x,y)-(x+cos(o.rot.y-1.57-o.penumbra)*o.maxrange, _
                   y+sin(o.rot.y-1.57-o.penumbra)*o.maxrange),15
@@ -39,8 +41,10 @@ sub DrawObject(byref o as FBS_SOUNDOBJECT, _
       line (x,y)-(x+cos(o.rot.y-1.57+o.umbra)*o.maxrange, _
                   y+sin(o.rot.y-1.57+o.umbra)*o.maxrange),7
       draw string step(0-len("umbra")*4,0),"umbra"
+    else
+      circle (x,y),o.maxrange,15
     end if
-  end if  
+  end if
 end sub
 
 '
@@ -49,7 +53,7 @@ end sub
 dim as FBS_SOUNDOBJECT  listner
 dim as FBS_SOUNDOBJECT  source
 dim as single           volume,pan,oldVolume,oldPan,w
-dim as integer          hWave,hSound,KeyCode,i
+dim as integer          hWave,hSound,i
 screenres 640,480
 fbs_Init()
 fbs_Load_WAVFile   (data_path & "pcar.wav",@hWave)
@@ -59,11 +63,11 @@ fbs_Set_SoundPan   (hSound,OldPan)
 fbs_Play_Sound     (hSound,1000)
 
 fbs_Set_MaxRange(source,300)
-fbs_Set_Cone(source,120*Deg2Rad,60*Deg2Rad)
+fbs_Set_Cone(source,160*Deg2Rad,90*Deg2Rad)
+
 
 i=-320
-while (KeyCode<>k_escape)
-  KeyCode=fbs_Get_KeyCode()
+while inkey()=""
   fbs_Set_Rotation(source,0,w*3,0)
   fbs_Set_Position(source,cos(w)*100,0,sin(w)*200)
   screenlock:cls
@@ -80,5 +84,4 @@ while (KeyCode<>k_escape)
   sleep 50
   w+=0.01:i+=2
 wend
-end
 

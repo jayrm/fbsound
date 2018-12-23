@@ -1,7 +1,8 @@
 '  ##############################
 ' # fbs_init_second_plugin.bas #
 '##############################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' example of: 
 ' fbs_Set_PlugPath()
@@ -21,12 +22,14 @@ chdir(exepath())
 '          ,[nPlugIndex]          optional default 0 = first
 '          ,[nDeviceIndex]        optional default 0 = first) as FBSBOOLERAN
 
-' try to use a second play back plugin (0=first) 
+' try to use a second play back plugin (0=first, 1=second ...) 
+print "init second pugin"
 dim as boolean ok=fbs_Init(,,,,1)
 ' FBS_Init() will try to use your values
 ' but if it can't set this values it will try other setups too.
 ' it is not save that all values from FBS_Init() are the same as yours
 if ok=true then
+  ? "OK"
   ? "Plugout                : ";FBS_Get_PlugName()
   ? "Hardware output device : ";FBS_Get_PlugDevice()
   ? "Samplerate             :";FBS_Get_PlugRate()
@@ -45,6 +48,7 @@ else
   ? FBS_Get_PlugError()
   beep:sleep:end 1
 end if
+
 sleep
-end
+
 

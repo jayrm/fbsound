@@ -1,6 +1,9 @@
 '  ######################
 ' # fbs_get_length.bas #
 '######################
+
+#include "../inc/fbsound_dynamic.bi"
+
 ' short test for 
 ' fbs_Get_WaveLength(hWave,@MS)
 ' fbs_Get_SoundLength(hSound,@MS)
@@ -13,10 +16,7 @@
 ' returns playback length in 1/1000 seconds 
 ' dependently on playback speed and number of loops
 
-#include "../inc/fbsound.bi"
 const data_path = "../data/"
-
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")

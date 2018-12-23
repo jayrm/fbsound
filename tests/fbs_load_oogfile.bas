@@ -1,13 +1,14 @@
 '  ########################
 ' # fbs_load_oogfile.bas #
 '########################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
 ' short test for libogg,libvorbis and libvorbisfile
 ' fbs_Load_OOGFile()
 
 const data_path = "../data/"
 chdir(exepath())
-
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
 

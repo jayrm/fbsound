@@ -1,7 +1,8 @@
 '  ####################
 ' # fbs_load_s3m.bas #
 '####################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
 
 ' short test for:
 ' fbs_Load_MODFile("*.s3m")
@@ -15,8 +16,9 @@ chdir(exepath())
 dim as integer hWave
 
 if fbs_Init() then
+  print "load: flshdanc.s3m" 
   if fbs_Load_MODFile(data_path & "flshdanc.s3m",@.hWave) then
-     dim as integer ms
+    dim as integer ms
     fbs_Get_WaveLength(hWave,@ms)
     print "length of 'flshdanc.s3m' = " & ms/1000 & " seconds" 
     if fbs_Play_Wave(hWave) then

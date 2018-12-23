@@ -4,6 +4,12 @@
 ' Copyright 2005-2018 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
+#ifdef __FB_OUT_DLL__
+#define API_EXPORT EXPORT
+#else
+#define API_EXPORT
+#endif
+
 #include once "../inc/fbscpu.bi"
 
 '' ASM fill n bytes with 0
@@ -2140,9 +2146,9 @@ sub _CopySliceLeftasm32(byval d as any ptr    , _ ' copy to destination
   end asm
 end sub
 
-' only move the play pointer (speed is >0.0 and <1.0)
-' if the play pointer reached the end of samples
-' the loop counter will be decremented
+' Only move the play pointer to the right (speed is >0.0).
+' If the play pointer reached the end of samples,
+' the loop counter will be decremented,
 ' and the play pointer must be new calculated
 private _
 sub _MoveSliceRightasm32(byval s as any ptr    , _ ' pStart
@@ -2152,7 +2158,7 @@ sub _MoveSliceRightasm32(byval s as any ptr    , _ ' pStart
                          byval v as single     , _ ' value of speed
                          byval n as integer)       ' nBytes
   dim as integer loops
-  dim as long speed = abs(v*(1 shl 16))             ' fixed point 16:16  
+  dim as long speed = v*(1 shl 16)      ' fixed point 16:16  
   asm
 #ifndef __FB_64BIT__
   mov edi,[e]
@@ -2163,33 +2169,33 @@ sub _MoveSliceRightasm32(byval s as any ptr    , _ ' pStart
   mov esi,[p]
   mov esi,[esi]                         ' pos = *pPlay
   mov ecx,[n]                           ' nBytes
-  shr ecx,2                             ' bytes to nSamples (dwords)
+  shr ecx,2                             ' nSamples = nBytes\4 (bytes to dwords)
 
   mov edx,[speed]                       ' steedstep = 16:16
-  xor ebx,ebx                           ' var = 0
+  xor ebx,ebx                           ' var s = 0
 
-  move_sliceright_asm32_get:
-  add ebx,edx                            ' var += steppstep
-  mov eax,ebx
-  and ebx,&HFFFF
-  shr eax,14                             ' 16:bytes 15:words 14:dwords
-  and eax,&HFFFC
-  jnz move_sliceright_asm32_add
-  dec ecx
-  jnz move_sliceright_asm32_get
-  jmp move_sliceright_asm32_end
+  move_sliceright_asm32_get:            ' while nSamples > 0
+  add ebx,edx                           '   s += steppstep
+  mov eax,ebx                           '   eax = s
+  and ebx,&HFFFF                        '   s and= 16:FFFF
+  shr eax,14                            '   16:bytes 15:words 14:dwords
+  and eax,&HFFFC                        '   eax and= 16:FFFC (multiply of 4 bytes = dwords)
+  jnz move_sliceright_asm32_add         '   if eax<>0 then add eax as offset to pos
+  dec ecx                               '   nSamples -= 1
+  jnz move_sliceright_asm32_get         ' wend
+  jmp move_sliceright_asm32_end          
 
   move_sliceright_asm32_add:
-  add esi,eax                           ' pos += (16:16 and &HFFFC) add only N*4 (dwords)
+  add esi,eax                           ' pos += offset (multiply of 4 bytes dwords)
   cmp esi,edi
-  jge move_sliceright_asm32_reset       ' if pos>= pEnd then move_sliceright_asm32_reset
+  jge move_sliceright_asm32_reset       ' if pos >= pEnd then goto reset
   dec ecx
   jnz move_sliceright_asm32_get
   jmp move_sliceright_asm32_end
 
   move_sliceright_asm32_reset:
   dec dword ptr [loops]                 ' loops-=1
-  jz  move_sliceright_asm32_end         ' if loops=0 then goto move_sliceright_asm32_end 
+  jz  move_sliceright_asm32_end         ' if loops=0 then goto end 
   sub esi,edi                           ' pos -= pEnd 
   add esi,dword ptr [s]                 ' pos += pStart
   dec ecx                               ' nSamples-=1
@@ -2215,32 +2221,32 @@ sub _MoveSliceRightasm32(byval s as any ptr    , _ ' pStart
   shr rcx,2                             ' nSamples = nBytes\4 (bytes -> dwords)
   xor rdx,rdx                           ' !!! added !!!
   xor rax,rax                           ' !!! added !!!
-  xor rbx,rbx                           ' var = 0
+  xor rbx,rbx                           ' var s = 0
   
   mov edx, dword ptr[speed]             ' steedstep = 16:16 !!! 32bit only !!!
   
-  move_sliceright_asm32_get:
-  add ebx,edx                            ' var += steppstep
-  mov eax,ebx
-  and ebx,&HFFFF
-  shr eax,14                             ' 16:bytes 15:words 14:dwords
-  and eax,&HFFFC
-  jnz move_sliceright_asm32_add
-  dec rcx
-  jnz move_sliceright_asm32_get
+  move_sliceright_asm32_get:            ' while nSamples > 0
+  add ebx,edx                           '   s += steppstep
+  mov eax,ebx                           '   eax = s
+  and ebx,&HFFFF                        '   s and= 16:FFFFF
+  shr eax,14                            '   16:bytes 15:words 14:dwords
+  and eax,&HFFFC                        '   eax and= 16:FFFC (multiply of 4 bytes = dwords)
+  jnz move_sliceright_asm32_add         '   if eax<>0 then add eax as offset to pos
+  dec rcx                               '   nSamples -= 1
+  jnz move_sliceright_asm32_get         ' wend
   jmp move_sliceright_asm32_end
 
   move_sliceright_asm32_add:
-  add rsi,rax                           ' pos += 16:16 (add only N*4 dwords)
+  add rsi,rax                           ' pos += offset (multiply of 4 bytes dwords)
   cmp rsi,rdi
-  jge move_sliceright_asm32_reset       ' if pos>= pEnd then got reset
-  dec rcx
+  jge move_sliceright_asm32_reset       ' if pos >= pEnd then goto reset
+  dec rcx                               ' nSamples -= 1 
   jnz move_sliceright_asm32_get
-  jmp move_sliceright_asm32_end
+  jmp move_sliceright_asm32_end         
 
   move_sliceright_asm32_reset:
   dec qword ptr [loops]                 ' loops-=1
-  jz  move_sliceright_asm32_end         ' if loops=0 then goto move_sliceright_asm32_end 
+  jz  move_sliceright_asm32_end         ' if loops=0 then goto asm32_end 
   sub rsi,rdi                           ' pos -= pEnd 
   add rsi, qword ptr [s]                ' pos += pStart
   dec rcx                               ' nSamples-=1
@@ -2256,10 +2262,10 @@ sub _MoveSliceRightasm32(byval s as any ptr    , _ ' pStart
   end asm
 end sub
 
-' only move the play pointer in reverse direction (speed is <>1.0)
-' if the play pointer reached the start of samples
+' Only move the play pointer in reverse left direction (speed is <0.0).
+' If the play pointer reached the start of samples,
 ' the loop counter will be decremented
-' and the play pointer must be new calculated
+' and the play pointer must be new calculated.
 private _
 sub _MoveSliceLeftasm32(byval s as any ptr    , _ ' pStart
                         byval p as any ptr ptr, _ ' @pPlay
@@ -2279,23 +2285,23 @@ sub _MoveSliceLeftasm32(byval s as any ptr    , _ ' pStart
   mov esi,[p]
   mov esi,[esi]                         ' pos = *pPlay
   mov ecx,[n]                
-  shr ecx,2                             ' bytes to nSamples (dwords)
+  shr ecx,2                             ' nSamples = nBytes\4 (bytes to dwords)
   mov edx,[speed]                       ' speedstep = 16:16
-  xor ebx,ebx                           ' var = 0
+  xor ebx,ebx                           ' var s = 0
 
-  move_sliceleft_asm32_get:
-  add ebx,edx                           ' var += step
-  mov eax,ebx
-  and ebx,&HFFFF
-  shr eax,14                            ' 16:bytes 15:words 14:dwords
-  and eax,&HFFFC
-  jnz move_sliceleft_asm32_sub
-  dec ecx
-  jnz move_sliceleft_asm32_get
+  move_sliceleft_asm32_get:             ' while nSamples>0
+  add ebx,edx                           '   s += speedstep
+  mov eax,ebx                           '   offset = s   
+  and ebx,&HFFFF                        '   s and= xxxx:FFFF
+  shr eax,14                            '   16:bytes 15:words 14:dwords
+  and eax,&HFFFC                        '   offset = dword aligned 
+  jnz move_sliceleft_asm32_sub          '   if offset<>0 then subtract offset from pos
+  dec ecx                               '   nSamples -= 1
+  jnz move_sliceleft_asm32_get          ' wend
   jmp move_sliceleft_asm32_end
 
   move_sliceleft_asm32_sub:    
-  sub esi,eax                           ' pPlay -= 16:16 subtract only N*4 (dwords)
+  sub esi,eax                           ' pPlay -= offset (multiply of 4 = dwords)
   cmp esi,edi
   jle move_sliceleft_asm32_reset        ' if pPlay <= pStart then goto move_sliceleft_asm32_reset
   dec ecx
@@ -2648,6 +2654,7 @@ end sub
 #define MAD_F_MAX  MAD_F_ONE - 1
 
 ' fixed point 32 bit stereo to stereo interleaved 16 bit
+#define MP3_SHIFTS 13
 private  _
 sub _ScaleMP3Frame_22_asm16(byval d  as any ptr , _
                             byval s1 as any ptr , _
@@ -2675,7 +2682,7 @@ sub _ScaleMP3Frame_22_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_22_16_get_right
 
   ScaleMP3Frame_22_16_shift_left:
-  shr eax,13                            ' mad fixed point value to 16:bit
+  shr eax,MP3_SHIFTS                            ' !!! 13 mad fixed point value to 16:bit
   mov [edi],ax
 
   ScaleMP3Frame_22_16_get_right:
@@ -2692,7 +2699,7 @@ sub _ScaleMP3Frame_22_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_22_16_get_next
   
   ScaleMP3Frame_22_16_shift_right:
-  shr eax,13                            ' mad fixed point value to 16:bit 
+  shr eax,MP3_SHIFTS                            ' !!! 13 mad fixed point value to 16:bit 
   mov [edi+2],ax
 
   ScaleMP3Frame_22_16_get_next:
@@ -2725,7 +2732,7 @@ sub _ScaleMP3Frame_22_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_22_16_get_right
 
   ScaleMP3Frame_22_16_shift_left:
-  shr eax,13                            ' mad fixed point value to 16:bit
+  shr eax,MP3_SHIFTS                            ' !!! 13 mad fixed point value to 16:bit
   mov [rdi],ax                          ' samples[p]=ax
 
   ScaleMP3Frame_22_16_get_right:
@@ -2744,7 +2751,7 @@ sub _ScaleMP3Frame_22_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_22_16_get_next
   
   ScaleMP3Frame_22_16_shift_right:
-  shr eax,13                  ' mad fixed point value to 16:bit 
+  shr eax,MP3_SHIFTS                            ' !!! 13 mad fixed point value to 16:bit 
   mov [rdi+2],ax
 
   ScaleMP3Frame_22_16_get_next:
@@ -2784,7 +2791,7 @@ sub _ScaleMP3Frame_21_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_21_16_get_R
 
   ScaleMP3Frame_21_16_shift_left:
-  shr edx,13
+  shr edx,MP3_SHIFTS                            ' !!! 13
 
   ScaleMP3Frame_21_16_get_R:
   mov eax,[ebx]               ' eax = right channel
@@ -2800,7 +2807,7 @@ sub _ScaleMP3Frame_21_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_21_16_get_next
 
   ScaleMP3Frame_21_16_shift_right:
-  shr eax,13
+  shr eax,MP3_SHIFTS                            ' !!! 13
 
   ScaleMP3Frame_21_16_get_next:
   add eax,edx                 ' 
@@ -2833,7 +2840,7 @@ sub _ScaleMP3Frame_21_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_21_16_get_R
 
   ScaleMP3Frame_21_16_shift_left:
-  shr edx,13
+  shr edx,MP3_SHIFTS                             ' !!! 13
 
   ScaleMP3Frame_21_16_get_R:
   mov eax, dword ptr [rbx]               ' eax = right channel
@@ -2849,11 +2856,11 @@ sub _ScaleMP3Frame_21_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_21_16_get_next
 
   ScaleMP3Frame_21_16_shift_right:
-  shr eax,13
+  shr eax,MP3_SHIFTS                            ' !!! 13 
 
   ScaleMP3Frame_21_16_get_next:
-  add eax,edx                 ' 
-  shr eax,2                   '  ax = (left + right)\2
+  add eax,edx
+  shr eax,2                             '  ax = (left + right)\2
   mov [rdi],ax
   add rdi,2
   add rsi,4
@@ -2878,7 +2885,7 @@ sub _ScaleMP3Frame_12_asm16(byval d  as any ptr , _
   mov edx,&H7FFF7FFF
 
   ScaleMP3Frame_12_16_get:
-  mov eax,[esi]               ' 32 bit fixed mono channel
+  mov eax,[esi]                         ' 32 bit fixed mono channel
   cmp eax,MAD_F_MAX
   jng ScaleMP3Frame_12_16_test_min
   mov [edi],edx
@@ -2899,7 +2906,7 @@ sub _ScaleMP3Frame_12_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_12_16_end
 
   ScaleMP3Frame_12_16_shift:
-  shr eax,13
+  shr eax,MP3_SHIFTS                            ' !!! 13    
   mov [edi  ],ax
   mov [edi+2],ax
   add edi,4
@@ -2938,7 +2945,7 @@ sub _ScaleMP3Frame_12_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_12_16_end
 
   ScaleMP3Frame_12_16_shift:
-  shr eax,13
+  shr eax,MP3_SHIFTS                            ' !!! 13  
   mov [rdi  ],ax
   mov [rdi+2],ax
   add rdi,4
@@ -2986,7 +2993,7 @@ sub _ScaleMP3Frame_11_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_11_16_end
 
   ScaleMP3Frame_11_16_shift:
-  shr eax,13
+  shr eax,MP3_SHIFTS                            ' !!! 13
   mov [edi],ax
   add edi,2
   add esi,4
@@ -3024,7 +3031,7 @@ sub _ScaleMP3Frame_11_asm16(byval d  as any ptr , _
   jmp ScaleMP3Frame_11_16_end
 
   ScaleMP3Frame_11_16_shift:
-  shr eax,13
+  shr eax,MP3_SHIFTS                            ' !!! 13
   mov [rdi],ax
   add rsi,4
   add rdi,2
@@ -3035,6 +3042,8 @@ sub _ScaleMP3Frame_11_asm16(byval d  as any ptr , _
   end asm
 end sub
 #endif
+
+#undef MP3_SHIFTS
 
 '  ##################
 ' # init cpu layer #

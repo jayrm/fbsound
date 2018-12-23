@@ -12,7 +12,7 @@
         <font size="+2">FBSound API</font>
       </td></tr>
     </table></p>
-    This document describes the FBSound API version 1.0.<br />
+    This document describes the FBSound API version 1.1.<br />
     All commands with parameters are listed. If you need clarification on any details, please take a look in the "/test" folder too. Every available command is used in the examples "testXYZ.bas" <br /><br />
 
     FBSound is a <b>free</b> soundlib primarily for games and demos. The API interface is written for the open source FreeBASIC compiler. It supports dynamically loadable plugin's.<br />
@@ -36,34 +36,35 @@
 
     Extract your FBSound download included with the folder tree.<br />
     <br />
-    fbsound-1.0/<br />
-    fbsound-1.0/data<br />
-    fbsound-1.0/doc<br />
-    fbsound-1.0/lib<br />
-    fbsound-1.0/inc<br />
-    fbsound-1.0/src<br />
-    fbsound-1.0/tests<br /><br />
+    fbsound-1.1/<br />
+    fbsound-1.1/data<br />
+    fbsound-1.1/doc<br />
+    fbsound-1.1/lib<br />
+    fbsound-1.1/inc<br />
+    fbsound-1.1/tests<br /><br />
     <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
       <tr><td bgcolor="#ddddff">
         <font size="+2">Explanation about the type of parameters in this document.</font>
       </td></tr>
     </table></p>
-    <b>n</b>Param means a number (integer)<br />
-    <b>s</b>Param means a floating point number (single)<br />
-    <b>bln</b>Param means boolean (true or false)<br />
-    <b>str</b>Param means chars (string)<br />
-    <b>@n</b>Param means a ptr on number (integer)<br />
-    <b>@s</b>Param means a ptr on floating point number (single)<br />
-    <b>@lp</b>Param means a ptr on short ptr (16 bit samples)<br />
-    <b>@bln</b>Param means a ptr on boolean (true or false)<br />
-    <b>[</b>Param<b>]</b> means this param are optional<br />
+    <b>n</b>Parameter means a number (integer 32 or 64bit)<br />
+    <b>f</b>Parameter means a floating point number (single)<br />
+    <b>b</b>Parameter means a boolean (true or false)<br />
+    <b>s</b>Parameter means a string<br />
+    <b>h</b>Parameter means a handle (hWave or hSound integer 32 or 64bit)<br />
+    <b>@n</b>Parameter means a pointer on number (integer 32 or 64bit)<br />
+    <b>@f</b>Parameter means a pointer on floating point number (single)<br />
+    <b>@p</b>Parameter means a pointer on 16-bit samples (short)<br />
+    <b>@b</b>Parameter means a pointer on boolean (true or false)<br />
+    <b>@h</b>Parameter means a pointer on handle (hWave or hSound)<br />
+    <b>[</b>Param<b>]</b> means this parameter are optional<br />
 
     <p><table width="100%" border="1" cellpadding="3" cellspacing="0">
       <tr><td bgcolor="#ddddff">
         <font size="+2">Function Summary: init/start/stop/exit FBSound.</font>
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Init">fbs_Init</a></b>([nRate],[nChannels],[nBuffers],[nFrames],[nIndex]) as boolean</code><br />
+        <code><b><a href="#fbs_Init">fbs_Init</a></b>([nRate],[nChannels],[nBuffers],[nFrames],[nPluginIndex],[nDeviceIndex]) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Setup any available playback devices. (internal: <code><b><a href="#fbs_Start">fbs_Start()</a></b></code> will be called too)
       </td></tr>
@@ -80,7 +81,7 @@
       <tr><td>
         <code><b><a href="#fbs_Exit">fbs_Exit</a></b>() as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
-        (optional) Remove FBSound (internal: <code><b><a href="#fbs_Stop">fbs_Stop()</a></b></code>
+        (optional) Remove fbsound (internal: <code><b><a href="#fbs_Stop">fbs_Stop()</a></b></code>
         will be called if any threads are running)
       </td></tr>
     </table></p>
@@ -92,7 +93,7 @@
         <font size="+2">Function Summary: get/set plugin values.</font>
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_PlugPath">fbs_Set_PlugPath</a></b>(strNewPath) as boolean</code><br />
+        <code><b><a href="#fbs_Set_PlugPath">fbs_Set_PlugPath</a></b>(sPath) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         (optional) Set the folder where <code><b><a href="#fbs_Init">fbs_Init()</a></b></code>
         should load dynamic plugins from (default = exepath).
@@ -203,12 +204,12 @@
       </td></tr>
 
       <tr><td>
-        <code><b><a href="#fbs_Get_MasterVolume">fbs_Get_MasterVolume</a></b>(@sVolume) as boolean</code><br />
+        <code><b><a href="#fbs_Get_MasterVolume">fbs_Get_MasterVolume</a></b>(@fVolume) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the current main volume (default = 1.0) after <code><b><a href="#fbs_Init">fbs_Init()</a></b></code> was called.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_MasterVolume">fbs_Set_MasterVolume</a></b>(sVolume) as boolean</code><br />
+        <code><b><a href="#fbs_Set_MasterVolume">fbs_Set_MasterVolume</a></b>(fVolume) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set the main volume.
       </td></tr>
@@ -220,30 +221,30 @@
       <tr><td>
         <code><b><a href="#fbs_Set_MaxChannels">fbs_Set_MaxChannels</a></b>(nChannels) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
-        Set the number of playable sounds in parallel.
+        Set the number of playable sounds in parallel. (max = 512)
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_MasterFilter">fbs_Set_MasterFilter</a></b>(nFilter,sHZ,sDB,[sOctave],[blnEnabled]) as boolean</code><br />
+        <code><b><a href="#fbs_Set_MasterFilter">fbs_Set_MasterFilter</a></b>(nFilterIndex, fHZ, fDB,[fOctave],[bEnabled]) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
-        Set params of 10 posible master band EQ's.
+        Set parameters of 10 posible master band EQ's. (nFilterIndex 0..9)
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Enable_MasterFilter">fbs_Enable_MasterFilter</a></b>(nFilter) as boolean</code><br />
+        <code><b><a href="#fbs_Enable_MasterFilter">fbs_Enable_MasterFilter</a></b>(nFilterIndex) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
-        Enable one of 10 posible master band EQ's.
+        Enable one of 10 posible master band EQ's. (nFilterIndex 0..9)
       </td></tr>
       <tr><td>
         <code><b><a href="#fbs_Disable_MasterFilter">fbs_Disable_MasterFilter</a></b>(nFilter) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
-        Disable one of 10 posible master band EQ's.
+        Disable one of 10 posible master band EQ's. (nFilterIndex 0..9)
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Volume_2_dB">fbs_Volume_2_dB</a></b>(sVolume) as single</code><br />
+        <code><b><a href="#fbs_Volume_2_dB">fbs_Volume_2_dB</a></b>(fVolume) as single</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Tanslate volume in dB.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_dB_2_Volume">fbs_dB_2_Volume</a></b>(sdB) as single</code><br />
+        <code><b><a href="#fbs_dB_2_Volume">fbs_dB_2_Volume</a></b>(fdB) as single</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Tanslate dB in volume.
       </td></tr>
@@ -256,44 +257,44 @@
         <font size="+2">Function Summary: load/create/remove wave objects in memory.</font>
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Load_WAVFile">fbs_Load_WAVFile</a></b>(strFilename,@hWave) as boolean</code><br />
+        <code><b><a href="#fbs_Load_WAVFile">fbs_Load_WAVFile</a></b>(strFilename, @hWave) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
-        Load any *.wav file in memory.
+        Load none compressed *.wav file in memory (must be in 8 or 16bit mono or stereo).
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Load_MP3File">fbs_Load_MP3File</a></b>(strFilename,@hWave [,strTmpFile as string]) as boolean</code>    <br />
+        <code><b><a href="#fbs_Load_MP3File">fbs_Load_MP3File</a></b>(strFilename, @hWave [,sTmpFile as string]) as boolean</code>    <br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Load any *.mp3 *.mp2 *.mp file in memory
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Load_OGGFile">fbs_Load_OGGFile</a></b>(strFilename,@hWave [,strTmpFile as string]) as boolean</code>    <br />
+        <code><b><a href="#fbs_Load_OGGFile">fbs_Load_OGGFile</a></b>(strFilename, @hWave [,sTmpFile as string]) as boolean</code>    <br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Load any *.ogg file in memory
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Load_MODFile">fbs_Load_MODFile</a></b>(strFilename,@hWave [,strTmpFile as string]) as boolean</code>    <br />
+        <code><b><a href="#fbs_Load_MODFile">fbs_Load_MODFile</a></b>(strFilename, @hWave [,sTmpFile as string]) as boolean</code>    <br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Load any *.mod *.xm *.ts *.s3m file in memory
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Create_Wave">fbs_Create_Wave</a></b>(nSamples,@hWave,@lpSamples) as boolean</code><br />
+        <code><b><a href="#fbs_Create_Wave">fbs_Create_Wave</a></b>(nSamples,@hWave, @pSamples) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Create a new wave with <i>nSamples</i> samples in memory.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Create_Sound">fbs_Create_Sound</a></b>(hWave,@hSound) as boolean</code><br />
+        <code><b><a href="#fbs_Create_Sound">fbs_Create_Sound</a></b>(hWave, @hSound) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Create a playable sound hSound from the loaded wave <i>hWave</i>.
       </td></tr>
       <tr><td>
         <code><b><a href="#fbs_Destroy_Sound">fbs_Destroy_Sound</a></b>(@hSound) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
-        Remove any sound from memory.
+        Remove hSound object from memory.
       </td></tr>
       <tr><td>
         <code><b><a href="#fbs_Destroy_Wave">fbs_Destroy_Wave</a></b>(@hWave) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
-        Remove any wave from memory.
+        Remove hWave object from memory.
       </td></tr>
     </table></p>
 
@@ -304,7 +305,7 @@
         <font size="+2">Function Summary: create/remove a stream object.</font>
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Create_MP3Stream">fbs_Create_MP3Stream</a></b>(strFilename) as boolean</code><br />
+        <code><b><a href="#fbs_Create_MP3Stream">fbs_Create_MP3Stream</a></b>(sFilename) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Prepare a Stream for real-time decoding.
       </td></tr>
@@ -322,12 +323,12 @@
         <font size="+2">Function Summary: play waves/sounds/streams.</font>
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Play_Wave">fbs_Play_Wave</a></b>(hWave,[nLoops],[sSpeed],[sVolume],[sPan],[@hSound]) as boolean</code><br />
+        <code><b><a href="#fbs_Play_Wave">fbs_Play_Wave</a></b>(hWave,[nLoops=1],[fSpeed=1.0], [fVolume=1.0], [fPan=0.0], [@hSound]) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Play a loaded hWave object and create an optional hSound object from it.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Play_Sound">fbs_Play_Sound</a></b>(hSound,[nLoops]) as boolean</code>    <br />
+        <code><b><a href="#fbs_Play_Sound">fbs_Play_Sound</a></b>(hSound, [nLoops=1]) as boolean</code>    <br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Play a created hSound object.
       </td></tr>
@@ -345,7 +346,7 @@
         <font size="+2">Function Summary: get properties of an wave object.</font>
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_WavePointers">fbs_Get_WavePointers</a></b>(hWave,[@lpStart],[@lpEnd],[@nChannels]) as boolean</code><br />
+        <code><b><a href="#fbs_Get_WavePointers">fbs_Get_WavePointers</a></b>(hWave, [@pStart],[@pEnd], @nChannels]) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get current pointers, channels, and samples from playing sound.
       </td></tr>
@@ -364,77 +365,77 @@
         <font size="+2">Function Summary: get/set properties of an sound object.</font>
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_SoundLoops">fbs_Get_SoundLoops</a></b>(hSound,@nLoops) as boolean</code><br />
+        <code><b><a href="#fbs_Get_SoundLoops">fbs_Get_SoundLoops</a></b>(hSound, @nLoops) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the current number of sound loops.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_SoundLoops">fbs_Set_SoundLoops</a></b>(hSound,nLoops) as boolean</code><br />
+        <code><b><a href="#fbs_Set_SoundLoops">fbs_Set_SoundLoops</a></b>(hSound, nLoops) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set the new number of sound loops.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_SoundSpeed">fbs_Get_SoundSpeed</a></b>(hSound,@sSpeed) as boolean</code><br />
+        <code><b><a href="#fbs_Get_SoundSpeed">fbs_Get_SoundSpeed</a></b>(hSound, @fSpeed) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the passed sound's playback speed.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_SoundSpeed">fbs_Set_SoundSpeed</a></b>(hSound,sSpeed) as boolean</code><br />
+        <code><b><a href="#fbs_Set_SoundSpeed">fbs_Set_SoundSpeed</a></b>(hSound, fSpeed) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set the passed sound's playback speed.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_SoundVolume">fbs_Get_SoundVolume</a></b>(hSound,@sVolume) as boolean</code><br />
+        <code><b><a href="#fbs_Get_SoundVolume">fbs_Get_SoundVolume</a></b>(hSound ,@fVolume) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the passed sound's volume.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_SoundVolume">fbs_Set_SoundVolume</a></b>(hSound,sVolume) as boolean</code><br />
+        <code><b><a href="#fbs_Set_SoundVolume">fbs_Set_SoundVolume</a></b>(hSound,fVolume) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set the passed sound's volume.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_SoundPan">fbs_Get_SoundPan</a></b>(hSound,@sPan) as boolean</code><br />
+        <code><b><a href="#fbs_Get_SoundPan">fbs_Get_SoundPan</a></b>(hSound, @fPan) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the passed sound's panning position.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_SoundPan">fbs_Set_SoundPan</a></b>(hSound,sPan) as boolean</code><br />
+        <code><b><a href="#fbs_Set_SoundPan">fbs_Set_SoundPan</a></b>(hSound, fPan) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set the passed sound's panning position.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_SoundMuted">fbs_Get_SoundMuted</a></b>(hSound,@blnMuted) as boolean</code><br />
+        <code><b><a href="#fbs_Get_SoundMuted">fbs_Get_SoundMuted</a></b>(hSound, @bMuted) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the passed sound's muted state.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_SoundMuted">fbs_Set_SoundMuted</a></b>(hSound,blnMuted) as boolean</code><br />
+        <code><b><a href="#fbs_Set_SoundMuted">fbs_Set_SoundMuted</a></b>(hSound, bMuted) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set the passed sound's muted state.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_SoundPaused">fbs_Get_SoundPaused</a></b>(hSound,@blnPaused) as boolean</code><br />
+        <code><b><a href="#fbs_Get_SoundPaused">fbs_Get_SoundPaused</a></b>(hSound, @bPaused) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the passed sound's pause state.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_SoundPaused">fbs_Set_SoundPaused</a></b>(hSound,blnPaused) as boolean</code><br />
+        <code><b><a href="#fbs_Set_SoundPaused">fbs_Set_SoundPaused</a></b>(hSound, bPaused) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set the passed sound's pause state.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_SoundPointers">fbs_Get_SoundPointers</a></b>(hSound,[@lpStart],[@lpPlay],[@lpEnd]) as boolean</code><br />
+        <code><b><a href="#fbs_Get_SoundPointers">fbs_Get_SoundPointers</a></b>(hSound, [@pStart], [@pPlay], [@pEnd]) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get pointers from sound object.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_SoundPointers">fbs_Set_SoundPointers</a></b>(hSound,[lpStart],[lpPlay],[lpEnd]) as boolean</code><br />
+        <code><b><a href="#fbs_Set_SoundPointers">fbs_Set_SoundPointers</a></b>(hSound, [lpStart], [pPlay] ,[pEnd]) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set pointers from sound object.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_SoundPosition">fbs_Get_SoundPosition</a></b>(hSound,@sPosition) as boolean</code><br />
+        <code><b><a href="#fbs_Get_SoundPosition">fbs_Get_SoundPosition</a></b>(hSound, @fPosition) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get current playback position (0.0-1.0) from sound object.
       </td></tr>
@@ -445,27 +446,27 @@
         <font size="+2">Function Summary: get/set properties of a stream.</font>
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_SreamVolume">fbs_Get_StreamVolume</a></b>(@sVolume) as boolean</code><br />
+        <code><b><a href="#fbs_Get_SreamVolume">fbs_Get_StreamVolume</a></b>(@fVolume) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the passed stream's volume.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_StreamVolume">fbs_Set_StreamVolume</a></b>(sVolume) as boolean</code><br />
+        <code><b><a href="#fbs_Set_StreamVolume">fbs_Set_StreamVolume</a></b>(fVolume) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set the passed stream's volume.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_StreamPan">fbs_Get_StreamPan</a></b>(@sPan) as boolean</code><br />
+        <code><b><a href="#fbs_Get_StreamPan">fbs_Get_StreamPan</a></b>(@fPan) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the passed stream's panning position.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_StreamPan">fbs_Set_StreamPan</a></b>(sPan) as boolean</code><br />
+        <code><b><a href="#fbs_Set_StreamPan">fbs_Set_StreamPan</a></b>(fPan) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set the passed stream's panning position.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Get_StreamBuffer">fbs_Get_StreamBuffer</a></b>(@lpBuffer,@nChannels,@nSamples) as boolean</code><br />
+        <code><b><a href="#fbs_Get_StreamBuffer">fbs_Get_StreamBuffer</a></b>(@pBuffer, @nChannels, @nSamples) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Get the current stream's sample buffer.
       </td></tr>
@@ -493,7 +494,7 @@
         Disable the master buffer callback.
       </td></tr>
       <tr><td>
-        <code><b><a href="#fbs_Set_SoundCallback">fbs_Set_SoundCallback</a></b>(hSound,@Callback as BUFFERCALLBACK) as boolean</code><br />
+        <code><b><a href="#fbs_Set_SoundCallback">fbs_Set_SoundCallback</a></b>(hSound, @Callback as BUFFERCALLBACK) as boolean</code><br />
         &nbsp;&nbsp;&nbsp;&nbsp;
         Set a buffer callback sub for any sound. (samples are processed <b>before</b> the mixer pipeline)
       </td></tr>
@@ -590,7 +591,6 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <b>Default</b>: 44100
         <br /> &nbsp;
-
       </td></tr>
       <tr><td>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -601,7 +601,6 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <b>Default</b>: 2 (stereo)
         <br /> &nbsp;
-
       </td></tr>
       <tr><td>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -609,7 +608,6 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <b>Default</b>: 3
         <br /> &nbsp;
-
       </td></tr>
       <tr><td>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -617,18 +615,26 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <b>Default</b>: 2048
         <br /> &nbsp;
-
       </td></tr>
       <tr><td>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <code>nIndex as integer</code> (Specify which device should be used by default.)<br />
+        <code>nPluinIndex as integer</code> (Specify which plugout should be used by default.)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Range</b>: 0 = first, 1 = second, ...
+        <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <b>Default</b>: 0 (first plugout)
+        <br /> &nbsp;
+      </td></tr>
+      <tr><td>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <code>nDeviceIndex as integer</code> (Specify which playback device should be used by default.)<br />
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <b>Range</b>: 0 = first, 1 = second, ...
         <br />
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <b>Default</b>: 0 (first device)
         <br /> &nbsp;
-
       </td></tr>
     </table></p>
 
@@ -641,7 +647,6 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
       </td></tr>
     </table></p>
-
 
     <a name="fbs_Start">
     <a name="fbs_Stop">
@@ -685,7 +690,7 @@
       </td></tr>
     </table></p>
     <p>
-      <pre><b>fbs_Set_PlugPath</b>(strNewPath)</pre>
+      <pre><b>fbs_Set_PlugPath</b>(sNewPath)</pre>
       Normally <code><b><a href="#fbs_Init">fbs_Init</a></b>() searches in the exepath for available dynamically loadable plugins/outs. If the exepath is not the folder with the dynamic libs you must call  <code><b>fbs_Set_PlugPath</b>("newpath/")</code> before you can use <code><b><a href="#fbs_Init">fbs_Init</a></b>().
     </p><br /><br />
     <code>
@@ -712,10 +717,10 @@
       </td></tr>
     </table></p>
     <p>
-      <code>fbs_Load_WAVFile(strFileName,@hWave)<br />
-            fbs_Load_MP3File(strFileName,@hWave)<br />
-            fbs_Load_OGGFile(strFileName,@hWave)<br />
-            fbs_Load_MODFile(strFileName,@hWave)<br />
+      <code>fbs_Load_WAVFile(sFileName,@hWave)<br />
+            fbs_Load_MP3File(sFileName,@hWave)<br />
+            fbs_Load_OGGFile(sFileName,@hWave)<br />
+            fbs_Load_MODFile(sFileName,@hWave)<br />
       </code>
       This functions load media files into the pool of memory waves.<br />
       The returned hWave is the ID of the new created wave and can be used with <code><b><a href="#fbs_Play_Wave">fbs_Play_Wave</a></b>().
@@ -764,7 +769,7 @@
       </td></tr>
     </table></p>
     <p>
-      <code>fbs_Play_Wave(hWave, [nLoops], [sSpeed], [sVolume], [sPan],[@hSound])</code><br />
+      <code>fbs_Play_Wave(hWave, [nLoops], [fSpeed=1.0], [fVolume=1.0], [fPan=0.0], [@hSound])</code><br />
       Start playback of an hWave object.<br />
       The wave can be loaded from either <code><b><a href="#fbs_Load_WAVFile">fbs_Load_WAVFile</a></b>(), <code><b><a href="#fbs_Load_MP3File">fbs_Load_MP3File</a></b>(), <code><b><a href="#fbs_Load_OGGFile">fbs_Load_OGGFile</a></b>(), <code><b><a href="#fbs_Load_MODFile">fbs_Load_MODFile</a></b>()<br />
       or created by <code><b><a href="#fbs_Create_Wave">fbs_Create_Wave</a></b>(). Optional you can create an hSound object too. See <code><b><a href="#GetSet_SoundProperties">get / set sound properties.</a></b>
@@ -801,13 +806,13 @@
           <br />
 
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <code>sSpeed as single</code> (The sample's playback speed.)<br />
+          <code>fSpeed as single</code> (The sample's playback speed.)<br />
           &nbsp;&nbsp;&nbsp;<b>Range</b>: -4.0 (400% speed backwards) to +4.0 (400% speed forwards) <br />
           &nbsp;&nbsp;&nbsp;<b>Default</b>: 1.0 (100% speed forwards)<br />
           <br />
 
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <code>sPan as single</code> (The sample's stereo location.)<br />
+          <code>fPan as single</code> (The sample's stereo location.)<br />
           &nbsp;&nbsp;&nbsp;<b>Range</b>: -1.0 (full left) to +1.0 (full right) <br />
           &nbsp;&nbsp;&nbsp;<b>Default</b>: 0.0 (center)<br />
           <br />
@@ -835,7 +840,7 @@
     <p>
     <code>
       <code>
-      fbs_Create_Sound(hWave,@hSound) as boolean<br />
+      fbs_Create_Sound(hWave, @hSound) as boolean<br />
       fbs_Play_Sound(hSound, [nLoops]) as boolean<br />
       </code>
       Create an hSound object from loaded hWave object with <code><b>fbs_Create_Sound()</b></code>.<br />
@@ -877,7 +882,7 @@
     </table></p>
     <p>
       <code>
-        fbs_Get_WavePointers (hWave,@lpStart,@lpEnd,@nChannels) as boolean<br />
+        fbs_Get_WavePointers (hWave, @pStart, @pEnd, @nChannels) as boolean<br />
       </code>
     </p>
     <p>
@@ -888,12 +893,12 @@
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>@lpStart as short ptr</code> (The address of first sample in memory.) <br />
+       <code>@pStart as short ptr</code> (The address of first sample in memory.) <br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>@lpEnd as short ptr</code> (The address of last sample in memory.) <br />
+       <code>@pEnd as short ptr</code> (The address of last sample in memory.) <br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
        <br />
 
@@ -933,21 +938,21 @@
     </table></p>
     <p>
       <code>
-        fbs_Get_SoundLoops (hSound,@nLoops&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Get_SoundLoops (hSound, @nLoops&nbsp;&nbsp;&nbsp;) as boolean<br />
         fbs_Set_SoundLoops (hSound, nLoops&nbsp;&nbsp;&nbsp;) as boolean<br />
-        fbs_Get_SoundSpeed (hSound,@sSpeed&nbsp;&nbsp;&nbsp;) as boolean<br />
-        fbs_Set_SoundSpeed (hSound, sSpeed&nbsp;&nbsp;&nbsp;) as boolean<br />
-        fbs_Get_SoundVolume (hSound,@sVolume&nbsp;&nbsp;) as boolean<br />
-        fbs_Set_SoundVolume (hSound, sVolume&nbsp;&nbsp;) as boolean<br />
-        fbs_Get_SoundPan(hSound,@sPan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) as boolean<br />
-        fbs_Set_SoundPan(hSound, sPan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) as boolean<br />
-        fbs_Get_SoundMuted (hSound,@blnMuted&nbsp;) as boolean<br />
-        fbs_Set_SoundMuted (hSound, blnMuted&nbsp;) as boolean<br />
-        fbs_Get_SoundPaused (hSound,@blnPaused) as boolean<br />
-        fbs_Set_SoundPaused (hSound, blnPaused) as boolean<br />
-        fbs_Get_SoundPointers (hSound,@lpStart,@lpPlay,@lpEnd) as boolean<br />
-        fbs_Set_SoundPointers (hSound,lpStart,lpPlay,lpEnd) as boolean<br />
-        fbs_Get_SoundPosition (hSound,@sPosition) as boolean<br />
+        fbs_Get_SoundSpeed (hSound, @fSpeed&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Set_SoundSpeed (hSound, fSpeed&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Get_SoundVolume (hSound, @fVolume&nbsp;&nbsp;) as boolean<br />
+        fbs_Set_SoundVolume (hSound, fVolume&nbsp;&nbsp;) as boolean<br />
+        fbs_Get_SoundPan(hSound, @fPan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Set_SoundPan(hSound, fPan&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) as boolean<br />
+        fbs_Get_SoundMuted (hSound, @bMuted&nbsp;) as boolean<br />
+        fbs_Set_SoundMuted (hSound, bMuted&nbsp;) as boolean<br />
+        fbs_Get_SoundPaused (hSound, @bPaused) as boolean<br />
+        fbs_Set_SoundPaused (hSound, bPaused) as boolean<br />
+        fbs_Get_SoundPointers (hSound, @pStart, @pPlay, @pEnd) as boolean<br />
+        fbs_Set_SoundPointers (hSound, pStart, pPlay, pEnd) as boolean<br />
+        fbs_Get_SoundPosition (hSound, @fPosition) as boolean<br />
       </code>
     </p>
   After you have created an hSound object with <code><b><a href="#fbs_Create_Sound">fbs_Create_Sound()</a></b>, you can set any and all of its properties. It does not matter if the hSound is playing / freshly created / paused or muted, you can change the properties at any time.<br /> <br />
@@ -967,47 +972,47 @@
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>sSpeed as single</code> (The playback speed of the hSound.)<br />
+       <code>fSpeed as single</code> (The playback speed of the hSound.)<br />
        &nbsp;&nbsp;&nbsp;<b>Range</b>: -4.0 (400% speed backwards) to +4.0 (400% speed forwards) <br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: 1.0 (100% speed forwards)<br />
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>sVolume as single</code> (The hSound's playback volume.) <br />
+       <code>fVolume as single</code> (The hSound's playback volume.) <br />
        &nbsp;&nbsp;&nbsp;<b>Range</b>: 0.0 to 2.0<br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: 1.0<br />
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>sPan as single</code> (The hSound's stereo location.)<br />
+       <code>fPan as single</code> (The hSound's stereo location.)<br />
        &nbsp;&nbsp;&nbsp;<b>Range</b>: -1.0 (full left) to +1.0 (full right) <br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: 0.0 (center)<br />
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>blnMuted as boolean</code> (The muted state of the hSound.)<br />
+       <code>bMuted as boolean</code> (The muted state of the hSound.)<br />
        &nbsp;&nbsp;&nbsp;<b>Range</b>: True (no sound while playing default) or False (sound on)<br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: False<br />
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>blnPaused as boolean</code> (The paused state of the hSound.)<br />
+       <code>bPaused as boolean</code> (The paused state of the hSound.)<br />
        &nbsp;&nbsp;&nbsp;<b>Range</b>: True (paused) or False (normal play)<br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: False<br />
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>lpStart as short ptr</code> (The first playable sample of the hSound.)<br />
+       <code>pStart as short ptr</code> (The first playable sample of the hSound.)<br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>lpPlay as short ptr</code> (The play position of the hSound.)<br />
+       <code>pPlay as short ptr</code> (The play position of the hSound.)<br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>lpEnd as short ptr</code> (The last playable sample of the hSound.)<br />
+       <code>pEnd as short ptr</code> (The last playable sample of the hSound.)<br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: NULL<br />
        <br />
 
@@ -1031,7 +1036,7 @@
     </table></p>
     <p>
       <code>
-        fbs_Create_MP3Stream(strFilename) as boolean<br />
+        fbs_Create_MP3Stream(sFilename) as boolean<br />
         fbs_Play_MP3Stream() as boolean<br />
         fbs_Get_PlayingStreams() as integer<br />
         fbs_End_MP3Stream() as boolean<br />
@@ -1064,7 +1069,7 @@
     <p><table border="0">
        &nbsp;&nbsp;&nbsp;Parameters:<br />
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>strFilename as string</code> (The *.mp3 *.mp2 or *.mp FileName.) <br />
+       <code>sFilename as string</code> (The *.mp3 *.mp2 or *.mp FileName.) <br />
        <br />
     </table></p>
     <p><table border="0">
@@ -1086,23 +1091,23 @@
     </table></p>
     <p>
       <code>
-        fbs_Get_StreamVolume(@sVolume) as boolean<br />
-        fbs_Set_StreamVolume( sVolume) as boolean<br />
-        fbs_Get_StreamPan(@sPan) as boolean<br />
-        fbs_Set_StreamPan( sPan) as boolean<br />
+        fbs_Get_StreamVolume(@fVolume) as boolean<br />
+        fbs_Set_StreamVolume(fVolume) as boolean<br />
+        fbs_Get_StreamPan(@fPan) as boolean<br />
+        fbs_Set_StreamPan(fPan) as boolean<br />
       </code>
     </p>
 
     <p><table border="0">
        &nbsp;&nbsp;&nbsp;Parameters:<br />
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>sVolume as single</code> (The hSound's playback volume.) <br />
+       <code>fVolume as single</code> (The hSound's playback volume.) <br />
        &nbsp;&nbsp;&nbsp;<b>Range</b>: 0.0 to 2.0<br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: 1.0<br />
        <br />
 
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>sPan as single</code> (The hSound's stereo location.)<br />
+       <code>fPan as single</code> (The hSound's stereo location.)<br />
        &nbsp;&nbsp;&nbsp;<b>Range</b>: -1.0 (full left) to +1.0 (full right) <br />
        &nbsp;&nbsp;&nbsp;<b>Default</b>: 0.0 (center)<br />
       <br />
@@ -1133,7 +1138,7 @@
     <p>
       <code>
         type BUFFERCALLBACK as sub ( <br />
-        &nbsp;&nbsp;byval lpSamples      as short ptr, _ <br />
+        &nbsp;&nbsp;byval pSamples      as short ptr, _ <br />
         &nbsp;&nbsp;byval nChannels      as integer  , _ <br />
         &nbsp;&nbsp;byval nSamples&nbsp; as integer  )<br /><br />
 
@@ -1141,11 +1146,11 @@
         fbs_Enable_MasterCallback() as boolean<br />
         fbs_Disable_MasterCallback() as boolean<br /><br />
 
-        fbs_Set_SoundCallback(hSound,@YourCallback as BUFFERCALLBACK) as boolean<br />
+        fbs_Set_SoundCallback(hSound, @YourCallback) as boolean<br />
         fbs_Enable_SoundCallback(hSound) as boolean<br />
         fbs_Disable_SoundCallback(hSound) as boolean<br /><br />
 
-        fbs_Set_StreamCallback(@YourCallback as BUFFERCALLBACK) as boolean<br />
+        fbs_Set_StreamCallback(@YourCallback) as boolean<br />
         fbs_Enable_StreamCallback() as boolean<br />
         fbs_Disable_StreamCallback() as boolean<br />
       </code>
@@ -1188,7 +1193,7 @@
       <code>
         type LOADCALLBACK as sub (byval Percent as integer)<br /><br />
 
-        fbs_Set_LoadCallback(@YourLoadCallback as LOADCALLBACK) as boolean<br />
+        fbs_Set_LoadCallback(@YourLoadCallback) as boolean<br />
         fbs_Enable_LoadCallback() as boolean<br />
         fbs_Disable_LoadCallback() as boolean<br /><br />
 
@@ -1208,7 +1213,7 @@
     </table></p>
     <p>
       <code>
-        fbs_Set_MasterFilter(nFilter,sHz,sdB,[sOctave=1.0],[blnEnable=False]) as boolean<br />
+        fbs_Set_MasterFilter(nFilter, fHz, fdB,[fOctave=1.0],[bEnable=False]) as boolean<br />
         fbs_Enable_MasterFilter(nFilter) as boolean<br />
         fbs_Disable_MasterFilter(nFilter) as boolean<br /><br />
       </code>
@@ -1220,21 +1225,21 @@
        &nbsp;&nbsp;&nbsp;
        Parameters:<br />
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>nFilter as integer</code> (The filter ID 0-9.)<br />
+       <code>nFilterIndex as integer</code> (0 .. 9)<br />
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>sHz as single</code> (The center frequenc in Hz.)<br />
+       <code>fHz as single</code> (The center frequenc in Hz.)<br />
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>sdB as single</code> (The band volume in dB.)<br />
+       <code>fdB as single</code> (The band volume in dB.)<br />
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>sOctave as single</code> (The optional band width in octaves default=1.0.)<br />
+       <code>fOctave as single</code> (The optional band width in octaves default=1.0.)<br />
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>blnOnOff as boolean</code> (The optional en/disable switch default=False)<br />
+       <code>bOnOff as boolean</code> (The optional en/dis-able switch default=False)<br />
        <br />
     </table></p>
     <p><table border="0">
       &nbsp;&nbsp;&nbsp;Returns:<br />
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>False</code> if an error occurred<br />
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>True</code> otherwise
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>false</code> if an error occurred<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>true</code> otherwise
     </table></p>
 
     <a name="fbs_Volume_2_dB">
@@ -1247,8 +1252,8 @@
     </table></p>
     <p>
       <code>
-        fbs_Volume_2_dB(byval Volume) as single<br />
-        fbs_dB_2_Volume(byval dB as single) as single<br />
+        fbs_Volume_2_dB(fVolume) as single<br />
+        fbs_dB_2_Volume(fdB) as single<br />
         <br />
       </code>
     </p>
@@ -1256,9 +1261,9 @@
     <p><table border="0">
        &nbsp;&nbsp;&nbsp;Parameters:<br />
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>dB as single</code> (dB to volume)<br />
+       <code>fdB as single</code> (dB to volume)<br />
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-       <code>volume as single</code> (volume to dB.)<br />
+       <code>fVolume as single</code> (volume to dB.)<br />
        <br />
     </table></p>
     <p><table border="0">

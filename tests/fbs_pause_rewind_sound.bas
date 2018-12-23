@@ -1,7 +1,8 @@
 '  ##############################
 ' # fbs_pause_rewind_sound.bas #
 '##############################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
  
 ' short test for 
 ' fbs_PauseRewindSound()
@@ -23,7 +24,7 @@ sub fbs_PauseRewindSound(hSound as integer)
 end sub
 
 dim as integer   hWave,hSound
-print fbs_Init()
+fbs_Init()
 print "please wait while decode 'legends.ogg' in memory!"
 fbs_Load_OGGFile(data_path & "legends.ogg",@hWave)
 fbs_Create_Sound(hWave,@hSound)

@@ -1,12 +1,13 @@
 '  ##########################
 ' # fbs_set_soundspeed.bas #
 '##########################
-#include "../inc/fbsound.bi"
+
+#include "../inc/fbsound_dynamic.bi"
+
 ' example of:
 ' fbs_Set_SoundSpeed() !!!
 
 const data_path = "../data/"
-chdir(exepath())
 
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
@@ -60,7 +61,7 @@ while len(inkey)=0
   if getmouse(mx,my)=0 then
     if ox<>mx then 
       speed=(mx-320)*(2/320)
-      fbs_Set_SoundSpeed hSound,speed
+      fbs_Set_SoundSpeed(hSound,speed)
       ox=mx
       locate 4,3:print "speed=> " + str(speed) + "< " +str(fbs_Get_Plugrate()*speed) + " Hz.       "
     end if
