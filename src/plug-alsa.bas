@@ -1,12 +1,12 @@
 '  #################
 ' # plug-alsa.bas #
 '#################
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 #include once "../inc/plug.bi"
 
-#ifndef NOPLUG_ALSA
+#ifndef NO_PLUG_ALSA
 
 #include once "../inc/plug-alsa.bi"
 
@@ -20,12 +20,12 @@ end type
 dim shared _Me as ALSA
 
 sub _plug_alsa_init() constructor
-  dprint("plug_alsa_init()")
+  dprint("_plug_alsa_init() module constructor")
   _Me.Plug.Plugname="ALSA"
 end sub
 
 sub _plug_alsa_exit() destructor
-  dprint("plug_alsa_exit()")
+  dprint("_plug_alsa_exit() module destructor")
 end sub
 
 private _
@@ -88,6 +88,7 @@ end function
 
 private _
 sub Thread(byval unused as any ptr)
+  dprint("alsa:thread()")
   dim as integer BufferCounter,ThreadID,ret
   dim as any ptr lpArg = @_Me.Plug
   _Me.Plug.lpCurentBuffer=_Me.Plug.lpBuffers[BufferCounter]
@@ -99,6 +100,7 @@ sub Thread(byval unused as any ptr)
     _Me.Plug.lpCurentBuffer=_Me.Plug.lpBuffers[BufferCounter]
     _Me.Plug.FillBuffer(lpArg)
   wend
+  dprint("alsa:thread~")
 end sub
 
 private _
@@ -108,9 +110,7 @@ end function
 
 private _
 function GetDeviceName(byval index as integer) as string
-  select case index
-    case 0
-      return "default"
+  select case as const index
     case 1
       return "hw:1,0"
     case 2
@@ -131,7 +131,7 @@ function _
 plug_isany(byref Plug as FBS_PLUG) as boolean export
   dim as integer ret,i,j
   dim as snd_pcm_t ptr tmp
-  dprint("alsa:plug_isany")
+  dprint("alsa:plug_isany()")
   Plug.Plugname=_Me.Plug.Plugname
   _Me.Plug.DeviceName=""
 
@@ -158,12 +158,13 @@ plug_isany(byref Plug as FBS_PLUG) as boolean export
     return false
   end if
   snd_pcm_close tmp
+  dprint("alsa:plug_isany~")
   return true
 end function
 
 function _
 plug_start() as boolean export
-  dprint("alsa:plug_start")
+  dprint("alsa:plug_start()")
   if _Me.hDevice=NULL then 
     _Me.LastError="alsa: error no device!"
     dprint(_Me.LastError)
@@ -183,12 +184,12 @@ plug_start() as boolean export
     dprint(_Me.LastError)
     return false
   end if
-
+  dprint("alsa:plug_start~")
   return true
 end function
 
 function plug_stop () as boolean export
-  dprint("alsa:plug_stop")
+  dprint("alsa:plug_stop()")
   if _Me.hDevice=NULL then 
     _Me.LastError="alsa: error no open device!"
     dprint(_Me.LastError)
@@ -203,12 +204,13 @@ function plug_stop () as boolean export
   Threadwait _Me.Plug.ThreadID
   _Me.Plug.ThreadID=NULL
   'snd_pcm_drain _Me.hDevice
+  dprint("alsa:plug_stop~")
   function=true
 end function
 
 function plug_exit () as boolean export
   dim as integer i
-  dprint("alsa:plug_exit")
+  dprint("alsa:plug_exit()")
   if _Me.hDevice=NULL then
     _Me.LastError="alsa: warning no open device."
     dprint(_Me.LastError)
@@ -233,14 +235,15 @@ function plug_exit () as boolean export
     _Me.Plug.lpBuffers=NULL
     _Me.Plug.lpCurentBuffer=NULL
   end if
-  function=true
+  dprint("alsa:plug_exit~")
+  return true
 end function
 
 function plug_init(byref Plug as FBS_PLUG) as boolean export
   dim as snd_pcm_hw_params_t ptr hw
   dim as snd_pcm_sw_params_t ptr sw
   dim as long ret,Value,nFrames,BufferSizeInFrames
-  dprint("alsa: plug_init")
+  dprint("alsa:plug_init()")
   ' !!! fix it !!!!
   if _Me.hDevice<>NULL then
     _Me.LastError="alsa: error device is open!"
@@ -255,7 +258,7 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
     _Me.Plug.DeviceName=GetDeviceName(Plug.DeviceIndex)
     Plug.DeviceName=_Me.Plug.DeviceName
   end if
-  dprint("alsa: device " & _Me.Plug.DeviceName)
+  dprint("alsa:device " & _Me.Plug.DeviceName)
 
   ret = snd_pcm_open(@_Me.hDevice,_Me.Plug.DeviceName, SND_PCM_STREAM_PLAYBACK, NONBLOCK)
   if ret<0 then 
@@ -337,7 +340,7 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   value=Plug.fmt.nRate 'set speed
   ret = snd_pcm_hw_params_set_rate_near(_Me.hDevice, hw , @value,NULL)
   if (ret < 0) then
-     _Me.LastError="alsa: error can't set sample rate to [" + str(Plug.fmt.nRate) + "]!"
+     _Me.LastError="alsa: error can't set sample rate to [" & Plug.fmt.nRate & "]!"
      dprint(_Me.LastError)
      snd_pcm_hw_params_free hw
      snd_pcm_close _Me.hDevice
@@ -345,7 +348,7 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
      return false
   end if
   if value<>Plug.fmt.nRate then 
-    _Me.LastError="alsa: warning: set sample rate from " + str(Plug.fmt.nRate) +" to " + str(value) + "."
+    _Me.LastError="alsa: warning: set sample rate from " & Plug.fmt.nRate & " to " & value
     dprint(_Me.LastError)
     Plug.fmt.nRate=Value
   end if
@@ -358,9 +361,9 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   _Me.Plug.FrameSize    =Plug.FrameSize
 
   if Plug.nBuffers<1 then
-     Plug.nBuffers=1
+    Plug.nBuffers=1
   elseif Plug.nBuffers>max_buffers then
-     Plug.nBuffers=max_buffers
+    Plug.nBuffers=max_buffers
   end if
 
   BufferSizeInFrames=Plug.nFrames*Plug.nBuffers
@@ -368,12 +371,12 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   ' new method
   ret=snd_pcm_hw_params_set_buffer_size(_Me.hDevice,hw,BufferSizeInFrames)
   if (ret<0) then 
-    _Me.LastError="alsa: NEW warning: can't set set buffersize to " & str(BufferSizeInFrames)
+    _Me.LastError="alsa: warning: can't set set buffersize to " & BufferSizeInFrames
     dprint(_Me.LastError)
     Value=BufferSizeInFrames
     ret=snd_pcm_hw_params_set_buffer_size_near(_Me.hDevice,hw,@Value)
     if (ret<0) then
-      _Me.LastError="alsa: NEW error: can't set set buffersize near to " & str(BufferSizeInFrames)
+      _Me.LastError="alsa: error: can't set set buffersize near to " & BufferSizeInFrames
       dprint(_Me.LastError)
       snd_pcm_hw_params_free hw
       snd_pcm_close _Me.hDevice
@@ -381,7 +384,7 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
       return false
     else
       if (Value<>BufferSizeInFrames) then
-        _Me.LastError="alsa: NEW warning: buffersize was changed from " & str(BufferSizeInFrames) & " to " & str(Value)
+        _Me.LastError="alsa: warning: buffersize was changed from " & BufferSizeInFrames & " to " & Value
         dprint(_Me.LastError)
         BufferSizeInFrames=Value
       end if
@@ -390,12 +393,12 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
 
   ret=snd_pcm_hw_params_set_period_size(_Me.hDevice,hw,Plug.nFrames,0)
   if (ret<0) then 
-    _Me.LastError="alsa: NEW warning: can't set set periodsize to " & str(Plug.nFrames)
+    _Me.LastError="alsa: warning: can't set set periodsize to " & str(Plug.nFrames)
     dprint(_Me.LastError)
     Value=Plug.nFrames
     ret=snd_pcm_hw_params_set_period_size_near(_Me.hDevice,hw,@Value,0)
     if (ret<0) then
-      _Me.LastError="alsa: NEW error: can't set set periodsize near to " & str(Plug.nFrames)
+      _Me.LastError="alsa: error: can't set set periodsize near to " & str(Plug.nFrames)
       dprint(_Me.LastError)
       snd_pcm_hw_params_free hw
       snd_pcm_close _Me.hDevice
@@ -465,15 +468,14 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   _Me.Plug.Buffersize=Plug.Buffersize
 
 
-  dprint("alsa: nRate      : " & str(_Me.Plug.Fmt.nRate))
-  dprint("alsa: nBits      : " & str(_Me.Plug.Fmt.nBits))
-  dprint("alsa: nChannels  : " & str(_Me.Plug.Fmt.nChannels))
-  dprint("")
-  dprint("alsa: nBuffers   : " & str(_Me.Plug.nBuffers  ))
-  dprint("alsa: nFrames    : " & str(_Me.Plug.nFrames   ))
-  dprint("alsa: nFramesize : " & str(_Me.Plug.FrameSize ))
-  dprint("alsa: nBuffersize: " & str(_Me.Plug.BufferSize))
-  dprint("alsa: wholesize  : " & str(_Me.Plug.Buffersize*_Me.Plug.nBuffers) )
+  dprint("alsa: nRate      : " & _Me.Plug.Fmt.nRate)
+  dprint("alsa: nBits      : " & _Me.Plug.Fmt.nBits)
+  dprint("alsa: nChannels  : " & _Me.Plug.Fmt.nChannels)
+  dprint("alsa: nBuffers   : " & _Me.Plug.nBuffers)
+  dprint("alsa: nFrames    : " & _Me.Plug.nFrames)
+  dprint("alsa: nFramesize : " & _Me.Plug.FrameSize)
+  dprint("alsa: nBuffersize: " & _Me.Plug.BufferSize)
+  dprint("alsa: wholesize  : " & _Me.Plug.Buffersize*_Me.Plug.nBuffers)
   ' use curent config
   ret = snd_pcm_hw_params(_Me.hDevice,hw)
   if (ret < 0) then
@@ -484,6 +486,7 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
     _Me.hDevice=NULL 
     return false
   end if
+  
   snd_pcm_hw_params_free hw
 
 #if 0
@@ -551,14 +554,16 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
     return false
   end if
 
-  _Me.Plug.lpBuffers=callocate(_Me.Plug.nBuffers*4)
+  _Me.Plug.lpBuffers = callocate(_Me.Plug.nBuffers*4)
   Plug.lpBuffers=_Me.Plug.lpBuffers
-  for Value=0 to _Me.Plug.nBuffers-1
-    _Me.Plug.lpBuffers[Value]=callocate(_Me.Plug.Buffersize)
-    Plug.lpBuffers[Value]=_Me.Plug.lpBuffers[Value]
+  for i as integer = 0 to _Me.Plug.nBuffers-1
+    _Me.Plug.lpBuffers[i] = callocate(_Me.Plug.Buffersize)
+    Plug.lpBuffers[i]=_Me.Plug.lpBuffers[i]
   next
   _Me.Plug.FillBuffer=Plug.FillBuffer
+  
+  dprint("alsa:plug_init~")
   return true ' i like it
 end function
 
-#endif ' NOPLUG_ALSA
+#endif ' NO_PLUG_ALSA

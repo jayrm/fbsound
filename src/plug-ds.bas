@@ -1,12 +1,12 @@
 '  ###############
 ' # plug-ds.bas #
 '###############
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 #include once "../inc/plug.bi"
 
-#ifndef NOPLUG_DS
+#ifndef NO_PLUG_DS
 
 #include once "../inc/plug-ds.bi"
 
@@ -144,7 +144,7 @@ function DSDeviceEnumCB(byval pGuid        as LPGUID, _
   ' be sure it's not an emulated DirectSound device
   ' it's better to use the MM AudioDevice directly as an emulated DirectSound device
   dim as LPDIRECTSOUND ds
-  ' craete the device interface if bussy try next device
+  ' create the device interface if bussy try next device
   if (DirectSoundCreate(pGuid,@ds,NULL)<>DS_OK) then return 1
   dim as integer AddDeviceToList=0
   ' get device caps
@@ -157,9 +157,11 @@ function DSDeviceEnumCB(byval pGuid        as LPGUID, _
       if (caps.dwFlags and DSCAPS_PRIMARY16BIT) then
         ' stereo primary sound buffer ?
         if (caps.dwFlags and DSCAPS_PRIMARYSTEREO) then
-          if (IDirectSound_SetCooperativeLevel(ds,GetForegroundWindow(),DSSCL_PRIORITY)=DS_OK) then
+          var hWin = GetForegroundWindow()
+          if (hWin = 0) then hWin = GetDesktopWindow()
+          if (IDirectSound_SetCooperativeLevel(ds,hWin,DSSCL_PRIORITY)=DS_OK) then
             AddDeviceToList=1
-          end if
+          end if         
         end if
       end if
     end if
@@ -272,13 +274,13 @@ sub FillThread(byval unused as any ptr)
           dprint("ds: error: secondary IDirectSoundBuffer_Restore()")
         end if
       elseif LockRet=DS_OK then
-        IsLocked=-1
+        IsLocked=true
       end if
       if IsLocked then
         if pAudio1 then memcpy(pAudio1,_Me.Plug.lpCurentBuffer,nSize1)
         if pAudio2 then memcpy(pAudio2,_Me.Plug.lpCurentBuffer+nSize1,nSize2)
         IDirectSoundBuffer_Unlock(_Me.pSecondaryBuffer,pAudio1,nSize1,pAudio2,nSize2)
-        IsLocked=0
+        IsLocked=false
         _Me.Plug.FillBuffer(lpArg)
       else
         dprint("ds: error: could not lock the buffer !")
@@ -286,13 +288,9 @@ sub FillThread(byval unused as any ptr)
     end if
   wend
 
-  if pBuffer then
-    delete [] pBuffer
-  end if
-
+  if pBuffer then delete [] pBuffer
   dprint("ds: FillThread~")
 end sub
-
 
 function plug_error() as string export
   dim tmp as string
@@ -533,8 +531,11 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   dim as boolean found = false
   ' create device
   if (DirectSoundCreate(_Me.DeviceList.pDevices[Plug.DeviceIndex]->getGuid(),@_Me.pDirectSound,NULL)=DS_OK) then
+    var hWin = GetForegroundWindow()
+    if (hWin = 0) then hWin = GetDesktopWindow()
+       
     ' set cooperative level
-    if (IDirectSound_SetCooperativeLevel(_Me.pDirectSound,GetForegroundWindow(),DSSCL_PRIORITY)=DS_OK) then
+    if (IDirectSound_SetCooperativeLevel(_Me.pDirectSound,hWin,DSSCL_PRIORITY)=DS_OK) then
       ' create primary sound buffer
       with _Me.PrimaryBufferDesc
         .dwSize       =sizeof(DSBUFFERDESC)
@@ -647,4 +648,4 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   
 end function
 
-#endif ' NOPLUG_DS
+#endif ' NO_PLUG_DS

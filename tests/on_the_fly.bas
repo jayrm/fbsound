@@ -2,7 +2,6 @@
 ' # fbs_on_the_fly.bas #
 '######################
 
-'#include "../inc/fbsound.bi"
 #include "../inc/fbsound_dynamic.bi"
 
 sub MyCallback(byval pSamples as FBS_SAMPLE ptr, _

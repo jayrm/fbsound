@@ -1,8 +1,29 @@
+fbsound 1.2: 
+added:
+Commodore C64 SID file decoder
+FBS_Create_SIDStream()
+FBS_Play_SIDStream()
+FBS_End_SIDStream()
+FBS_Set_SIDStreamVolume()
+FBS_Get_SIDStreamVolume()
+FBS_Set_SIDStreamPan()
+FBS_Get_SIDStreamPan()
+FBS_Get_SIDStreamBuffer()
+FBS_Get_SIDAuthor()
+FBS_Get_SIDInfo()
+FBS_Get_SIDTitle()
+FBS_Set_SIDStreamCallback()
+FBS_Enable_SIDStreamCallback()
+FBS_Disable_SIDStreamCallback()
+
 fbsound 1.1: 
 is a dynmaic lib now
 
 fbsound 1.0: 
 first full 32/64-bit version
+
+fbSound 0.21
+full Windows Linux support
 
 fbSound 0.20
 added: win32/libogg.a win32/libvorbis.a win32/libvorbisfile.a

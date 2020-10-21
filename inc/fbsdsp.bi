@@ -9,14 +9,22 @@
 
 #include once "fbstypes.bi"
 
-#ifndef NODSP
 
-#inclib "fbsdsp"
 
 const PI         as double = atn(1)*4
 const PI2        as double = atn(1)*8
 const rad2deg    as double = 180.0/PI
 const deg2rad    as double = PI/180.0
+
+declare function fbs_Rad2Deg     (byval as double) as double
+declare function fbs_Deg2Rad     (byval as double) as double
+declare function fbs_Volume_2_DB (byval as single) as single
+declare function fbs_DB_2_Volume (byval as single) as single 
+declare function fbs_Pow         (byval as double, byval as double) as double
+
+#inclib "fbsdsp"
+
+#ifndef NO_DSP
 
 #define MAX_FILTERS 10
 type FBS_FILTER
@@ -47,13 +55,8 @@ const _x2_r   = offsetof(FBS_FILTER,x2_r)
 const _y1_r   = offsetof(FBS_FILTER,y1_r)
 const _y2_r   = offsetof(FBS_FILTER,y2_r)
 
-declare function fbs_Rad2Deg     (byval as double) as double
-declare function fbs_Deg2Rad     (byval as double) as double
-declare function fbs_Volume_2_DB (byval as single) as single
-declare function fbs_DB_2_Volume (byval as single) as single 
-declare function fbs_Pow         (byval as double, byval as double) as double
 
-
+ #ifndef NO_PITCHSHIFT
 type PitchShift_t as sub(byval des as short ptr, _
                          byval src as short ptr, _
                          byval v as single, _
@@ -72,6 +75,7 @@ declare sub _PitchShiftStereo_asm(byval d as short ptr, _
                                   byval v as single  , _
                                   byval r as single  , _
                                   byval n as integer)
+ #endif
 
 declare sub _Set_EQFilter(byval lpFilter as fbs_filter ptr, _
                           byval Center   as single       , _
@@ -96,6 +100,6 @@ declare sub _Filter_Stereo_asm16(byval des as any ptr, _
 
 
 
-#endif ' NODSP
+#endif ' NO_DSP
 
 #endif ' __FBS_DSP_BI__

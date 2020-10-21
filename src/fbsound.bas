@@ -15,51 +15,59 @@
 #else
 #define API_EXPORT
 #endif
- 
 
-#if defined(NOMP3) and defined(NOMOD)
- ' no streams
+
+
+#if defined(NO_MP3) and defined(NO_SID)
+  ' no streams
 #else
- type FBS_STREAM_T
+ type FBS_STREAM
   as boolean            InUse
   as boolean            IsStreaming
   as boolean            IsFin
- #ifndef NOCALLBACK
+  as single             Volume
+  as single             lVolume
+  as single             rVolume
+  as single             Pan
+  as FBS_FORMAT         fmt
+  as ubyte ptr          pStart,pPlay,pEnd,pBuf
+  as integer            nOuts
+  as any ptr            hThread
+ #ifndef NO_CALLBACK
   as boolean            EnabledCallback
   as FBS_BufferCallback Callback
  #endif
+end type
+
+ #ifndef NO_SID
+type FBS_SID_STREAM extends FBS_STREAM
+  as boolean  bFillbuffer
+end type
+ #endif ' NO_SID
+
+ #ifndef NO_MP3
+type FBS_MP3_STREAM extends FBS_STREAM
   as short ptr          p16,pStreamSamples
   as single             l,r,scale,nPos
   as integer            nSamplesTarget,nBytesTarget,nRest
-  as single             Volume
-  as single             Pan
-  as single             lVolume
-  as single             rVolume
-
-  as FBS_FORMAT         fmt
   as integer            i
-  as any ptr            hThread,pBuf
-  
-  as ubyte ptr          pStart,pPlay,pEnd
+  as any ptr            hThread
   as short ptr          pFill
   as integer            RetStatus
   as ubyte ptr          pInArray
   as integer            nReadSize,nReadRest,nDecodedSize
   as ubyte ptr          pRead
-  as integer            hFile,nFrames,nBytes,nInSize,nOutSize,nOuts
- #ifndef NOMP3
+  as integer            hFile,nFrames,nBytes,nInSize,nOutSize
   as mad_stream         mStream
   as mad_frame          mFrame
   as mad_synth          mSynth
   as ubyte ptr          GuardPTR
- #endif
- #ifndef NOMOD
-  as any ptr           pMod
-  as any ptr           pDuh
- #endif
 end type
-type FBS_STREAM as FBS_STREAM_t
-#endif
+ #endif ' NO_MP3
+ 
+
+#endif ' NO_MP3 or NO_SID
+
 
 dim shared _mix                 as mix16_t
 dim shared _scale               as scale16_t
@@ -71,29 +79,31 @@ dim shared _movesliceright      as movesliceright32_t
 dim shared _copysliceleft       as copysliceleft32_t
 dim shared _movesliceleft       as movesliceleft32_t
 
-#if defined(NOMP3) and defined(NOMOD)
+#if defined(NO_MP3) and defined(NOSID)
   ' no streams
 #else
-dim shared _nPlayingStreams     as integer
 
- #ifndef NOMOD
-dim shared _MODStream           as FBS_STREAM
+ #ifndef NO_SID
+dim shared _SIDStream           as FBS_SID_STREAM
  #endif
  
- #ifndef NOMP3
-dim shared _MP3Stream           as FBS_STREAM
+ #ifndef NO_MP3
+dim shared _MP3Stream           as FBS_MP3_STREAM
 dim shared _CopySliceMP3Frame   as CopySliceMP3Frame32_t
 dim shared _ScaleMP3FrameStereo as ScaleMP3Frame_22_16_t
 dim shared _ScaleMP3FrameMono   as ScaleMP3Frame_12_16_t
  #endif
 
-#endif ' NOMP3 or NOMOD
+#endif ' NO_MP3 or NO_SID
 
-#ifndef NODSP
-dim shared _PitchShift          as PitchShift_t
+#ifndef NO_DSP
 dim shared _Filter              as Filter_t
 dim shared _MasterFilters(MAX_FILTERS-1) as fbs_filter
+ #ifndef NO_PITCHSHIFT
+dim shared _PitchShift          as PitchShift_t
+ #endif
 #endif
+
 
 dim shared _Sounds()            as FBS_SOUND
 dim shared _nSounds             as integer
@@ -106,10 +116,13 @@ dim shared _nPlugs              as integer
 dim shared _Plug                as integer
 dim shared _IsRunning           as boolean
 dim shared _IsInit              as boolean
+
 dim shared _nPlayingSounds      as integer
+dim shared _nPlayingStreams     as integer
+
 dim shared _nPlayedBytes        as integer
 
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
 dim shared _EnabledMasterCallback as boolean
 dim shared _MasterCallback        as fbs_buffercallback
 dim shared _EnabledLoadCallback   as boolean
@@ -119,42 +132,35 @@ dim shared _LoadCallback          as fbs_loadcallback
 dim shared _MasterBuffer        as any ptr
 dim shared _MasterVolume        as single
 dim shared _MaxChannels         as integer
-dim shared _seed                as integer
 
-#ifndef NOGETKEYCODE
-function fbs_Get_KeyCode() As FBS_KEYCODES API_EXPORT
-  dim as string  key=inkey() 
-  dim as integer keycode=len(key)
-  If keycode Then
-    keycode-=1
-    keycode=key[keycode]+(keycode shl 8)
-  End If
-  Return keycode
-end function
-#endif
+'dim shared _seed                as integer
 
 function FBS_Get_PlugPath() as string API_EXPORT
+  dprint("FBS_Get_PlugPath() " & _PlugPath)
   return _PlugPath
 end function
 
 sub FBS_Set_PlugPath(byval NewPath as string) API_EXPORT
+  dprint("FBS_Set_PlugPath(" & NewPath & ")")
   _PlugPath=NewPath
 end sub
 
-function FBS_Get_MaxChannels(byval lpMaxChannels as integer ptr) as boolean API_EXPORT
-  if lpMaxChannels=NULL then return false
-  *lpMaxChannels=_MaxChannels
+function FBS_Get_MaxChannels(byval pMaxChannels as integer ptr) as boolean API_EXPORT
+  dprint("FBS_Get_MaxChannels()")
+  if pMaxChannels=NULL then return false
+  *pMaxChannels=_MaxChannels
   return true
 end function
 
 function FBS_Set_MaxChannels(byval MaxChannels as integer) as boolean API_EXPORT
+  dprint("FBS_Set_MaxChannels(" & MaxChannels & ")")
   if MaxChannels<1   then MaxChannels=  1
   if MaxChannels>512 then MaxChannels=512
   _MaxChannels=MaxChannels
   return true
 end function
 
-#ifndef NODSP
+#ifndef NO_DSP
 private _
 function _IshFilter(byval hFilter as integer) as boolean
   if (_IsInit=false)                       then return false  
@@ -190,7 +196,18 @@ function FBS_Disable_MasterFilter (byval nFilter as integer) as boolean API_EXPO
   _MasterFilters(nFilter).Enabled=False
    return true
 end function
-#endif ' NODSP
+
+ #ifndef NO_PITCHSHIFT
+sub FBS_PitchShift(byval d as short ptr, _      ' output samples
+                   byval s as short ptr, _      ' input samples
+                   byval v as single   , _      ' value of shift pow(2,note*1.0/12.0)
+                   byval n as integer  )  API_EXPORT ' number of samples
+  if (_ISInit=false) then exit sub
+  _PitchShift(d,s,v,fbs_Get_PlugRate(),n)
+end sub
+ #endif
+
+#endif ' NO_DSP
 
 private _
 sub _MIXER(byval lpOChannels as any ptr, _
@@ -228,20 +245,6 @@ function FBS_Get_MasterVolume(byval lpVolume as single ptr) as boolean API_EXPOR
   return true
 end function
 
-#ifndef NODSP
-
-sub FBS_PitchShift(byval d as short ptr, _      ' output samples
-                   byval s as short ptr, _      ' input samples
-                   byval v as single   , _      ' value of shift pow(2,note*1.0/12.0)
-                   byval n as integer  )  API_EXPORT ' number of samples
-  if (_ISInit=false) then exit sub
- #ifndef __FB_64BIT__  
-  _PitchShift(d,s,v,fbs_Get_PlugRate(),n)
- #endif 
-end sub
- 
-#endif
-
 
 ' called from playback device
 private _
@@ -249,12 +252,7 @@ sub _FillBuffer(byval pArg as any ptr)
   static as any ptr MixerChannels(512)
   dim as integer i,j,k,nSize,nBytes,rest
   dim as integer nPlayingSounds,nChannels
-  
-#if defined(NOMP3) and defined(NOMOD)
-  ' no streams
-#else
   dim as integer nPlayingStreams
-#endif
 
   ' convert to Plug format
   dim as FBS_Plug ptr plug = cptr(FBS_Plug ptr,pArg)
@@ -268,11 +266,11 @@ sub _FillBuffer(byval pArg as any ptr)
   
   _nPlayedBytes += Plug->Buffersize
 
-#if defined(NOMP3) and defined(NOMOD)
+#if defined(NO_MP3) and defined(NO_SID)
   ' no streams
 #else
 
- #ifndef NOMP3
+ #ifndef NO_MP3
   with _MP3Stream
     ' is the MP3 stream active?
     if (.InUse=true) then
@@ -281,8 +279,7 @@ sub _FillBuffer(byval pArg as any ptr)
       if (.nOuts >= Plug->Buffersize) then
       
         nPlayingStreams+=1
-      
-        'dprint("FillBuffer: MP3Sream nOuts: " & .nOuts & " Plug->Buffersize: " & Plug->Buffersize) 
+
         if (.pPlay + Plug->Buffersize) <= .pEnd then
                   
           if (.Volume=0.0) then
@@ -304,7 +301,7 @@ sub _FillBuffer(byval pArg as any ptr)
           .nOuts -= Plug->Buffersize
           MixerChannels(nChannels) = .pBuf : nChannels += 1
           
-  #ifndef NOCALLBACK
+  #ifndef NO_CALLBACK
           ' straem user callback
           if cbool(.Callback<>NULL) andalso (.EnabledCallback=true) then
             .Callback(cptr(short ptr,.pBuf), Plug->FMT.nChannels, Plug->Buffersize shr Plug->FMT.nChannels)
@@ -324,17 +321,59 @@ sub _FillBuffer(byval pArg as any ptr)
       
       end if
     
-    end if ' (.InUse=true
+    end if ' .InUse=true
     
   end with
- #endif ' NOMP3
+ #endif ' NO_MP3
 
- #ifndef NOMOD
-    ' MOD stream
- #endif
- 
-  _nPlayingStreams=nPlayingStreams
-#endif ' NOMP3 or NOMOD
+ #ifndef NO_SID
+  ' SID stream
+  with _SIDStream
+    
+    ' is the SID stream active?
+    if (.InUse=true) then
+
+      ' enought decoded datas aviable
+      if (.nOuts >= Plug->Buffersize) then
+        
+        nPlayingStreams+=1
+        
+        if (.Volume=0.0) then
+          ' silence
+          zero(.pBuf, Plug->Buffersize)
+        else
+          if (.Volume<>1.0) then _scale(.pPlay,.pPlay,.Volume,Plug->Buffersize)
+          if (Plug->Fmt.nChannels=2) andalso (.pan<>0.0) then
+            _pan(.pBuf,.pPlay, .lVolume, .rVolume, Plug->Buffersize)
+          else
+            copy(.pBuf,.pPlay,Plug->Buffersize)
+          end if
+        end if
+       'dprint("FillBuffer: mix " &  Plug->Buffersize & " bytes from MP3Stream")  
+          
+        .nOuts -= Plug->Buffersize
+        MixerChannels(nChannels) = .pBuf : nChannels += 1
+        if .nOuts <= 0 then .bFillbuffer=true
+          
+  #ifndef NO_CALLBACK
+        ' straem user callback
+        if cbool(.Callback<>NULL) andalso (.EnabledCallback=true) then
+          .Callback(cptr(short ptr,.pBuf), Plug->FMT.nChannels, Plug->Buffersize shr Plug->FMT.nChannels)
+        end if
+  #endif
+      else
+        ' signal get new buffer
+        .bFillbuffer=true
+      end if
+      
+    
+    end if ' (.InUse=true
+    
+  end with    
+ #endif ' NOSID
+#endif ' NO_MP3 or NO_SID
+
+  _nPlayingStreams = nPlayingStreams
 
   if (_nWaves > 0) andalso (_nSounds > 0) then
     ' how many playing sounds
@@ -400,7 +439,7 @@ sub _FillBuffer(byval pArg as any ptr)
             end if
           end if
           
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
           ' user sound callback
           if cbool(_Sounds(i).Callback<>NULL) and (_Sounds(i).EnabledCallback=true) then
             _Sounds(i).Callback(cptr(short ptr,_Sounds(i).pBuf), _
@@ -457,7 +496,7 @@ sub _FillBuffer(byval pArg as any ptr)
     _scale(Plug->lpCurentBuffer,Plug->lpCurentBuffer,_MasterVolume,Plug->Buffersize)
   end if
 
-#ifndef NODSP
+#ifndef NO_DSP
   ' any EQ active
   for i=0 to MAX_FILTERS-1
     if (_MasterFilters(i).Enabled=true) andalso (_MasterFilters(i).dB<>0.0f) then
@@ -469,7 +508,7 @@ sub _FillBuffer(byval pArg as any ptr)
   next
 #endif
 
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
   ' user master callback ?
   if cbool(_MasterCallback<>NULL) andalso (_EnabledMasterCallback=true) then
     _MasterCallback(cptr(short ptr,Plug->lpCurentBuffer), _
@@ -556,7 +595,7 @@ function _LoadWave(byval Filename        as string, _
   dim as short     v16
   dim as short ptr p16
 
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
   dim as single   percent
   dim as integer  pold,pnew
 #endif        
@@ -584,7 +623,7 @@ function _LoadWave(byval Filename        as string, _
       
       if nSamples<=nSamplesTarget then
 
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
         percent=100.0/nSamplesTarget
 #endif        
         for i=0 to nSamplesTarget-1
@@ -625,7 +664,7 @@ function _LoadWave(byval Filename        as string, _
           end if
           nPos+=scale : cPos=int(nPos)
           
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
           if cbool(_LoadCallback<>NULL) and (_EnabledLoadCallback=true) then
             pnew = percent * i
             if (pnew<>pold) then
@@ -643,7 +682,7 @@ function _LoadWave(byval Filename        as string, _
       
         scale=(1.0/scale)
         
-#ifndef NOCALLBACK        
+#ifndef NO_CALLBACK        
         percent=100.0/nSamples
 #endif
         for i=0 to nSamples-1
@@ -688,7 +727,7 @@ function _LoadWave(byval Filename        as string, _
           end if
           nPos+=scale:cPos=int(nPos)
 
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
           if cbool(_LoadCallback<>NULL) and (_EnabledLoadCallback=true) then
             pnew = percent * i
             if (pnew<>pold) then
@@ -726,17 +765,17 @@ function _Adjust_Path(byval Path as string) as string
   return Path
 end function
 
-private _
-function _Get_PlugPath() as string
-  dim as string tmp = _Adjust_Path(exepath())
+private function _Get_PlugPath() as string
+  dim as string tmp = _Adjust_Path(_PlugPath)
   return tmp
 end function
 
 private _
 function _InitPlugout(byval filename as string, _
                       byref p        as FBS_Plug) as boolean
-  dprint("fbs:_initplugout")
+  dprint("_InitPlugout(" & filename & ")")
   p.plug_hLib=0
+  dprint("_InitPlugout: dylibload(" & filename & ")")
   p.plug_hLib=dylibload(filename)
   if p.plug_hLib<>0 then
     p.plug_isany=dylibsymbol(p.plug_hLib, "PLUG_ISANY" )
@@ -754,85 +793,67 @@ function _InitPlugout(byval filename as string, _
            (p.plug_error<>NULL) then
             return true
         else
-          dprint("init plugout: isn't a plugout interface!")
+          dprint("_InitPlugout: isn't a plugout interface!")
           DylibFree p.plug_hLib
           p.plug_hLib=NULL
           return false
         end if
       else
-        dprint("init plugout: no free devices !")
+        dprint("_InitPlugout: no free devices !")
+        dprint("_InitPlugout: call DylibFree()")
         DylibFree p.plug_hLib
         p.plug_hLib=NULL
         return false
       end if
     else
-      dprint("init plugout: missing interface member (plug_isany)")
+      dprint("_InitPlugout: missing interface member (plug_isany)")
+      dprint("_InitPlugout: call DylibFree()")
       DylibFree p.plug_hLib
       p.plug_hLib=NULL
       return false
     end if
   else
-    dprint("init plugout: can't load plugout '" + filename + "' !")
+    dprint("_InitPlugout: can't load '" & filename & "' !")
     return false
   end if
 end function
 
 pluglist:
 #ifdef __FB_WIN32__
-
  #ifndef __FB_64BIT__
- 
-  #ifndef NOPLUG_MM  
-data "plug-mm-32.dll"
+  #ifndef NO_PLUG_MM  
+data "fbsound-mm-32.dll"
   #endif  
-  
-  #ifndef NOPLUG_DS 
-data "plug-ds-32.dll"
+  #ifndef NO_PLUG_DS 
+data "fbsound-ds-32.dll"
   #endif
- 
  #else
-
-  #ifndef NOPLUG_MM  
-data "plug-mm-64.dll"
+  #ifndef NO_PLUG_MM  
+data "fbsound-mm-64.dll"
   #endif
-  
-  #ifndef NOPLUG_DS 
-data "plug-ds-64.dll"
+  #ifndef NO_PLUG_DS 
+data "fbsound-ds-64.dll"
   #endif 
-  
  #endif 
  
 #else
 
  #ifndef __FB_64BIT__
- 
-  #ifndef NOPLUG_ALSO
-data "libplug-alsa-32.so"
+  #ifndef NO_PLUG_ALSA
+data "libfbsound-alsa-32.so"
   #endif  
-  
-  #ifndef NOPLUG_DSP
-data "libplug-dsp-32.so"
+  #ifndef NO_PLUG_DSP
+data "libfbsound-dsp-32.so"
   #endif
-  
-  #ifndef NOPLUG_ARTS  
-data "libplug-arts-32.so"
+  #ifndef NO_PLUG_ARTS  
+data "libfbsound-arts-32.so"
   #endif
- 
  #else
- 
   ' linux 64-bit 
-  #ifndef NOPLUG_ALSO
-data "libplug-alsa-64.so"
+  #ifndef NO_PLUG_ALSA
+data "libfbsound-alsa-64.so"
   #endif  
-  #ifndef NOPLUG_DSP
-data "libplug-dsp-64.so"
-  #endif
-  #ifndef NOPLUG_ARTS  
-data "libplug-arts-64.so"
-  #endif
-   
  #endif 
- 
 #endif
 
 data "" ' end of list
@@ -841,7 +862,7 @@ private _
 sub _Enumerate_Plugs()
   dim as string  plugname
   dim as FBS_Plug _new
- 
+  dprint("_Enumerate_Plugs()") 
   if _nPlugs>0 then exit sub
 
   restore pluglist
@@ -849,6 +870,7 @@ sub _Enumerate_Plugs()
   
   while len(plugname)
     plugname = _PlugPath & plugname
+    dprint("_Enumerate_Plugs() call _initplugout(" & plugname & ")")
     if _initplugout(plugname,_new)=true then
       redim preserve _Plugs(_nPlugs)
       _Plugs(_nPlugs)=_new : _nPlugs+=1
@@ -860,25 +882,30 @@ end sub
 
 private _
 sub _fbs_init() constructor
-  dprint("fbs()")
-  _Seed        = 13
+  dprint("_fbs_init() module constructor")
   _PlugPath    =_Get_PlugPath()
   _Plug        =-1
   _MasterVolume=1.0
   _MaxChannels =512
-#ifndef NOMOD
-  dumb_register_stdfiles
+#ifndef NO_MOD
+  dprint("_fbs_init() module constructor call dumb_register_stdfiles()")
+  dumb_register_stdfiles()
 #endif
 end sub
 
 private _
 sub _fbs_exit() destructor
-  dprint("fbs~")
+  dprint("_fbs_exit() module destructor")
   if (_IsInit=true) then 
-    if (_IsRunning=true) then fbs_Stop
-    fbs_Exit
+    if (_IsRunning=true) then
+      dprint("_fbs_exit() module destructor call fbs_Stop()")
+      fbs_Stop()
+    end if
+    dprint("_fbs_exit() module destructor call fbs_Exit()")  
+    fbs_Exit()
   end if
-#ifndef NOMOD
+#ifndef NO_MOD
+  dprint("_fbs_exit() module destructor call dumb_exit()")  
   dumb_exit()
 #endif
 end sub
@@ -950,7 +977,7 @@ function FBS_Get_PlayingSounds() as integer  API_EXPORT
   if (_IsRunning=true) then return _nPlayingSounds
 end function
 
-#if defined(NOMP3) and defined(NOMOD)
+#if defined(NO_MP3) and defined(NO_SID)
   ' no streams
 #else
 function FBS_Get_PlayingStreams() as integer  API_EXPORT
@@ -1039,17 +1066,18 @@ function FBS_Init(byval nRate        as integer, _
       _movesliceleft      =@MoveSliceLeft16
       _pan                = NULL '!!!
       
-#ifndef NOMP3
+#ifndef NO_MP3
       _CopySliceMP3Frame  =@CopySliceMP3Frame16
       _ScaleMP3FrameStereo=@ScaleMP3Frame_21_16
       _ScaleMP3FrameMono  =@ScaleMP3Frame_11_16
 #endif
 
-#ifndef NODSP
-      _PitchShift         =@_PitchShiftMono_asm
+#ifndef NO_DSP
       _Filter             =@_Filter_Mono_asm16
+ #ifndef NO_PITCHSHIFT
+      _PitchShift         =@_PitchShiftMono_asm
+ #endif
 #endif
-
     else
       ' stereo
       _copyright          =@CopyRight32
@@ -1060,16 +1088,18 @@ function FBS_Init(byval nRate        as integer, _
       _movesliceleft      =@MoveSliceLeft32
       _pan                =@Pan16
       
-#ifndef NOMP3
+#ifndef NO_MP3
       _CopySliceMP3Frame  =@CopySliceMP3Frame32
       _ScaleMP3FrameStereo=@ScaleMP3Frame_22_16
       _ScaleMP3FrameMono  =@ScaleMP3Frame_12_16
 #endif
 
-#ifndef NODSP
-      _PitchShift         =@_PitchShiftStereo_asm
+#ifndef NO_DSP
       _Filter             =@_Filter_Stereo_asm16
-#endif
+ #ifndef NO_PITCHSHIFT
+      _PitchShift         =@_PitchShiftStereo_asm
+ #endif
+#endif 
     end if
     
     _IsInit = true
@@ -1095,10 +1125,12 @@ function FBS_Stop() as boolean  API_EXPORT
   dprint("FBS_Stop()")
   if _Plug = -1 then return true
   if _IsRunning = false then return true
-
+  dprint("FBS_Stop() call _Plugs(_Plug).plug_stop()")
   ret=_Plugs(_Plug).plug_stop()
-  sleep 500
+  dprint("FBS_Stop() call sleep(100,1)")
+  sleep(100,1)
   if ret=true then _IsRunning=false
+  dprint("FBS_Stop~")
   return ret
 end function
 
@@ -1107,17 +1139,22 @@ function FBS_Exit() as boolean  API_EXPORT
   dim as integer i
   if _Plug = -1 then return true
   if _IsRunning = true then 
+    dprint("FBS_Exit() call FBS_Stop()")
     FBS_Stop()
     _IsRunning = false
-    sleep 500
+    dprint("FBS_Exit() call sleep(100,1)")
+    sleep(100,1)
   end if
 
-#if defined(NOMP3) and defined(NOMOD)
+#if defined(NO_MP3) and defined(NO_SID)
   ' no streams
 #else
 
- #ifndef NOMP3
-  if (_MP3Stream.InUse=true) then FBS_End_MP3Stream()
+ #ifndef NO_MP3
+  if (_MP3Stream.InUse=true) then
+    dprint("FBS_Exit() call FBS_End_MP3Stream()")
+    FBS_End_MP3Stream()
+  end if  
   ' free all resources from streams 
   with _MP3Stream
     if (.pInArray       <> NULL) then deallocate .pInArray       : .pInArray = NULL  
@@ -1127,11 +1164,19 @@ function FBS_Exit() as boolean  API_EXPORT
   end with
  #endif
 
- #ifndef NOMOD
-  
+ #ifndef NO_SID
+  if (_SIDStream.InUse=true) then
+    dprint("FBS_Exit() call FBS_End_SIDStream()")
+    FBS_End_SIDStream()
+  end if  
+  ' free all resources from streams 
+  with _SIDStream
+    if (.pBuf           <> NULL) then deallocate .pBuf           : .pBuf = NULL  
+    if (.pStart         <> NULL) then deallocate .pStart         : .pStart = NULL  
+  end with
  #endif
 
-#endif ' NOMP3 or NOMOD
+#endif ' NO_MP3 or NO_SID
 
   if _nSounds>0 then
   
@@ -1171,17 +1216,21 @@ function FBS_Exit() as boolean  API_EXPORT
     next
     _nWaves=0
   end if
-  
+  dprint("FBS_Exit() call _Plugs(_Plug).plug_exit()")
   _Plugs(_Plug).plug_exit()
-  sleep 500
+  dprint("FBS_Exit() call sleep(100,1)")
+  sleep(100,1)
   if _Plugs(_Plug).plug_hLib <> NULL then
+    dprint("FBS_Exit() call dylibfree _Plugs(_Plug).plug_hLib")
     dylibfree _Plugs(_Plug).plug_hLib
+    dprint("FBS_Exit() call sleep(100,1)")
+    sleep(100,1)
     _Plugs(_Plug).plug_hLib = NULL
   end if
   _nPlugs =  0
   _Plug   = -1
   _IsInit = false
-  dprint("FBS_Exit~")
+  dprint("FBS_Exit()~")
   return true
 end function
 
@@ -1228,7 +1277,7 @@ end function
 
 function FBS_Load_WAVFile(byref Filename as string, _
                           byval hWave    as integer ptr) as boolean  API_EXPORT
-
+  dprint("FBS_Load_WAVFile(" & Filename & ")")
   dim as integer nBytes
   if (hWave = NULL) then return false  
   *hWave=-1
@@ -1261,7 +1310,7 @@ function FBS_Load_WAVFile(byref Filename as string, _
   return true
 end function
 
-#ifndef NOMP3
+#ifndef NO_MP3
 '  ##############
 ' # mp3 libmad #
 '##############
@@ -1315,7 +1364,7 @@ function ConvertMP3Stream() as integer
   if (_MP3Stream.mSynth.pcm.Samplerate = _Plugs(_Plug).fmt.nRate) then
 
     while ( cbool( (_MP3Stream.nOuts + _MP3Stream.nBytesTarget) > _MP3Stream.nOutSize) andalso (_MP3Stream.IsStreaming=true) )
-      sleep 1
+      sleep(1,1)
     wend 
     if (_MP3Stream.IsStreaming=false) then return 0
     
@@ -1330,7 +1379,7 @@ function ConvertMP3Stream() as integer
     _MP3Stream.nBytesTarget *= (1.0/_MP3Stream.scale)
     
     while (  cbool( (_MP3Stream.nOuts + _MP3Stream.nBytesTarget) > _MP3Stream.nOutSize) andalso (_MP3Stream.IsStreaming=true) )
-      sleep 1
+      sleep(1,1)
     wend
     if _MP3Stream.IsStreaming=false then return 0
     
@@ -1449,7 +1498,7 @@ sub _MP3StreamingThread(byval dummy as any ptr)
     if _MP3Stream.nReadRest>0 then 
       _MP3Stream.nReadRest=_Plugs(_Plug).Buffersize-_MP3Stream.nReadRest
       while ((_MP3Stream.nOuts+_MP3Stream.nReadRest)>_MP3Stream.nOutSize)
-        sleep 1
+        sleep(1,1)
       wend 
       zerobuffer(_MP3Stream.pStart, @_MP3Stream.p16, _MP3Stream.pEnd, _MP3Stream.nReadRest)
       _MP3Stream.nOuts+=_MP3Stream.nReadRest
@@ -1466,8 +1515,6 @@ sub _MP3StreamingThread(byval dummy as any ptr)
   if _MP3Stream.hFile<>0 then close _MP3Stream.hFile : _MP3Stream.hFile=0
   dprint("_MP3StreamingThread~")
 end sub
-
-
 
 private _
 function inputcallback cdecl (byval pData   as any ptr, _
@@ -1749,7 +1796,7 @@ function FBS_Play_MP3Stream (byval Volume  as single , _
   else
     ' wait on start of decoder
     while (_MP3Stream.IsStreaming=false)
-      sleep 1
+      sleep(1,1)
     wend
   end if
   
@@ -1779,10 +1826,218 @@ function FBS_End_MP3Stream() as boolean  API_EXPORT
    return true
 end function
 
-#endif ' NOMP3
+#endif ' NO_MP3
+
+#ifndef NO_SID
+
+'  ##############
+' # SID Stream #
+'##############
+
+private _
+sub _SIDStreamingThread(byval dummy as any ptr)
+  dprint("_SIDStreamingThread()")
+  if (_SIDStream.InUse=false) then exit sub
+  
+  _SIDStream.IsStreaming=true
+
+  ' loop over the whole stream
+  while (_SIDStream.IsStreaming = true)
+    if (_SIDStream.bFillBuffer=true) then
+      libcsid_render(_SIDStream.pPlay,_Plugs(_Plug).Fmt.nChannels,_Plugs(_Plug).Buffersize)
+      _SIDStream.nOuts=_Plugs(_Plug).Buffersize
+      _SIDStream.bFillBuffer=false
+    else
+      while (_SIDStream.IsStreaming = true) and (_SIDStream.bFillBuffer=false)
+        sleep(1,1)
+      wend  
+    end if  
+  wend
+ 
+  dprint("_SIDStreamingThread~")
+end sub
+
+function FBS_Set_SIDStreamVolume(byval Volume as single) as boolean  API_EXPORT
+  if _SIDStream.InUse=false then return false  
+  if Volume>2.0    then Volume=2.0
+  if Volume<0.0001 then Volume=0.0
+  _SIDStream.Volume=Volume
+   return true
+end function
+
+function FBS_Get_SIDStreamVolume(byval pVolume as single ptr) as boolean  API_EXPORT
+  if _SIDStream.InUse = false then return false  
+  if pVolume = NULL then return false  
+  *pVolume = _SIDStream.Volume
+   return true
+end function
+
+function FBS_Set_SIDStreamPan(byval Pan as single) as boolean  API_EXPORT
+  if _SIDStream.InUse=false then return false  
+  if Pan<-1.0 then Pan=-1.0
+  if Pan> 1.0 then Pan= 1.0
+  _SIDStream.Pan = Pan
+  if Pan>=0.0 then _SIDStream.rVolume=1 else _SIDStream.rVolume=Pan+1.0
+  if Pan<=0.0 then _SIDStream.lVolume=1 else _SIDStream.lVolume=1.0-Pan
+   return true
+end function
+
+function FBS_Get_SIDStreamPan(byval pPan as single ptr) as boolean  API_EXPORT
+  if pPan = NULL then return false  
+  if _SIDStream.InUse = false then return false  
+  *pPan = _SIDStream.Pan
+  return true
+end function
+
+function FBS_Create_SIDStream (byref Filename as string, _
+                               byval PlayTune as integer, _
+                               byval pTunes as integer ptr) as boolean  API_EXPORT
+  if _IsInit          = false then return false   ' not init
+  if _SIDStream.InUse = true  then return false  
+  
+  var hFile = FreeFile()
+  if open(Filename,for binary,access read,as #hFile) then
+    dprint("FBS_Create_SIDStream error: can't open SID stream: '" & Filename & " !")
+    return false
+  end if
+  
+  var nBytes = lof(hFile)
+  if nBytes<255 then
+    close #hFile
+    dprint("FBS_Create_SIDStream error: empty SID stream: '" & Filename & " !")
+    return false
+  end if
+  
+  dim as ubyte ptr buffer = allocate(nBytes)
+  get #hFile,,*buffer,nBytes
+  close #hFile
+
+  libcsid_init(_Plugs(_Plug).Fmt.nRate)
+  if PlayTune<0 then PlayTune=0
+  dim as integer nTunes = buffer[&H0f]
+  if PlayTune<0 then
+    PlayTune=0
+  elseif nTunes>0 then
+    if PlayTune>=nTunes then
+      PlayTune=nTunes-1
+    end if
+  end if  
+  
+  nTunes = libcsid_load(buffer,nBytes,PlayTune)
+  deallocate buffer
+  if pTunes then *pTunes=nTunes
+ 
+  with _SIDStream
+    .IsStreaming  = false
+    .IsFin        = false
+    .hThread      = 0
+    .nOuts        = 0
+    .Volume       = 1.0
+    .Pan          = 0.0
+    if (.pStart = NULL) then
+      .pStart = callocate(_Plugs(_Plug).Buffersize)
+      .pEnd   = .pStart + _Plugs(_Plug).Buffersize
+    end if
+    if (.pBuf = NULL) then 
+      .pBuf = callocate(_Plugs(_Plug).Buffersize+512)
+    end if
+    
+    .pPlay = .pStart
+    
+    .InUse = true
+  end with
+  return true
+end function
+
+function FBS_Play_SIDStream (byval Volume  as single , _
+                             byval Pan     as single) as boolean  API_EXPORT
+
+  if _SIDStream.InUse=false then 
+    dprint("FBS_Play_SIDStream() called without FBS_Create_SIDStream() before ! ")
+    return false
+  end if  
+  if (_SIDStream.IsStreaming=true) then 
+    dprint("FBS_Play_SIDStream() called without FBS_Stop_SIDStream() before ! ")
+    return false
+  end if  
+
+  fbs_Set_SIDStreamVolume(Volume)
+  fbs_Set_SIDStreamPan(Pan)
+
+  _SIDStream.pPlay = _SIDStream.pStart
+
+  _SIDStream.hThread = ThreadCreate(cptr(any ptr, @_SIDStreamingThread),0)
+  if _SIDStream.hThread=NULL then 
+    dprint("FBS_Play_SIDStream(): error ThreadCreate!")
+    return false
+  else
+    ' wait on start of thread
+    while (_SIDStream.IsStreaming=false)
+      sleep(1,1)
+    wend
+    ' fill first buffer
+    _SIDStream.bFillbuffer = true
+  end if
+
+  return true
+end function
+
+function FBS_Get_SIDStreamBuffer(byval ppBuffer  as short ptr ptr, _
+                                 byval pnChannels as integer ptr  , _
+                                 byval pnSamples  as integer ptr  ) as boolean  API_EXPORT
+  if _SIDStream.InUse = false then return false
+  *ppBuffer  = cptr(short ptr,_SIDStream.pPlay)
+  *pnChannels = _Plugs(_Plug).fmt.nChannels
+  *pnSamples  = _Plugs(_Plug).Buffersize shr _Plugs(_Plug).fmt.nChannels
+   return true
+end function
+
+function FBS_End_SIDStream() as boolean  API_EXPORT
+  if (_SIDStream.InUse=false) then return true
+
+  ' end streaming
+  if _SIDStream.IsStreaming=true then
+    _SIDStream.IsStreaming=false
+    if _SIDStream.hThread<>0 then
+      ThreadWait _SIDStream.hThread
+    _SIDStream.hThread=0
+    end if
+  end if  
+  _SIDStream.InUse=false
+   return true
+end function
+
+function FBS_Get_SIDAuthor() as string API_EXPORT
+  dim as string ret
+  if (_SIDStream.InUse=true) then
+    dim as const zstring ptr p=libcsid_getauthor()
+    if p then ret=*p
+  end if
+  return ret 
+end function
+
+function FBS_Get_SIDInfo() as string API_EXPORT
+  dim as string ret
+  if (_SIDStream.InUse=true) then
+    dim as const zstring ptr p=libcsid_getinfo()
+    if p then ret=*p
+  end if
+  return ret 
+end function
+
+function FBS_Get_SIDTitle() as string API_EXPORT
+  dim as string ret
+  if (_SIDStream.InUse=true) then
+    dim as const zstring ptr p=libcsid_gettitle()
+    if p then ret=*p
+  end if
+  return ret 
+end function
+
+#endif 'NO_SID
 
 
-#ifndef NOMOD
+#ifndef NO_MOD
 
 ' create hWave from *.it *.xm *.sm3 or *.mod file
 function FBS_Load_MODFile(byref Filename as string     , _
@@ -1822,8 +2077,6 @@ function FBS_Load_MODFile(byref Filename as string     , _
     dprint("FBS_Load_MODFile get_it_sigrenderer failed!")
   end if
   
-    
-  
   dim as single  delta       = 65536.0/_Plugs(_Plug).fmt.nRate
   dim as integer nSamples    = 0, WritePos=0,nBytes=0
   dim as integer nBufferSize = 4096*_Plugs(_Plug).Framesize
@@ -1843,7 +2096,7 @@ function FBS_Load_MODFile(byref Filename as string     , _
      return false
   end if  
 
- #ifndef NOCALLBACK
+ #ifndef NO_CALLBACK
   dim as single   percent=100.0/nAllocatedBytes
   dim as integer  pold,pnew
  #endif
@@ -1856,7 +2109,7 @@ function FBS_Load_MODFile(byref Filename as string     , _
       dim as integer nNewBytes=ret*_Plugs(_Plug).Framesize
       nBytes+=nNewBytes
       
- #ifndef NOCALLBACK
+ #ifndef NO_CALLBACK
       if cbool(_LoadCallback<>NULL) andalso (_EnabledLoadCallback=true) then
         pnew = percent * nBytes
         if (pnew<>pold) then
@@ -1902,10 +2155,10 @@ function FBS_Load_MODFile(byref Filename as string     , _
   return true
 end function
 
-#endif ' NOMOD
+#endif ' NO_MOD
 
 
-#ifndef NOOGG
+#ifndef NO_OGG
 ' OGG 
 type OGG_BUFFER
   as ubyte ptr pBuffer
@@ -1944,13 +2197,13 @@ function _oggSeekcb cdecl (byval pUser as any ptr, byval offset as longint, byva
 end function
 
 private _
-function _oggClosecb cdecl (pUser as any ptr) as long
+function _oggClosecb cdecl (byval pUser as any ptr) as long
   var f = cptr(OGG_BUFFER ptr,pUser)
   return 1
 end function
 
 private _
-function _oggTellcb cdecl (pUser as any ptr) as clong
+function _oggTellcb cdecl (byval pUser as any ptr) as clong
   var f = cptr(OGG_BUFFER ptr,pUser)
   return f->index
 end function
@@ -2096,26 +2349,26 @@ function FBS_Load_OGGFile(byref Filename as string , _
     return false
   end if
 end function
-#endif ' NOOGG
+#endif ' NO_OGG
 
 private _
 function _IshWave(byval hWave as integer) as boolean
-  if (_IsInit=false)                   then return false   ' not init
-  if (_nWaves<1)                       then return false   ' no waves
-  if (hWave<0) or (hWave>=_nWaves)     then return false   ' no legal hWave
-  if _Waves(hWave).pStart = NULL      then return false   ' reloaded wave
-  if _Waves(hWave).nBytes  < 1         then return false   ' reloaded wave
+  if (_IsInit=false)               then return false  ' not init
+  if (_nWaves<1)                   then return false  ' no waves
+  if (hWave<0) or (hWave>=_nWaves) then return false  ' no legal hWave
+  if _Waves(hWave).pStart = NULL   then return false  ' reloaded wave
+  if _Waves(hWave).nBytes  < 1     then return false  ' reloaded wave
    return true
 end function
 
 private _
 function _IshSound(byval hSound as integer) as boolean
-  if (_IsInit =false)                  then return false   ' not init
-  if (_nWaves <1    )                  then return false   ' no waves
-  if (_nSounds<1    )                  then return false   ' no sound created
-  if (hSound  <0 ) or (hSound>=_nSounds) then return false ' no legal hSound
-  if (_Sounds(hSound).pStart=NULL)    then return false   ' free old sound
-  if (_Sounds(hSound).pBuf  =NULL)    then return false   ' free old sound
+  if (_IsInit=false)                  then return false ' not init
+  if (_nWaves<1)                      then return false ' no waves
+  if (_nSounds<1)                     then return false ' no sound created
+  if (hSound<0) or (hSound>=_nSounds) then return false ' no legal hSound
+  if (_Sounds(hSound).pStart=NULL)    then return false ' free old sound
+  if (_Sounds(hSound).pBuf  =NULL)    then return false ' free old sound
   return true
 end function
 
@@ -2251,7 +2504,7 @@ end function
 
 function FBS_Set_SoundLoops(byval hSound as integer, _
                             byval nLoops as integer=1) as boolean  API_EXPORT
-  if _IshSound(hSound)=false   then return false   ' not init
+  if _IshSound(hSound)=false then return false   ' not init
   if nLoops<0 then nLoops=&H7FFFFFFF ' endless !!!
   _Sounds(hSound).nLoops=nLoops
   return true
@@ -2259,7 +2512,7 @@ end function
 function FBS_Get_SoundLoops(byval hSound as integer, _
                             byval pnLoops as integer ptr) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false
-  if pnLoops=NULL             then return false
+  if pnLoops=NULL            then return false
   *pnLoops = _Sounds(hSound).nLoops
   return true
 end function
@@ -2332,11 +2585,10 @@ function fbs_Get_SoundPosition(byval hSound    as integer, _
   return true
 end function
 
-function fbs_Set_SoundPointers( _
-  byval hSound     as integer , _
-  byval pNewStart as short ptr=NULL, _
-  byval pNewPlay  as short ptr=NULL, _
-  byval pNewEnd   as short ptr=NULL) as boolean  API_EXPORT
+function fbs_Set_SoundPointers(byval hSound    as integer , _
+                               byval pNewStart as short ptr=NULL, _
+                               byval pNewPlay  as short ptr=NULL, _
+                               byval pNewEnd   as short ptr=NULL) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false
   dim as byte ptr pNew
 
@@ -2471,12 +2723,12 @@ function FBS_Play_Wave(byval hWave  as integer           , _
       .pBuf = callocate(_Plugs(_Plug).Buffersize+512)
       if (.pBuf=NULL) then
         dprint( "fbs_play_wave: ERROR out of memory !")
-        sleep :end 1
+        beep : sleep : end 1
       else
         .pOrg = .pBuf
       end if
     end if
-  #ifndef NOCALLBACK
+  #ifndef NO_CALLBACK
     .Callback       = NULL
     .EnabledCallback= false
   #endif
@@ -2526,12 +2778,12 @@ function FBS_Create_Sound(byval hWave  as integer  , _
       .pBuf = callocate(_Plugs(_Plug).Buffersize+512)
       if (.pBuf = NULL) then
         dprint("fbs_create_sound: ERROR out of memory !")
-        sleep : end 1
+        beep : sleep : end 1
       else
         .pOrg = .pBuf
       end if
     end if
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
     .Callback       = NULL
     .EnabledCallback= false
 #endif
@@ -2559,7 +2811,7 @@ function FBS_Play_Sound(byval hSound as integer    , _
   return true
 end function
 
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
 
 '  #############################
 ' # Section of user Callbacks #
@@ -2572,13 +2824,11 @@ function FBS_Set_LoadCallback(byval pCallback as FBS_LOADCALLBACK) as boolean  A
   _LoadCallback = pCallback
    return true
 end function
-
 function FBS_Enable_LoadCallback() as boolean  API_EXPORT
   if (_IsInit = false) then _EnabledLoadCallback = false : return false
   _EnabledLoadCallback = true
   return true
 end function
-
 function FBS_Disable_LoadCallback() as boolean  API_EXPORT
   if (_IsInit = false) then _EnabledLoadCallback = false : return false
   _EnabledLoadCallback = false
@@ -2592,13 +2842,12 @@ function FBS_Set_MasterCallback(byval lpCallback as FBS_BUFFERCALLBACK) as boole
   _MasterCallback = lpCallBack
    return true
 end function
-
 function FBS_Enable_MasterCallback() as boolean  API_EXPORT
   if (_IsInit = false) then _EnabledMasterCallback = false : return false
+  if (_MasterCallback=0) then _EnabledMasterCallback = false : return false
   _EnabledMasterCallback = true
   return true
 end function
-
 function FBS_Disable_MasterCallback() as boolean  API_EXPORT
   if (_IsInit = false) then _EnabledMasterCallback = false : return false
   _EnabledMasterCallback = false
@@ -2613,14 +2862,12 @@ function FBS_Set_SoundCallback(byval hSound    as integer, _
   _Sounds(hSound).Callback = pCallBack
    return true
 end function
-
 function FBS_Enable_SoundCallback(byval hSound as integer) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false  
   if _Sounds(hSound).Callback = NULL then return false  
   _Sounds(hSound).EnabledCallback = true
   return true
 end function
-
 function FBS_Disable_SoundCallback(byval hSound as integer) as boolean  API_EXPORT
   if _IshSound(hSound)=false then return false  
   if _Sounds(hSound).Callback = NULL then return false  
@@ -2628,57 +2875,50 @@ function FBS_Disable_SoundCallback(byval hSound as integer) as boolean  API_EXPO
   return true
 end function
 
- #if defined(NOMP3) and defined(NOMOD)
-   ' no streams
- #else
-  #ifndef NOMP3
+ #ifndef NO_MP3
 function FBS_Set_MP3StreamCallback(byval pCallback as FBS_BUFFERCALLBACK) as boolean  API_EXPORT
   if _MP3Stream.InUse = false then return false  
   _MP3Stream.EnabledCallback = false
   _MP3Stream.Callback = pCallBack
   return true
 end function
-
 function FBS_Enable_MP3StreamCallback() as boolean  API_EXPORT
   if _MP3Stream.InUse = false then return false  
   if _MP3Stream.Callback = NULL then return false  
   _MP3Stream.EnabledCallback = true
   return true
 end function
-
 function FBS_Disable_MP3StreamCallback() as boolean  API_EXPORT
   if _MP3Stream.InUse = false then return false  
   if _MP3Stream.Callback = NULL then return false  
   _MP3Stream.EnabledCallback = false
   return true
 end function
-  #endif ' NOMP3
+ #endif ' NO_MP3
 
-  #ifndef NOMOD
-function FBS_Set_MODStreamCallback(byval pCallback as FBS_BUFFERCALLBACK) as boolean  API_EXPORT
-  if _MODStream.InUse = false then return false  
-  _MODStream.EnabledCallback = false
-  _MODStream.Callback = pCallBack
+ #ifndef NO_SID
+function FBS_Set_SIDStreamCallback(byval pCallback as FBS_BUFFERCALLBACK) as boolean  API_EXPORT
+  if _SIDStream.InUse = false then return false  
+  _SIDStream.EnabledCallback = false
+  _SIDStream.Callback = pCallBack
   return true
 end function
 
-function FBS_Enable_MODStreamCallback() as boolean  API_EXPORT
-  if _MODStream.InUse = false then return false  
-  if _MODStream.Callback = NULL then return false  
-  _MODStream.EnabledCallback = true
+function FBS_Enable_SIDStreamCallback() as boolean  API_EXPORT
+  if _SIDStream.InUse = false then return false  
+  if _SIDStream.Callback = NULL then return false  
+  _SIDStream.EnabledCallback = true
   return true
 end function
 
-function FBS_Disable_MODStreamCallback() as boolean  API_EXPORT
-  if _MODStream.InUse = false then return false  
-  if _MODStream.Callback = NULL then return false  
-  _MODStream.EnabledCallback = false
+function FBS_Disable_SIDStreamCallback() as boolean  API_EXPORT
+  if _SIDStream.InUse = false then return false  
+  if _SIDStream.Callback = NULL then return false  
+  _SIDStream.EnabledCallback = false
   return true
 end function
-  #endif 
+ #endif ' NO_SID
  
- #endif ' NOMP3 or NOMOD
- 
-#endif ' NOCALLBACK
+#endif ' NO_CALLBACK
 
 

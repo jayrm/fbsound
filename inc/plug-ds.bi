@@ -4,12 +4,12 @@
 '  ##############
 ' # plug-ds.bi #
 '##############
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 #include once "fbstypes.bi"
 
-#ifndef NOPLUG_DS
+#ifndef NO_PLUG_DS
 
 ' test of secondary DirectSoundBuffer
 #include once "windows.bi"       ' <- BOOL, NULL ...
@@ -20,6 +20,6 @@
 #inclib "dxguid"
 #inclib "ole32"
 
-#endif ' NOPLUG_DS
+#endif ' NO_PLUG_DS
 
 #endif ' __FBS_PLUGOUT_DS__

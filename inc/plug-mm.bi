@@ -4,13 +4,14 @@
 '  ##############
 ' # plug-mm.bi #
 '##############
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 #include once "fbstypes.bi"
 
-#ifndef NOPLUG_MM
+#ifndef NO_PLUG_MM
 
+#include once "windows.bi"
 #include once "win/mmsystem.bi"
 
 ' API helper section
@@ -115,6 +116,6 @@ sub setWaveFormatex(byref wf        as WAVEFORMATEX, _
   end with
 end sub
 
-#endif ' NOPLUG_MM
+#endif ' NO_PLUG_MM
 
 #endif '__FBS_PLUGOUT_MM__

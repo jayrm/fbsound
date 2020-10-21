@@ -7,7 +7,7 @@
 
 #include once "fbstypes.bi"
 
-#ifndef NOMOD
+#ifndef NO_MOD
 
 #inclib "dumb"
 
@@ -74,6 +74,6 @@ byval userdata as any ptr)
 
 end extern
 
-#endif ' NOMOD
+#endif ' NO_MOD
 
 #endif ' __DUMB_BI__

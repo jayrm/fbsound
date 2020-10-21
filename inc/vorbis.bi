@@ -6,7 +6,7 @@
 ' ################
 #include once "fbstypes.bi"
 
-#ifndef NOOGG
+#ifndef NO_OGG
 
 #inclib "ogg"
 #inclib "vorbis"
@@ -369,6 +369,6 @@ byval vf as OggVorbis_File ptr) as long
 
 end extern
 
-#endif ' NOOGG
+#endif ' NO_OGG
 
 #endif ' __VORBISFILE__

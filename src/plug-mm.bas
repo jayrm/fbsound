@@ -1,14 +1,13 @@
 '  ###############
 ' # plug-mm.bas #
 '###############
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 #include once "../inc/plug.bi"
 
-#ifndef NOPLUG_MM
+#ifndef NO_PLUG_MM
 
-#include once "windows.bi"
 #include once "../inc/plug-mm.bi"
 
 #define max_buffers 512
@@ -27,12 +26,12 @@ end type
 dim shared _Me as MM
 
 sub _plug_mm_init() constructor
-  dprint("mm:()")
+  dprint("_plug_mm_init() constructor")
   _Me.Plug.Plugname="mm"
 end sub
 
 sub _plug_mm_exit() destructor
-  dprint("mm:~")
+  dprint("_plug_mm_exit() destructor")
 end sub
 
 private _
@@ -125,7 +124,7 @@ end sub
 private _
 sub WriteThread(byval unused as any ptr)
   dim as integer ret,i,j
-  dprint("mm: writethread()")
+  dprint("mm: WriteThread()")
   
   _Me.WriteEnd=false
   
@@ -168,7 +167,7 @@ private _
 sub FillThread(byval unused as any ptr)
   dim as integer i
   dim as any ptr lpArg = @_Me.Plug
-  dprint("mm: fillthread()")
+  dprint("mm: FillThread()")
   
   _Me.FillEnd=false
   
@@ -193,7 +192,7 @@ sub FillThread(byval unused as any ptr)
     MutexUnlock(_Me.FillMutex)
     
   wend
-  dprint("mm: fillthread~")
+  dprint("mm: FillThread~")
 end sub
 
 private _
@@ -221,12 +220,12 @@ end function
 
 function plug_isany(byref Plug as FBS_PLUG) as boolean export
   dim as integer ret,nDevices,i,j,tmp
-  dprint("mm: isany")
+  dprint("mm: plug_isany")
   Plug.Plugname=_Me.Plug.Plugname
   _Me.Plug.DeviceName=""
   nDevices=NumOfDeviceNames()
   if nDevices<1 then 
-    _Me.LastError="mm: error no devices!"
+    _Me.LastError="mm: plug_isany error no devices!"
     dprint(_Me.LastError)
     return false
   end if  
@@ -234,7 +233,7 @@ function plug_isany(byref Plug as FBS_PLUG) as boolean export
 end function
 
 function plug_start() as boolean export
-  dprint("mm: start()")  
+  dprint("mm: plug_start()")  
   if _Me.hDevice=0 then 
     _Me.LastError="mm: start error no device!"
     dprint(_Me.LastError)
@@ -242,7 +241,7 @@ function plug_start() as boolean export
   end if
   ' plug is running
   if (_Me.WriteThreadID<>NULL) and (_Me.FillThreadID<>NULL) then 
-    _Me.LastError="mm: start warniung thread's are running."
+    _Me.LastError="mm: plug_start() warniung thread's are running."
     dprint(_Me.LastError)
     return false
   end if
@@ -260,14 +259,14 @@ function plug_start() as boolean export
 end function
 
 function plug_stop() as boolean export
-  dprint("mm: stop()")
+  dprint("mm: plug_stop()")
   if _Me.hDevice=0 then 
     _Me.LastError="mm: stop warning no open device."
     dprint(_Me.LastError)
   end if
 
   if (_Me.WriteThreadID=NULL) andalso (_Me.FillThreadID=NULL) then 
-    _Me.LastError="mm: stop warning no running threads."
+    _Me.LastError="mm: plug_stop() warning no running threads."
     dprint(_Me.LastError)
     return true
   end if
@@ -284,15 +283,15 @@ function plug_stop() as boolean export
   CondDestroy _Me.FillCondition  : _Me.FillCondition=NULL
   MutexDestroy _Me.FillMutex     : _Me.FillMutex=NULL
 
-  dprint("mm: stop~")
+  dprint("mm: plug_stop~")
   return true
 end function
 
 function plug_exit() as boolean export
   dim as integer i,ret
-  dprint("mm: exit()")
+  dprint("mm: plug_exit()")
   if _Me.hDevice=0 then
-    _Me.LastError="mm: exit warning no open device."
+    _Me.LastError="mm: plug_exit() warning no open device."
     dprint(_Me.LastError)
     return true
   end if
@@ -304,7 +303,7 @@ function plug_exit() as boolean export
   
   ret=waveOutReset(_Me.hDevice)
   if ret<>0 then
-    dprint("mm: exit error:waveOutReset() = " + str(ret) )
+    dprint("mm: plug_exit() error:waveOutReset() = " + str(ret) )
   end if
   sleep(500,1)
 
@@ -312,7 +311,7 @@ function plug_exit() as boolean export
     if _Me.hdrs(i).lpData<>NULL then
       ret=waveOutUnPrepareHeader(_Me.hDevice,@_Me.hdrs(i),sizeof(WAVEHDR))
       if ret<>0 then
-        dprint("mm: exit error:waveOutUnPrepareHeader("+str(i)+ ")=" +str (ret) )
+        dprint("mm: plug_exit() error:waveOutUnPrepareHeader("+str(i)+ ")=" +str (ret) )
       end if
     end if
   next
@@ -326,11 +325,11 @@ function plug_exit() as boolean export
 
   ret=waveOutClose(_Me.hDevice)
   if ret<>0 then
-    dprint("mm: exit error:waveOutClose")
+    dprint("mm: plug_exit() error:waveOutClose")
   end if
 
   _Me.hDevice=0
-  dprint("mm: exit~")
+  dprint("mm: plug_exit~")
   return true
 end function
 
@@ -352,7 +351,9 @@ function MMInit(byref hDevice   as HWAVEOUT, _
   elseif index>=nDevices then
     index=nDevices-1
   end if
+  
   flag=index
+  
   if flag=-1 then
     for i=0 to nDevices-1
       ret=waveOutOpen(NULL,i,@wfex,0,0,WAVE_FORMAT_DIRECT_QUERY)
@@ -362,13 +363,14 @@ function MMInit(byref hDevice   as HWAVEOUT, _
     ret=waveOutOpen(NULL,index,@wfex,0,0,WAVE_FORMAT_DIRECT_QUERY)
     if ret=0 then flag=index else flag=-1
   end if
+  
   if flag>-1 then
-    ret=waveOutOpen(@hDevice,flag,@wfex,cptr(DWORD_PTR,@waveOutProc),0,CALLBACK_FUNCTION)
+    ret=waveOutOpen(@hDevice, flag, @wfex, cast(DWORD_PTR,@waveOutProc),0,CALLBACK_FUNCTION)
     if ret=0 then
       _Me.Plug.DeviceName=GetDeviceName(flag)
       return true
     else
-     dprint("mm: open error="+str(ret))   
+     dprint("mm: MMInit() open error=" & ret)   
     end if
   end if
   return false
@@ -378,10 +380,10 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   dim as integer ret,Value,nFrames,i
   dim as WAVEFORMATEX mmf
   dim as boolean found
-  dprint("mm: init")
+  dprint("mm: plug_init()")
   ' !!! fix it !!!!
   if _Me.hDevice<>0 then
-    _Me.LastError="mm: error: device is open!"
+    _Me.LastError = "mm: plug_init(): device is open!"
     dprint(_Me.LastError)
     return false
   end if
@@ -390,7 +392,7 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   Plug.fmt.nBits*=8
   if Plug.fmt.nRate    < 6000 then Plug.fmt.nRate    = 6000
   if Plug.fmt.nRate    >96000 then Plug.fmt.nRate    =96000
-  if Plug.fmt.nBits    <    8 then Plug.fmt.nbits    =    8
+  if Plug.fmt.nBits    <   16 then Plug.fmt.nbits    =   16
   if Plug.fmt.nBits    >   16 then Plug.fmt.nbits    =   16
   if Plug.fmt.nChannels<    1 then Plug.fmt.nChannels=    1
   if Plug.fmt.nChannels>    2 then Plug.fmt.nChannels=    2
@@ -408,7 +410,7 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   if found=false then found=MMInit(_Me.hDevice,11025,16,1,mmf,Plug.DeviceIndex)
 
   if found = false then
-    _Me.LastError="mm: error: can't setup any device!"
+    _Me.LastError="mm: plug_init() error: can't setup any device!"
     dprint(_Me.LastError)
     return false
   end if
@@ -447,7 +449,7 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
     _Me.hdrs(i).dwUser=0
     ret=waveOutPrepareHeader(_Me.hDevice,@_Me.hdrs(i),sizeof(WAVEHDR))
     if ret <> 0 then
-      dprint("mm: error: prepareHeader="+str(ret))
+      dprint("mm: plug_init() error: prepareHeader = " & ret)
       exit for
     end if
     _Me.hdrs(i).dwFlags=_Me.hdrs(i).dwFlags or 1
@@ -461,7 +463,7 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
         if (_Me.hdrs(i).dwFlags and 1)=1 then
           ret=waveOutUnPrepareHeader(_Me.hDevice,@_Me.hdrs(i),sizeof(WAVEHDR))
           if ret<>0 then
-            dprint("mm: unprepare="+str(ret))
+            dprint("mm: plug_init() unprepare = " & ret)
           end if
         end if
         deallocate _Me.hdrs(i).lpData
@@ -469,16 +471,16 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
       end if
     next  
     waveOutClose _Me.hDevice
-    _Me.LastError="mm: error: prepare headers!"
+    _Me.LastError="mm: plug_init() error: prepare headers!"
     dprint(_Me.LastError)
     return false
   end if
       
   _Me.Plug.FillBuffer=Plug.FillBuffer
-  dprint("mm: init()~")
+  dprint("mm: plug_init~")
   
   return true ' i like it
   
 end function
 
-#endif ' NOPLUG_MM
+#endif ' NO_PLUG_MM

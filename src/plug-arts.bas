@@ -1,12 +1,12 @@
 '  #################
 ' # plug-arts.bas #
 '#################
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 #include once "../inc/plug.bi"
 
-#ifndef NOPLUG_ARTS
+#ifndef NO_PLUG_ARTS
 
 #include once "../inc/plug-arts.bi"
 
@@ -319,4 +319,4 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   return true ' i like it
 end function
 
-#endif ' NOPLUG_ARTS
+#endif ' NO_PLUG_ARTS

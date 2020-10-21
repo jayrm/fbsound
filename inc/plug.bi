@@ -4,7 +4,7 @@
 '  ###########
 ' # plug.bi #
 '###########
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 ' common to all plug-XXX interfaces

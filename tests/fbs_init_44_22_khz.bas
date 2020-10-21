@@ -18,10 +18,10 @@ const data_path = "../data/"
 fbs_Init() ' 44100Hz. is default
 
 dim as integer hWave
-? "load and play fox.mp3 for 3 seconds"
+? "load and play fox.mp3 for 9 seconds"
 fbs_Load_MP3File(data_path & "fox.mp3",@hWave)
-fbs_PLay_Wave(hWave,4) ' loop 4 times
-sleep 3000,1
+fbs_PLay_Wave(hWave)
+sleep 9000,1
 
 ? "stop":fbs_stop()
 sleep 1000,1

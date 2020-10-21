@@ -1,7 +1,7 @@
 '  ##############
 ' # fbsdsp.bas #
 '##############
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 
@@ -15,21 +15,6 @@
 
 #include once "../inc/fbsdsp.bi"
 
-
-'#define M_LN2      0.693147180559945309417
-'#define Sinh(x) (exp(x) - exp(-x)) * 0.5f
-
-const NPI2       as single =-PI2
-const E          as single = 2.718281828459045
-
-' fast forier transformation
-const FFTSHIFT   as integer = 10 ' 8=256,9=512,10=1024 ...
-const FFTSIZE    as integer = 1 shl FFTSHIFT
-const FFTOSSHIFT as integer = 3  ' 1=2,2=4,3=8 ...
-const FFTOS      as integer = 1 shl FFTOSSHIFT
-const FFTSS      as integer = FFTSIZE shr FFTOSSHIFT
-const FFTFL      as integer = FFTSIZE-FFTSS
-const FFTEXPD    as single  = (PI2*FFTSS)/FFTSIZE
 
 public _
 function fbs_Pow(byval x as double, byval y as double) as double API_EXPORT
@@ -49,13 +34,30 @@ end function
 
 public _
 function fbs_Volume_2_DB(byval volume as single) as single API_EXPORT
-  return 20.0f*log(volume)/Log(10)
+  return 20.0f*log(volume)/log(10)
 end function
 
 public _
 function fbs_DB_2_Volume(byval dB as single) as single API_EXPORT
   return 10.0f ^ (dB * 0.05f)
 end function
+
+
+#ifndef NO_DSP
+
+const NPI2       as single =-PI2
+const E          as single = 2.718281828459045
+
+ #ifndef NO_PITCHSHIFT
+
+' fast forier transformation
+const FFTSHIFT   as integer = 10 ' 8=256,9=512,10=1024 ...
+const FFTSIZE    as integer = 1 shl FFTSHIFT
+const FFTOSSHIFT as integer = 3  ' 1=2,2=4,3=8 ...
+const FFTOS      as integer = 1 shl FFTOSSHIFT
+const FFTSS      as integer = FFTSIZE shr FFTOSSHIFT
+const FFTFL      as integer = FFTSIZE-FFTSS
+const FFTEXPD    as single  = (PI2*FFTSS)/FFTSIZE
 
 private _
 sub _FFT(byval  b as single ptr, _
@@ -1001,6 +1003,7 @@ sub _PitchShiftStereo_asm( _
     end if
   next
 end sub
+#endif ' NO_PITCHSHIFT
 
 sub _Set_EQFilter(byval lpFilter as fbs_filter ptr, _
                   byval Center   as single       , _
@@ -1341,4 +1344,4 @@ sub _Filter_Stereo_asm16(byval  d as any ptr, _
  end asm
 end sub
 
-
+#endif ' NO_DSP

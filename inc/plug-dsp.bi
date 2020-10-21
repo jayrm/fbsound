@@ -4,12 +4,12 @@
 '  ###############
 ' # plug-dsp.bi #
 '###############
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 #include once "fbstypes.bi"
 
-#ifndef NOPLUG_DSP
+#ifndef NO_PLUG_DSP
 
 const _FBS_READ              = 3
 const _FBS_WRITE             = 4
@@ -137,6 +137,6 @@ asm
 end asm
 end function
 
-#endif ' NOPLUG_DSP
+#endif ' NO_PLUG_DSP
 
 #endif '__FBS_PLUGOUT_DSP__

@@ -7,7 +7,7 @@
 
 #include once "fbstypes.bi"
 
-#ifndef NOMP3
+#ifndef NO_MP3
 
 #ifndef __FB_64BIT__
  #define SIZEOF_LONG 4
@@ -468,6 +468,6 @@ end extern
 
 #endif ' LIBMAD_DECODER_H
 
-#endif ' NOMP3
+#endif ' NO_MP3
 
 #endif ' __MAD_BI__

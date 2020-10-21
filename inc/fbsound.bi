@@ -4,7 +4,7 @@
 '  ##############
 ' # fbsound.bi #
 '##############
-' Copyright 2005 - 2019 by D.J.Peters (Joshy)
+' Copyright 2005 - 2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 
@@ -30,21 +30,24 @@
 
 #include once "fbscpu.bi"
 
-#ifndef NODSP
 #include once "fbsdsp.bi"
+
+#ifndef NO_MOD
+ #include once "dumb.bi"
 #endif
 
-#ifndef NOMOD
-#include once "dumb.bi"
+#ifndef NO_MP3
+ #include once "mad.bi"
 #endif
 
-#ifndef NOMP3
-#include once "mad.bi"
+#ifndef NO_SID
+ #include once "csid.bi"
 #endif
 
-#ifndef NOOGG
-#include once "vorbis.bi"
+#ifndef NO_OGG
+ #include once "vorbis.bi"
 #endif
+
 
 declare function FBS_Init(byval nRate        as integer=44100, _
                           byval nChannels    as integer=    2, _
@@ -75,16 +78,16 @@ declare function FBS_Get_PlugFramesize() as integer  ' same as BufferSize\Frames
 declare function FBS_Get_PlugRunning() as boolean
 
 declare function FBS_Get_PlayingSounds() as integer
+declare function FBS_Get_PlayingStreams() as integer
 
 declare function FBS_Get_PlayedBytes() as integer
 declare function FBS_Get_PlayedSamples() as integer
 declare function FBS_Get_PlayTime() as double
 
-
 declare function FBS_Get_MasterVolume(byval lpVolume as single ptr) as boolean
 declare function FBS_Set_MasterVolume(byval Volume   as single ) as boolean
 
-#ifndef NODSP
+#ifndef NO_DSP
 declare function FBS_Set_MasterFilter(byval nFilter as integer, _
                                       byval Center  as single, _
                                       byval dB      as single, _
@@ -93,17 +96,18 @@ declare function FBS_Set_MasterFilter(byval nFilter as integer, _
 
 declare function FBS_Enable_MasterFilter(byval nFilter as integer) as boolean
 declare function FBS_Disable_MasterFilter(byval nFilter as integer) as boolean
-
+ #ifndef NOPITCHSHIFT
 declare sub      FBS_PitchShift(byval d as short ptr, _
                                 byval s as short ptr, _
                                 byval v as single   , _
                                 byval n as integer  )
+ #endif 
 #endif
 
 declare function FBS_Get_MaxChannels(byval pnChannels as integer ptr) as boolean
 declare function FBS_Set_MaxChannels(byval nChannels  as integer ) as boolean
 
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
 declare function FBS_Set_LoadCallback(byval cb as FBS_LOADCALLBACK) as boolean
 declare function FBS_Enable_LoadCallback() as boolean
 declare function FBS_Disable_LoadCallback() as boolean
@@ -118,20 +122,20 @@ declare function FBS_Disable_MasterCallback() as boolean
 ' create hWave from *.wav file
 declare function FBS_Load_WAVFile(byref Filename as string , _
                                   byval phWave   as integer ptr) as boolean
-#ifndef NOMP3
+#ifndef NO_MP3
 ' create hWave from *.mp3,*.mp2,*.mp file
 declare function FBS_Load_MP3File(byref Filename as string      , _
                                   byval phWave  as integer ptr , _
                                   byref _usertmpfile_  as string ="") as boolean
 #endif
 
-#ifndef NOMOD
+#ifndef NO_MOD
 ' create hWave from *.it *.xm *.sm3 or *.mod file
 declare function FBS_Load_MODFile(byref Filename as string       , _
                                   byval phWave  as integer ptr) as boolean
 #endif
 
-#ifndef NOOGG
+#ifndef NO_OGG
 ' create hWave from *.ogg file
 declare function FBS_Load_OGGFile(byref Filename as string      , _
                                   byval lphWave  as integer ptr , _
@@ -224,30 +228,30 @@ declare function FBS_Set_SoundPointers(byval hSound    as integer , _
 declare function FBS_Get_SoundPosition(byval hSound as integer, _
                                        byval pPosition as single ptr) as boolean
 
-#ifndef NOCALLBACK
+#ifndef NO_CALLBACK
 declare function FBS_Set_SoundCallback(byval hSound as integer      , _
                                        byval cb     as FBS_BUFFERCALLBACK)  as boolean
 declare function FBS_Enable_SoundCallback(byval hSound as integer) as boolean
 declare function FBS_Disable_SoundCallback(byval hSound as integer) as boolean
 #endif
 
-#if defined(NOMP3) and defined(NOMOD)
+#if defined(NO_MP3) and defined(NO_SID)
  ' no streams
 #else
 
 enum FBS_STREAM_TYPES
-  FBS_NOSTREAM =0
- #ifndef NOMOD
-  FBS_MOD = 1
+ FBS_NOSTREAM = 0
+ #ifndef NO_MP3
+  FBS_MP3_STREAM
  #endif
- #ifndef NOMP3
-  FBS_MP3 = 2
+ #ifndef NO_SID
+  FBS_SID_SREAM
  #endif
 end enum
 
-declare function FBS_Get_PlayingStreams() as integer
 
- #ifndef NOMP3
+
+ #ifndef NO_MP3
 declare function FBS_Create_MP3Stream(byref Filename as string) as boolean
 declare function FBS_Play_MP3Stream(byval Volume as single=1.0, _
                                     byval Pan    as single=0.0) as boolean
@@ -260,33 +264,39 @@ declare function FBS_Get_MP3StreamPan(byval pPan as single ptr) as boolean
 declare function FBS_Get_MP3StreamBuffer(byval ppBuffer   as short ptr ptr , _
                                          byval pChannels as integer ptr   , _
                                          byval pnSamples as integer ptr) as boolean
-  #ifndef NOCALLBACK
+  #ifndef NO_CALLBACK
 declare function FBS_Set_MP3StreamCallback(byval cb as FBS_BUFFERCALLBACK)  as boolean
 declare function FBS_Enable_MP3StreamCallback() as boolean
 declare function FBS_Disable_MP3StreamCallback() as boolean
   #endif
- #endif ' NOMP3
+ #endif ' NO_MP3
 
- #ifndef NOMOD
-declare function FBS_Create_MODStream(byref Filename as string) as boolean
-declare function FBS_Play_MODStream(byval Volume as single=1.0, _
+ #ifndef NO_SID
+declare function FBS_Create_SIDStream(byref Filename as string, _
+                                      byval PlayTune as integer=0, _
+                                      byval pTunes as integer ptr=0) as boolean
+declare function FBS_Play_SIDStream(byval Volume as single=1.0, _
                                     byval Pan    as single=0.0) as boolean
-declare function FBS_End_MODStream() as boolean
-declare function FBS_Set_MODStreamVolume(byval Volume     as single) as boolean
-declare function FBS_Get_MODStreamVolume(byval pVolume    as single ptr   ) as boolean
-declare function FBS_Set_MODStreamPan(byval Pan as single) as boolean
-declare function FBS_Get_MODStreamPan(byval pPan as single ptr) as boolean
+declare function FBS_End_SIDStream() as boolean
+declare function FBS_Set_SIDStreamVolume(byval Volume     as single) as boolean
+declare function FBS_Get_SIDStreamVolume(byval pVolume    as single ptr   ) as boolean
+declare function FBS_Set_SIDStreamPan(byval Pan as single) as boolean
+declare function FBS_Get_SIDStreamPan(byval pPan as single ptr) as boolean
 
-declare function FBS_Get_MODStreamBuffer(byval ppBuffer  as short ptr ptr , _
+declare function FBS_Get_SIDStreamBuffer(byval ppBuffer  as short ptr ptr , _
                                          byval pChannels as integer ptr   , _
                                          byval pnSamples as integer ptr) as boolean
-  #ifndef NOCALLBACK
-declare function FBS_Set_MODStreamCallback(byval cb as FBS_BUFFERCALLBACK)  as boolean
-declare function FBS_Enable_MODStreamCallback() as boolean
-declare function FBS_Disable_MODStreamCallback() as boolean
-  #endif
- #endif ' NOMP3
+declare function FBS_Get_SIDAuthor() as string
+declare function FBS_Get_SIDInfo() as string
+declare function FBS_Get_SIDTitle() as string
 
-#endif ' NOMP3 or NOMOD
+ #ifndef NO_CALLBACK
+declare function FBS_Set_SIDStreamCallback(byval cb as FBS_BUFFERCALLBACK)  as boolean
+declare function FBS_Enable_SIDStreamCallback() as boolean
+declare function FBS_Disable_SIDStreamCallback() as boolean
+  #endif
+ #endif ' NO_SID
+
+#endif ' NO_MP3 or NO_SID
 
 #endif ' __FBSOUND_BI__

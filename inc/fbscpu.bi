@@ -4,7 +4,7 @@
 '  #############
 ' # fbscpu.bi #
 '#############
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 #include once "fbstypes.bi"
@@ -30,8 +30,6 @@ declare function IsNOW3D2() as boolean
 
 declare function MHz() as integer
 declare function CPUCores() as integer
-
-
 
 type counter_t as function () as longint
 declare function _SoftCounter() as longint
@@ -153,7 +151,7 @@ declare sub MoveSliceLeft32   (byval s as any ptr, _
                                byval l as integer ptr, byval v as single , byval n as integer)
 
 
-#ifndef NOMP3
+#ifndef NO_MP3
 type CopyMP3Frame_t as sub        (byval s as any ptr, byval p as any ptr ptr, byval e as any ptr, byval a as any ptr, byval n as integer)
 declare sub CopyMP3Frame          (byval s as any ptr, byval p as any ptr ptr, byval e as any ptr, byval f as any ptr, byval n as integer)
 
@@ -214,7 +212,7 @@ type FBS_CPU
   as movesliceleft16_t     MoveSliceLeft16
   as movesliceleft32_t     MoveSliceLeft32
   
-#ifndef NOMP3
+#ifndef NO_MP3
   as CopyMP3Frame_t        CopyMP3Frame
   as CopySliceMP3Frame32_t CopySliceMP3Frame32
   as CopySliceMP3Frame16_t CopySliceMP3Frame16

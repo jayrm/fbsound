@@ -104,7 +104,7 @@ zerobuffer_end:
 #else
 
   mov rsi,[p]
-  mov rdi,[esi]                         ' pos = *pPlay
+  mov rdi,[rsi]                         ' pos = *pPlay
   mov rcx,[n]
   mov rbx,[s]
   mov rdx,[e]
@@ -2376,7 +2376,7 @@ sub _MoveSliceLeftasm32(byval s as any ptr    , _ ' pStart
   end asm
 end sub
 
-#ifndef NOMP3
+#ifndef NO_MP3
 
 ' copy samples from MP3 STEREO stream to the current play pointer (speed is 1.0)
 ' move the play pointer if it reached the end, reset it
@@ -2468,7 +2468,7 @@ sub _CopySliceMP3FrameAsm32(byval pStart   as any ptr    , _ ' start of first sa
   mov edi,[edi]                         ' pos = *pPlay
   mov esi,[pSamples]
   mov ecx,[nBytes] 
-  shr ecx,2                             ' nSamples=nBy<tes\4 (bytes -> dwords)
+  shr ecx,2                             ' nSamples=nBytes\4 (bytes -> dwords)
   xor ebx,ebx                           ' var value=0
 
   CopySliceStream32_get:
@@ -2507,7 +2507,7 @@ sub _CopySliceMP3FrameAsm32(byval pStart   as any ptr    , _ ' start of first sa
 #else
 
   mov rdi,[pPlay] 
-  mov rdi,[edi]                         ' pos = *pPlay
+  mov rdi,[rdi]                         ' pos = *pPlay
   mov rsi,[pSamples]
   mov rcx,[nBytes] 
   shr rcx,2                             ' nSamples=nBy<tes\4 (bytes -> dwords)
@@ -3074,7 +3074,7 @@ sub _WriteEFLAG(byval v as integer)
   push eax
   popfd
 #else
-  xor rax,rax
+  'xor rax,rax
   mov rax,[v]
   push rax
   popfq
@@ -3347,7 +3347,7 @@ me.mix16=@_mixAsm16
   me.movesliceleft16 =@_movesliceleftasm16
   me.movesliceleft32 =@_movesliceleftasm32
 
-#ifndef NOMP3
+#ifndef NO_MP3
   me.CopyMP3Frame        =@_CopyMP3FrameASM
   ' copy frame and convert playback rate to stereo output
   me.CopySliceMP3Frame32 =@_CopySliceMP3FrameASM32
@@ -3459,10 +3459,10 @@ sub Copy(byval d as any ptr, _
   dprint("cpu: Copy wrong param!")
 end sub
 
-sub Mix16(d as any ptr, _
-          a as any ptr, _
-          b as any ptr, _
-          n as integer ) 
+sub Mix16(byval d as any ptr, _
+          byval a as any ptr, _
+          byval b as any ptr, _
+          byval n as integer ) 
   if (n>1) andalso (d<>0) andalso (a<>0) andalso (b<>0) andalso ((n and 1)=0) then me.Mix16(d,a,b,n):exit sub
   dprint("cpu: Mix16 wrong param!")
 end sub
@@ -3495,7 +3495,7 @@ sub CopyRight16(byval d as any ptr , _
                 byval p as any ptr ptr, _
                 byval e as any ptr , _
                 byval l as integer ptr, _
-                n as integer  ) 
+                byval n as integer  ) 
  if (n>0) andalso (d<>0) andalso (s<>0) andalso (p<>0) andalso (s<>e) andalso (l<>0) andalso ((n and 1)=0) then me.copyright16(d,s,p,e,l,n) : exit sub
  dprint("cpu: CopyRight16 wrong param!")
 end sub
@@ -3615,7 +3615,7 @@ sub MoveSliceLeft32(byval s as any ptr , _
   dprint("cpu: MoveSliceLeft32 wrong param!")
 end sub
 
-#ifndef NOMP3
+#ifndef NO_MP3
 
 ' copy MP3 frame with same samerate as output device
 sub CopyMP3Frame(byval s as any ptr , _

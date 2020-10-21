@@ -1,5 +1,5 @@
-'  #############################
-' # fbs_mp3stream_preview.bas #
+'  ##############################
+' # fbs_stream_mp3_preview.bas #
 '##############################
 
 #include "../inc/fbsound_dynamic.bi"

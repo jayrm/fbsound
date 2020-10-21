@@ -4,12 +4,12 @@
 '  ################
 ' # plug-arts.bi #
 '################
-' Copyright 2005-2018 by D.J.Peters (Joshy)
+' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
 #include once "fbstypes.bi"
 
-#ifndef NOPLUG_ARTS 
+#ifndef NO_PLUG_ARTS 
 
 type arts_stream_t as any ptr
 
@@ -115,6 +115,6 @@ declare sub arts_free alias "arts_free" ()
 
 end extern
 
-#endif ' NOPLUG_ARTS
+#endif ' NO_PLUG_ARTS
 
 #endif ' __FBS_PLUGOUT_ARTS__

@@ -1,16 +1,13 @@
 #!/bin/sh
-echo "build cpu layer"
-fbc  -w pendantic -mt -asm intel -i inc -lib src/fbscpu.bas -x ./lib/lin32/libfbscpu.a
-echo "build dsp"
-fbc  -w pendantic -mt -asm intel -i inc -lib src/fbsdsp.bas -x ./lib/lin32/libfbsdsp.a
-echo "build fbsound"
-fbc  -w pendantic -mt -asm intel -i inc -p ./lib/lin32/ -dylib src/fbsound.bas -x ../fbsound-1.1/tests/libfbsound-32.so
-echo "build plug alsa"
-fbc  -w pendantic -mt -asm intel -i inc -dylib src/plug-alsa.bas -x ../fbsound-1.1/tests/libplug-alsa-32.so
-echo "build plug dsp"
-fbc  -w pendantic -mt -asm intel -i inc -dylib src/plug-dsp.bas  -x ../fbsound-1.1/tests/libplug-dsp-32.so
-echo "build plug arts"
-fbc  -w pendantic -mt -asm intel -i inc -dylib src/plug-arts.bas -x ../fbsound-1.1/tests/libplug-arts-32.so
+echo "build FBSound 1.2 for Linux x86:"
+echo "build Linux x86 ./lib/lin32/libfbscpu.a"
+fbc -g -w pedantic -w pedantic -mt -asm intel -i inc -lib src/fbscpu.bas -x ./lib/lin32/libfbscpu.a
+echo "build Linux x86 ./lib/lin32/libfbsdsp.a"
+fbc -g -w pedantic -w pedantic -mt -asm intel -i inc -lib src/fbsdsp.bas -x ./lib/lin32/libfbsdsp.a
+echo "build Linux x86 ../fbsound-1.2/tests/libfbsound-32.so"
+fbc -g -w pedantic -w pedantic -mt -asm intel -i inc -p ./lib/lin32/ -dylib src/fbsound.bas -x ../fbsound-1.2/tests/libfbsound-32.so
+echo "build Linux x86 ../fbsound-1.2/tests/libfbsound-alsa-32.so"
+fbc -g -w pedantic -w pedantic -mt -asm intel -i inc -dylib src/plug-alsa.bas -x ../fbsound-1.2/tests/libfbsound-alsa-32.so
 echo "ready!"
 echo ""
 echo "have fun with FreeBASIC and FBSound"
