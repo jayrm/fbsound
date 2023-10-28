@@ -1,0 +1,10 @@
+/lib
+
+/config.mk
+
+/tests/*.exe
+
+/buildlib-32.bat
+/buildlib-64.bat
+/buildlib-32.sh
+/buildlib-64.sh
