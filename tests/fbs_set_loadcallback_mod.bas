@@ -2,6 +2,8 @@
 ' # fbs_set_loadcallback_mod.bas #
 '################################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of:
@@ -12,7 +14,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 ' shared for the callback
 dim shared as string CurFile

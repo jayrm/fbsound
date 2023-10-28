@@ -2,6 +2,8 @@
 ' # fbs_get_soundpointers_mp3.bas #
 '#################################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example for:
@@ -16,7 +18,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 dim shared as long xMax
 

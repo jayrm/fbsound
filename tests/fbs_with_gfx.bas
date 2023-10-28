@@ -2,6 +2,8 @@
 ' # fbs_with_gfx.bas #
 '####################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' fbs_with_gfx.bas
@@ -9,7 +11,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./path_to_pugins")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 const scr_w = 640
 const scr_h = 480

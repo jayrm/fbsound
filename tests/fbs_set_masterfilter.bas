@@ -2,6 +2,8 @@
 ' # fbs_set_masterfilter.bas #
 '############################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' fbs_Volume_2_dB()
@@ -11,7 +13,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 screenres 640,480
 windowTitle "[ESC]=quit move the mouse x,y"

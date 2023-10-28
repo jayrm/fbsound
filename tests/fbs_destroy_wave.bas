@@ -2,6 +2,8 @@
 ' # fbs_destroy_wave.bas #
 '########################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of: 
@@ -14,7 +16,7 @@ const data_path = "../data/"
 chdir(exepath())
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 dim   as integer nfiles,i,hWave,nSeconds
 redim as string  files()

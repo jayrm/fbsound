@@ -2,6 +2,8 @@
 ' # fbs_set_mastercallback.bas #
 '##############################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' Example for user defined MASTER callbacks:
@@ -20,7 +22,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 ' !!! gfx screen must be on !!!
 sub MyCallback(byval lpSamples as FBS_SAMPLE ptr, _

@@ -2,6 +2,8 @@
 ' # fbs_set_get_pointers.bas #
 '############################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' short test for 
@@ -12,7 +14,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 dim as integer   hWave,hSound,nSamples,nChannels
 dim as short ptr lpWaveStart,lpWaveEnd

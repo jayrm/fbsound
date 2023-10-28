@@ -2,6 +2,8 @@
 ' # fbs_get_length.bas #
 '######################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' short test for 
@@ -19,7 +21,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 const last_number = 9
 dim as integer hWave,hSound,SoundLength,WaveLength

@@ -2,7 +2,11 @@
 ' # fbs_on_the_fly.bas #
 '######################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
+
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 sub MyCallback(byval pSamples as FBS_SAMPLE ptr, _
                byval nChannels as integer, _

@@ -1,6 +1,9 @@
 '  ###########################
 ' # fbs_play_sid_stream.bas #
 '###########################
+
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 #ifdef NOSID
@@ -23,7 +26,7 @@ const PATH  = MEDIA & FILE
 chdir(exepath())
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 
 dim as boolean ok

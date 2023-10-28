@@ -2,10 +2,12 @@
 ' # fbs_init.bas #
 '################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of: 
-' fbs_Set_PlugPath()
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 ' fbs_Init()
 ' fbs_Get_PlugError()
 

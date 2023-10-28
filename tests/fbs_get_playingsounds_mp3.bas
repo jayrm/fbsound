@@ -2,6 +2,8 @@
 ' # fbs_get_playingsounds_mp3.bas #
 '#################################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of:
@@ -19,7 +21,7 @@ const data_path = "../data/"
 chdir(exepath())
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 const scr_width  as integer = 640 '320 '320 640 800 ...
 const scr_height as integer = 480 '200 '240 480 600 ...

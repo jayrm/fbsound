@@ -2,6 +2,8 @@
 ' # fbs_load_mp3file_mixer.bas #
 '##############################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 #ifdef NOMP3
@@ -21,7 +23,7 @@ const data_path = "../data/"
 chdir(exepath())
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 dim as integer hWave(10),i,soundn,maxsounds,new_nSounds,old_nSounds,hSound
 dim as boolean ok

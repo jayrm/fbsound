@@ -1,6 +1,9 @@
 '  ##############################
 ' # fbs_stream_sid_preview.bas #
 '##############################
+
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of get number of tunes in a SID file:
@@ -9,7 +12,8 @@
 chdir(exepath())
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
+
 fbs_Init()
 
 const DataPath = "../data/"

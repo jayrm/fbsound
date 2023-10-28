@@ -57,7 +57,7 @@ FBCFLAGS += -i $(INCDIR)
 
 SRCDIR := ./src
 LIBDIR := ./lib/$(TARGET)
-BINDIR := ./tests
+BINDIR := ./bin/$(TARGET)
 INCDIR := ./inc
 TSTDIR := ./tests
 

@@ -2,6 +2,8 @@
 ' # fbs_play_mp3_stream.bas #
 '###########################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of:
@@ -16,7 +18,7 @@ const FILE  = "legends.mp3"
 const PATH  = MEDIA & FILE
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 fbs_Init()
 fbs_Create_MP3Stream(PATH)

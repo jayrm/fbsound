@@ -1,6 +1,9 @@
 '  #################################
 ' # fbs_set_sidstreamcallback.bas #
 '#################################
+
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of:
@@ -31,6 +34,8 @@ end sub
 const MediaPath = "../data/"
 const Filename  = "comic_bakery.sid"
 chdir(exepath())
+
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 '
 ' main
 '

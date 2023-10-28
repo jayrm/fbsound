@@ -2,6 +2,8 @@
 ' # fbs_pause_rewind_sound.bas #
 '##############################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
  
 ' short test for 
@@ -11,7 +13,7 @@ const data_path = "../data/"
 chdir(exepath())
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 sub fbs_PauseRewindSound(byval hSound as integer)
   dim as short ptr pStart

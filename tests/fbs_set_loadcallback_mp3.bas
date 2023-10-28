@@ -2,6 +2,8 @@
 ' # fbs_set_loadcallback_mp3.bas #
 '################################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of:
@@ -14,7 +16,7 @@ const Media = "../data/"
 const File  = "legends.mp3"  
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 sub MyLoadCallback(byval percent as integer)
   static as integer row=-1

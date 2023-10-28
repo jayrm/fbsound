@@ -2,6 +2,8 @@
 ' # fbs_set_mp3streamcallback.bas #
 '#################################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' Example for user defined MP3 stream callbacks:
@@ -21,7 +23,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 ' shared = readable from inside of the callback
 dim shared as boolean InCallback,Delay

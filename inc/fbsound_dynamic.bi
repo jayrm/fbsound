@@ -433,19 +433,23 @@ function FBSLoaded as boolean
   return (hFBS<>0)
 end function
 
+#ifndef FBSOUND_DLL_PATH
+	const FBSOUND_DLL_PATH = ""
+#endif
+
 Sub RuntimeLoad Constructor
   dprint("fbsound-1.2 RuntimeLoad Constructor")
   if hFBS<>0 then exit sub
 #ifndef __FB_64BIT__
   dprint("DyLibLoad( 'fbsound-32' )")
-  hFBS = DyLibLoad( "fbsound-32" )
+  hFBS = DyLibLoad( FBSOUND_DLL_PATH + "fbsound-32" )
   if hFBS=0 then
     dprint("error: lib fbsound-32 not loaded !")
     exit sub
   end if  
 #else
   dprint("DyLibLoad( 'fbsound-64' )") 
-  hFBS = DyLibLoad( "fbsound-64" )
+  hFBS = DyLibLoad( FBSOUND_DLL_PATH + "fbsound-64" )
   if hFBS=0 then
     dprint("error: lib fbsound-64 not loaded !")
     exit sub

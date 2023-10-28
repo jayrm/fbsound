@@ -2,6 +2,8 @@
 ' # fbs_init_second_plugin.bas #
 '##############################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of: 
@@ -13,7 +15,7 @@ const data_path = "../data/"
 chdir(exepath())
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./path_of_plugins")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 ' FBS_Init( [playbackrate in Hz.] optional default 44100
 '          ,[number of channels]  optional default 2

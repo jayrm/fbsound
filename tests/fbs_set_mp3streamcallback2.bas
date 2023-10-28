@@ -2,6 +2,8 @@
 ' # fbs_set_mp3streamcallback2.bas #
 '##################################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' Example2 for user defined STREAM callbacks:
@@ -23,7 +25,7 @@ const data_path = "../data/"
 chdir(exepath())
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 ' shared = readable from inside of the callback
 dim shared as boolean InCallback,xStereo

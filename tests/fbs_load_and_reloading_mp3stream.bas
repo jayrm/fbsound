@@ -2,6 +2,8 @@
 ' # fbs_load_and_reloading_mp3stream.bas #
 '########################################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' simple speed test
@@ -11,7 +13,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 dim as boolean ok
 ok=fbs_Init()

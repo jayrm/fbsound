@@ -2,6 +2,8 @@
 ' # fbs_init_44_22_khz.bas #
 '##########################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 
 ' example of reconfig the lib
@@ -12,7 +14,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 ? "init with 44KHz"
 fbs_Init() ' 44100Hz. is default

@@ -2,6 +2,8 @@
 ' # fbs_soundobject_3d_set_cone.bas #
 '###################################
 
+#include "tests-common.bi"
+
 #include "../inc/fbsound_dynamic.bi"
 #include "../inc/fbs3d.bi"
 
@@ -11,7 +13,7 @@
 const data_path = "../data/"
 
 ' only if not same as exe path
-' fbs_Set_PlugPath("./")
+fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 sub DrawObject(byref o as FBS_SOUNDOBJECT, _
                byval t as string         , _
