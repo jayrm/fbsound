@@ -4,7 +4,7 @@
 
 #include "tests-common.bi"
 
-#include "../inc/fbsound_dynamic.bi"
+#include "fbsound/fbsound_dynamic.bi"
 
 #ifdef NOMP3
 print "sorry no mp3 loader ! ..."

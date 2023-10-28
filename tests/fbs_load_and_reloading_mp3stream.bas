@@ -4,7 +4,7 @@
 
 #include "tests-common.bi"
 
-#include "../inc/fbsound_dynamic.bi"
+#include "fbsound/fbsound_dynamic.bi"
 
 ' simple speed test
 ' streaming decoding and reloading MP3.

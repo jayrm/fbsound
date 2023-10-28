@@ -4,7 +4,7 @@
 
 #include "tests-common.bi"
 
-#include "../inc/fbsound_dynamic.bi"
+#include "fbsound/fbsound_dynamic.bi"
 
 ' example of get number of tunes in a SID file:
 ' fbs_Create_SIDStream(filename ,[PlayTune=0],[@nTunes])

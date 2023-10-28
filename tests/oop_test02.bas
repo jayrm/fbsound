@@ -1,6 +1,6 @@
 #include "tests-common.bi"
 
-#include once "../inc/fbsound_oop.bi"
+#include once "fbsound/fbsound_oop.bi"
 
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 

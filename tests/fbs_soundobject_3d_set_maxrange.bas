@@ -4,8 +4,8 @@
 
 #include "tests-common.bi"
 
-#include "../inc/fbsound_dynamic.bi"
-#include "../inc/fbs3d.bi"
+#include "fbsound/fbsound_dynamic.bi"
+#include "fbsound/fbs3d.bi"
 
 const data_path = "../data/"
 
