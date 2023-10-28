@@ -41,11 +41,14 @@
   #define DEBUG
  #endif 
 #endif
- 
+
+'' !!!FIXME!!!: reorganize so we don't need to check if defined
+#ifndef dprint
 #ifdef DEBUG
  #define dprint(msg) open err for output as #99 : print #99,"debug: " & msg : close #99
 #else
  #define dprint(msg) :
+#endif
 #endif
 
 #ifndef NULL
@@ -90,13 +93,14 @@ type FBS_FORMAT_t
 end type
 type FBS_FORMAT as FBS_FORMAT_t
 
-
-
+'' !!!FIXME!!!: reorganize so we don't need to check if defined 
+#ifndef FBS_SAMPLE
 type FBS_SAMPLE    as short
 type MONO_SAMPLE   as FBS_SAMPLE
 type STEREO_SAMPLE field=1
   as MONO_SAMPLE   l,r
 end type
+#endif
 
 ' plugin callback
 type FillCallback as sub (byval lpArgs as any ptr)
