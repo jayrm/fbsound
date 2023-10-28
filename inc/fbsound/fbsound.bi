@@ -7,25 +7,6 @@
 ' Copyright 2005 - 2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-
-#ifdef __FB_WIN32__
- #ifndef __FB_64BIT__
-  #libpath "../lib/win32/"
- #else
-  #libpath "../lib/win64/"
- #endif 
-#else
- #ifdef  __FB_LINUX__
-   #ifndef __FB_64BIT__
-    #libpath "../lib/lin32/"
-   #else
-    #libpath "../lib/lin64/"
-   #endif
- #else
-   #error 666: Build target must be Windows or Linux !
- #endif
-#endif
-
 #include once "fbstypes.bi"
 
 #include once "fbscpu.bi"
