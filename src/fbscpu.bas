@@ -10,7 +10,7 @@
 #define API_EXPORT
 #endif
 
-#include once "../inc/fbscpu.bi"
+#include once "fbsound/fbscpu.bi"
 
 '' ASM fill n bytes with 0
 private _

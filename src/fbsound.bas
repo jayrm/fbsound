@@ -4,11 +4,11 @@
 ' Copyright 2005-2018 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-#include once "../inc/fbsound.bi"
+#include once "fbsound/fbsound.bi"
 
-#include once "../inc/plug.bi"
+#include once "fbsound/plug.bi"
 
-#include once "../inc/fbscpu.bi"
+#include once "fbsound/fbscpu.bi"
 
 #ifdef __FB_OUT_DLL__
 #define API_EXPORT EXPORT

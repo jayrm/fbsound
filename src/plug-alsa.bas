@@ -4,11 +4,11 @@
 ' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-#include once "../inc/plug.bi"
+#include once "fbsound/plug.bi"
 
 #ifndef NO_PLUG_ALSA
 
-#include once "../inc/plug-alsa.bi"
+#include once "fbsound/plug-alsa.bi"
 
 #define MAX_BUFFERS 256
 type ALSA

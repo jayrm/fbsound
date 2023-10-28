@@ -13,7 +13,7 @@
 
 ' FBSOUND digital signal math
 
-#include once "../inc/fbsdsp.bi"
+#include once "fbsound/fbsdsp.bi"
 
 
 public _

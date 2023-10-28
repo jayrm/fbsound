@@ -4,11 +4,11 @@
 ' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-#include once "../inc/plug.bi"
+#include once "fbsound/plug.bi"
 
 #ifndef NO_PLUG_MM
 
-#include once "../inc/plug-mm.bi"
+#include once "fbsound/plug-mm.bi"
 
 #define max_buffers 512
 #define min_frames   64

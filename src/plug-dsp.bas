@@ -4,11 +4,11 @@
 ' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-#include once "../inc/plug.bi"
+#include once "fbsound/plug.bi"
 
 #ifndef NO_PLUG_DSP
 
-#include once "../inc/plug-dsp.bi"
+#include once "fbsound/plug-dsp.bi"
 
 type DSP
   as FBS_PLUG      Plug
