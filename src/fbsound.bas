@@ -16,7 +16,7 @@
 #define API_EXPORT
 #endif
 
-
+type enum_mad_flow as mad_flow
 
 #if defined(NO_MP3) and defined(NO_SID)
   ' no streams
@@ -1912,7 +1912,7 @@ function FBS_Create_SIDStream (byref Filename as string, _
   get #hFile,,*buffer,nBytes
   close #hFile
 
-  libcsid_init(_Plugs(_Plug).Fmt.nRate)
+  libcsid_init(_Plugs(_Plug).Fmt.nRate,DEFAULT_SIDMODEL)
   if PlayTune<0 then PlayTune=0
   dim as integer nTunes = buffer[&H0f]
   if PlayTune<0 then

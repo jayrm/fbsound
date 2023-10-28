@@ -33,19 +33,21 @@
 #include once "fbsdsp.bi"
 
 #ifndef NO_MOD
- #include once "dumb.bi"
+ #include once "dumb/dumb.bi"
 #endif
 
 #ifndef NO_MP3
- #include once "mad.bi"
+ #include once "mad/mad.bi"
 #endif
 
 #ifndef NO_SID
- #include once "csid.bi"
+ #include once "csid/libcsidlight.bi"
 #endif
 
 #ifndef NO_OGG
- #include once "vorbis.bi"
+ #include once "vorbis/codec.bi"
+ #include once "vorbis/vorbisenc.bi"
+ #include once "vorbis/vorbisfile.bi"
 #endif
 
 
