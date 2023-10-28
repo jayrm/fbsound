@@ -69,7 +69,7 @@ sub _FFT(byval  b as single ptr, _
   static as integer ptr   lpSW,lpInit
   dim    as single      tmpr,tmpi,ur,ui,vr,vi
   dim    as single ptr  p1,p2,p1r,p1i,p2r,p2i
-  dim    as integer     i,j,k,le,le2
+  dim    as integer     i,j,k,le1,le2
 
   if Init=0 then
     co(0)=cos(PI)
@@ -154,7 +154,7 @@ sub _FFT(byval  b as single ptr, _
 
   le2=2
   for k=0 to FFTSHIFT-1
-    le=le2 shl 1
+    le1=le2 shl 1
     ur=1.0:vr=co(k)
     ui=0.0:vi=si(k)*s
 
@@ -179,7 +179,7 @@ sub _FFT(byval  b as single ptr, _
 
       mov ecx,[j]
       fft_loop2:
-      'for i=j to 2*n-1 step le
+      'for i=j to 2*n-1 step le1
         ' ti=(p2r*ui)+(p2i+ur)
         fld  dword ptr [_p2r] 
         fmul dword ptr [ui] 
@@ -215,10 +215,10 @@ sub _FFT(byval  b as single ptr, _
         faddp                 ' p1r+tr
         fstp dword ptr [_p1r]
 
-        mov eax,[le]
+        mov eax,[le1]
         add ecx,eax
         shl eax,2
-        add esi,eax           ' p1r+=le
+        add esi,eax           ' p1r+=le1
         add edi,eax
         mov eax,(FFTSIZE shl 1)
         cmp ecx,eax
@@ -254,7 +254,7 @@ sub _FFT(byval  b as single ptr, _
   static as integer ptr   lpSW,lpInit
   dim    as single      tmpr,tmpi,ur,ui,vr,vi
   dim    as single ptr  p1,p2,p1r,p1i,p2r,p2i
-  dim    as integer     i,j,k,le,le2
+  dim    as integer     i,j,k,le1,le2
   if Init=0 then
     co(0)=cos(PI)
     si(0)=sin(PI)
@@ -345,7 +345,7 @@ sub _FFT(byval  b as single ptr, _
 
   le2=2
   for k=0 to FFTSHIFT-1
-    le=le2 shl 1
+    le1=le2 shl 1
     ur=1.0:vr=co(k)
     ui=0.0:vi=si(k)*s
 
@@ -370,7 +370,7 @@ sub _FFT(byval  b as single ptr, _
 
       mov rcx,[j]
       fft_loop2:
-      'for i=j to 2*n-1 step le
+      'for i=j to 2*n-1 step le1
         ' ti=(p2r*ui)+(p2i+ur)
         fld  dword ptr [_p2r] 
         fmul dword ptr [ui] 
@@ -406,10 +406,10 @@ sub _FFT(byval  b as single ptr, _
         faddp                 ' p1r+tr
         fstp dword ptr [_p1r]
 
-        mov rax,[le]
+        mov rax,[le1]
         add rcx,rax
         shl rax,2
-        add rsi,rax           ' p1r+=le
+        add rsi,rax           ' p1r+=le1
         add rdi,rax
         mov rax,(FFTSIZE shl 1)
         cmp rcx,rax

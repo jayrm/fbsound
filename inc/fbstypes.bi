@@ -17,7 +17,7 @@
 '#define NO_MOD
 '#define NO_SID
 '#define NO_DSP
-#define NO_PITCHSHIFT
+'#define NO_PITCHSHIFT
 '#define NO_3D
 '#define NO_CALLBACK
 

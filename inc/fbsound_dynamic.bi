@@ -13,7 +13,7 @@
 '#define NO_SID       ' no SID stream
 '#define NO_CALLBACK  ' no load or buffer callbacks
 '#define NO_DSP       ' no EQS Filter
-#define NO_PITCHSHIFT ' no realtime pitch shifter
+'#define NO_PITCHSHIFT ' no realtime pitch shifter
 
 '#define DEBUG
 
