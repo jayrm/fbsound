@@ -4,7 +4,7 @@
 
 #include "../inc/fbsound_dynamic.bi"
 
-#ifdef NOOGG
+#ifdef NO_OGG
 print "sorry no ogg loader available ! ..."
 sleep : end
 #else

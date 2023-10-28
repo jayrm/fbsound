@@ -17,7 +17,7 @@ dim as integer hWave
 
 if fbs_Init() then
   print "load: flshdanc.s3m" 
-  if fbs_Load_MODFile(data_path & "flshdanc.s3m",@.hWave) then
+  if fbs_Load_MODFile(data_path & "flshdanc.s3m",@hWave) then
     dim as integer ms
     fbs_Get_WaveLength(hWave,@ms)
     print "length of 'flshdanc.s3m' = " & ms/1000 & " seconds" 

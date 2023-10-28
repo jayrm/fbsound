@@ -19,7 +19,7 @@ dim as short ptr lpWaveStart,lpWaveEnd
 dim as short ptr lpSoundStart,lpSoundPlay,lpSoundEnd
 
 fbs_Init()
-fbs_Load_WAVFile(data_path & "fbsloop44.wav",@.hWave)
+fbs_Load_WAVFile(data_path & "fbsloop44.wav",@hWave)
 fbs_Create_Sound(hWave,@hSound)
 ' Get start,end and number of channels from wave object
 fbs_Get_WavePointers(hWave,@lpWaveStart,@lpWaveEnd,@nChannels)

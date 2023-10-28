@@ -18,7 +18,7 @@ chdir(exepath())
 ' shared for the callback
 dim shared as string CurFile
 
-sub MyLoadCallback(percent as integer)
+sub MyLoadCallback(byval percent as integer)
   locate 1,1
   print "loading " & CurFile & " " & percent & " % done"
 end sub

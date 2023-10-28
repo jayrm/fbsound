@@ -8,7 +8,7 @@
 ' d.j.peters@web.de
 
 '#define NO_MP3       ' no MP3 sound and stream 
-'#define NO_OOG       ' no Vorbis sound
+'#define NO_OGG       ' no Vorbis sound
 '#define NO_MOD       ' no tracker modules
 '#define NO_SID       ' no SID stream
 '#define NO_CALLBACK  ' no load or buffer callbacks
@@ -144,7 +144,7 @@ type tFBS_Load_MODFile as function (byref Filename as string       , _
                                     byval phWave  as integer ptr) as boolean
 #endif
 
-#ifndef NO_OOG
+#ifndef NO_OGG
 ' create hWave from *.ogg file
 type tFBS_Load_OGGFile as function (byref Filename as string      , _
                                     byval lphWave  as integer ptr , _
@@ -354,7 +354,7 @@ fbs_declare(FBS_Load_MP3File)
 fbs_declare(FBS_Load_MODFile)
 #endif
 
-#ifndef NO_OOG
+#ifndef NO_OGG
 fbs_declare(FBS_Load_OGGFile)
 #endif
 

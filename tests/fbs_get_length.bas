@@ -25,8 +25,8 @@ const last_number = 9
 dim as integer hWave,hSound,SoundLength,WaveLength
 
 fbs_Init()
-fbs_Load_WAVFile(data_path & "fbsloop44.wav",@.hWave)
-fbs_Create_Sound(.hWave,@.hSound)
+fbs_Load_WAVFile(data_path & "fbsloop44.wav",@hWave)
+fbs_Create_Sound(hWave,@hSound)
 
 fbs_Get_WaveLength (hWave ,@WaveLength)
 fbs_Get_SoundLength(hSound,@SoundLength)

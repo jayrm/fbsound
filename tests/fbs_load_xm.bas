@@ -16,7 +16,7 @@ chdir(exepath())
 dim as integer hWave
 
 if fbs_Init() then
-  if fbs_Load_MODFile(data_path & "skidmaks2.xm",@.hWave) then
+  if fbs_Load_MODFile(data_path & "skidmaks2.xm",@hWave) then
     dim as integer ms
     fbs_Get_WaveLength(hWave,@ms)
     print "length of 'skidmaks2.xm' = " & ms/1000 & " seconds" 

@@ -18,7 +18,7 @@ const data_path = "../data/"
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
 
-dim shared as integer xMax
+dim shared as long xMax
 
 ' get load status in percent 0-100%
 sub MP3LoadCB(byval percent as integer)

@@ -13,7 +13,7 @@ chdir(exepath())
 ' only if not same as exe path
 ' fbs_Set_PlugPath("./")
 
-sub fbs_PauseRewindSound(hSound as integer)
+sub fbs_PauseRewindSound(byval hSound as integer)
   dim as short ptr pStart
   ' stop playback
   fbs_Set_SoundPaused(hSound,True)

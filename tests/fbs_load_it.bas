@@ -17,7 +17,7 @@ chdir(exepath())
 dim as integer hWave
 
 if fbs_Init() then
-  if fbs_Load_MODFile(data_path & "nstalgia.it",@.hWave) then
+  if fbs_Load_MODFile(data_path & "nstalgia.it",@hWave) then
     dim as integer ms
     fbs_Get_WaveLength(hWave,@ms)
     print "length of 'nstalgia.it' = " & ms/1000 & " seconds" 

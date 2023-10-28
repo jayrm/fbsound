@@ -13,13 +13,13 @@ const data_path = "../data/"
 ' fbs_Set_PlugPath("./")
 
 dim as integer hWave,hSound
-dim as integer scr_w
+dim as long scr_w
 screeninfo scr_w:scr_w*=0.8
 screenres scr_w,100
 windowtitle "[any key] = quit fbs_Get_SoundPosition()"
 
 fbs_Init()
-fbs_Load_MP3File(data_path & "fox.mp3",@.hWave)
+fbs_Load_MP3File(data_path & "fox.mp3",@hWave)
 fbs_Create_Sound(hWave,@hSound)
 fbs_Play_Sound(hSound)
 dim as ubyte c=1

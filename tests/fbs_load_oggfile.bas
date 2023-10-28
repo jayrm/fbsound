@@ -1,11 +1,11 @@
 '  ########################
-' # fbs_load_oogfile.bas #
+' # fbs_load_oggfile.bas #
 '########################
 
 #include "../inc/fbsound_dynamic.bi"
 
 ' short test for libogg,libvorbis and libvorbisfile
-' fbs_Load_OOGFile()
+' fbs_Load_OGGFile()
 
 const data_path = "../data/"
 chdir(exepath())
@@ -19,7 +19,7 @@ fbs_Init()
 print "please wait while decode 'legends.ogg' in memory!"
 print
 t1=timer
-fbs_Load_OGGFile(data_path & "legends.ogg",@.hWave)
+fbs_Load_OGGFile(data_path & "legends.ogg",@hWave)
 t2=int(timer-t1)
 print "done in " & t2 & " seconds"
 print
