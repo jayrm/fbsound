@@ -10,11 +10,12 @@
 
 #include once "fbsound/fbscpu.bi"
 
-#ifdef __FB_OUT_DLL__
+'' always export, even when building a static lib
+'' if the end user builds everything static, then
+'' it doesn't really matter and if this module is
+'' built in to static lib then we want the exports
+'' if it is later built in to a shared library 
 #define API_EXPORT EXPORT
-#else
-#define API_EXPORT
-#endif
 
 type enum_mad_flow as mad_flow
 
