@@ -1,7 +1,7 @@
 #ifndef __FBSOUND_OOP_BI__
 #define __FBSOUND_OOP_BI__
 
-#ifndef __FBSOUND_DYNAMIC_BI__
+#if not defined( __FBSOUND_DYNAMIC_BI__ ) and not defined ( __FBSOUND_BI__ ) 
  #include once "fbsound_dynamic.bi"
 #endif
 
