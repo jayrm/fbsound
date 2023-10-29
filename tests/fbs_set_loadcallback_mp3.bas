@@ -4,15 +4,13 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of:
 
 ' fbs_Set_LoadCallback()
 ' fbs_Enable_LoadCallback()
 ' fbs_Load_MP3File()
 
-const Media = "../data/"
+const Media = TESTS_DATA_PATH
 const File  = "legends.mp3"  
 
 ' only if not same as exe path

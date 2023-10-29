@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of get number of tunes in a SID file:
 ' fbs_Create_SIDStream(filename ,[PlayTune=0],[@nTunes])
 
@@ -16,7 +14,7 @@ fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 fbs_Init()
 
-const DataPath = "../data/"
+const DataPath = TESTS_DATA_PATH
 const SIDFile  = "comic_bakery.sid"
 const FilePath = DataPath & SIDFile
 

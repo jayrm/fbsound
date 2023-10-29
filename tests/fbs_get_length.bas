@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' short test for 
 ' fbs_Get_WaveLength(hWave,@MS)
 ' fbs_Get_SoundLength(hSound,@MS)
@@ -18,7 +16,7 @@
 ' returns playback length in 1/1000 seconds 
 ' dependently on playback speed and number of loops
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 ' only if not same as exe path
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )

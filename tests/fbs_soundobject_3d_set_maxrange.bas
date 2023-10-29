@@ -4,10 +4,9 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
 #include "fbsound/fbs3d.bi"
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 ' test of:
 ' fbs_Set_MaxRange

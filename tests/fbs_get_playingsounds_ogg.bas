@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 #ifdef NO_OGG
 print "sorry no ogg loader available ! ..."
 sleep : end
@@ -17,7 +15,7 @@ sleep : end
 ' fbs_Load_OGGFile()
 ' fbs_Get_PlayingSounds()
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 chdir(exepath())
 

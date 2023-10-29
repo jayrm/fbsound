@@ -4,14 +4,12 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of:
 ' fbs_End_MP3Stream()
 
 ' scan the whole data folder for wav and mp3 files 
 ' and play it as short preview
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 chdir(exepath())
 
 ' only if not same as exe path

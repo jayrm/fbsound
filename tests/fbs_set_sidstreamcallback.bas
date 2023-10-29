@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of:
 ' fbs_Set_SIDStreamCallback()
 ' fbs_Enable_SIDStreamCallback()
@@ -31,7 +29,7 @@ sub MyCallback(byval pSamples  as FBS_SAMPLE ptr, _
 end sub
 
 
-const MediaPath = "../data/"
+const MediaPath = TESTS_DATA_PATH
 const Filename  = "comic_bakery.sid"
 chdir(exepath())
 

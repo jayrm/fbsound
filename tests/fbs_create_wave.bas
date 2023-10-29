@@ -4,12 +4,10 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of:
 ' fbs_Create_Wave(nSamples,@hWAve,@lpSamples)
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 chdir(exepath())
 

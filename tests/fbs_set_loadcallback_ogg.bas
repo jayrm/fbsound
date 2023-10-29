@@ -4,14 +4,12 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of:
 
 ' fbs_Set_LoadCallback()
 ' fbs_Load_OGGFile()
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 chdir(exepath())
 
 ' only if not same as exe path

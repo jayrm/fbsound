@@ -4,12 +4,10 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example for:
 ' fbs_GetStreamBuffer(@lpBuffer,@nChannels,@nSamples)
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 ' only if not same as exe path
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )

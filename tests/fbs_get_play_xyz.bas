@@ -4,14 +4,12 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of:
 ' fbs_Get_PlayTime()
 ' fbs_Get_PlayedSamples()
 ' fbs_Get_PlayedBytes()
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 ' only if not same as exe path
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )

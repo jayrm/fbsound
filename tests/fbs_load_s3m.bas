@@ -4,12 +4,10 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' short test for:
 ' fbs_Load_MODFile("*.s3m")
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 chdir(exepath())
 
 ' only if not same as exe path

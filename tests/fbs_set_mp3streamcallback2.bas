@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' Example2 for user defined STREAM callbacks:
 
 ' fbs_Set_MP3StreamCallback
@@ -21,7 +19,7 @@
 ' This is a very simple Stereo eXpander
 ' Better and advanced sound FXs are in the DSP section of FBSOUND.
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 chdir(exepath())
 
 ' only if not same as exe path

@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' Example for user defined MASTER callbacks:
 
 ' fbs_Set_MasterCallback
@@ -19,7 +17,7 @@
 ' defined in "fbstypes.bi"
 
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 ' only if not same as exe path
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )

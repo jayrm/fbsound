@@ -4,13 +4,11 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' fbs_Volume_2_dB()
 ' fbs_Set_MasterFilter()
 ' fbs_Enable_MasterFilter()
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 ' only if not same as exe path
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )

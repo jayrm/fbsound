@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 #ifdef NOSID
  #error 666: sorry no SID decoder !
 #endif
@@ -20,7 +18,7 @@
 ' fbs_Set_SIDStreamVolume()
 ' fbs_End_SIDStream()
 
-const MEDIA = "../data/"
+const MEDIA = TESTS_DATA_PATH
 const FILE  = "comic_bakery.sid"
 const PATH  = MEDIA & FILE
 chdir(exepath())

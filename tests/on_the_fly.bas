@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 
 sub MyCallback(byval pSamples as FBS_SAMPLE ptr, _

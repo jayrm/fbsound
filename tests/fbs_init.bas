@@ -4,14 +4,12 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of: 
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )
 ' fbs_Init()
 ' fbs_Get_PlugError()
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 chdir(exepath())
 
 ' only if not same as exe path

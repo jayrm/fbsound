@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' Example for user defined MP3 stream callbacks:
 
 ' fbs_Set_MP3StreamCallback
@@ -20,7 +18,7 @@
 
 ' All callbacks in FBSOUND are from type BUFFERCALLBACK defined in "fbstypes.bi"
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 ' only if not same as exe path
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )

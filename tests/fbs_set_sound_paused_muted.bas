@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of:
 
 ' fbs_Get_SoundPaused(hSound,@paused)
@@ -13,7 +11,7 @@
 ' fbs_Get_SoundMuted (hSound,@muted )
 ' fbs_Set_SoundMuted (hSound, muted )
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 ' only if not same as exe path
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )

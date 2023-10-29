@@ -4,13 +4,12 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
 #include "fbsound/fbs3d.bi"
 
 ' test of:
 ' fbs_Set_Position
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 ' only if not same as exe path
 fbs_Set_PlugPath( FBSOUND_DLL_PATH )

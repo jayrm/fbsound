@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 #ifdef NOMP3
 print "sorry no mp3 loader ! ..."
 sleep : end
@@ -19,7 +17,7 @@ sleep : end
 ' fbs_Play_hWave()
 ' fbs_Get_PlayingSounds()
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 chdir(exepath())
 
 ' only if not same as exe path

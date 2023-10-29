@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of:
 
 ' fbs_Create_MP3Stream()
@@ -13,7 +11,7 @@
 ' fbs_End_MP3Stream()
 ' fbs_Set_MP3StreamVolume()
 
-const MEDIA = "../data/"
+const MEDIA = TESTS_DATA_PATH
 const FILE  = "legends.mp3"  
 const PATH  = MEDIA & FILE
 

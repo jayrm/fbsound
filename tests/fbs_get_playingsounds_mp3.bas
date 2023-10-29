@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' example of:
 ' fbs_Get_PlayingSounds()
 
@@ -17,7 +15,7 @@
 ' if so we can try to use bigger buffers in fbs_Init
 ' or lower the playback rate
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 chdir(exepath())
 
 ' only if not same as exe path

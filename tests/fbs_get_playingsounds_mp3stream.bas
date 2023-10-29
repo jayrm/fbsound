@@ -4,8 +4,6 @@
 
 #include "tests-common.bi"
 
-#include "fbsound/fbsound_dynamic.bi"
-
 ' same as "fbs_get_playingsounds_mp3.bas" but with MP3 streaming
 
 ' example of:
@@ -13,7 +11,7 @@
 ' fbs_Play_MP3Stream()
 ' fbs_Get_PlayingStreams()
 
-const data_path = "../data/"
+const data_path = TESTS_DATA_PATH
 
 chdir(exepath())
 
