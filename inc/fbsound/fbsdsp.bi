@@ -9,8 +9,6 @@
 
 #include once "fbstypes.bi"
 
-
-
 const PI         as double = atn(1)*4
 const PI2        as double = atn(1)*8
 const rad2deg    as double = 180.0/PI
@@ -22,9 +20,9 @@ declare function fbs_Volume_2_DB (byval as single) as single
 declare function fbs_DB_2_Volume (byval as single) as single 
 declare function fbs_Pow         (byval as double, byval as double) as double
 
-#inclib "fbsdsp"
-
 #ifndef NO_DSP
+
+#inclib "fbsdsp"
 
 #define MAX_FILTERS 10
 type FBS_FILTER
