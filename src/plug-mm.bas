@@ -4,11 +4,27 @@
 ' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-#include once "fbsound/plug.bi"
+#include once "fbsound/fbs-config.bi"
+#include once "fbsound/fbstypes.bi"
 
 #ifndef NO_PLUG_MM
 
+#include once "fbsound/plug.bi"
+#include once "fbsound/plug-static.bi"
 #include once "fbsound/plug-mm.bi"
+
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_mm
+	extern "c"
+		extern required as long
+		dim shared required as long
+	end extern
+end namespace
+#endif
+
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_mm
+#endif
 
 #define max_buffers 512
 #define min_frames   64
@@ -25,13 +41,15 @@ end type
 
 dim shared _Me as MM
 
-sub _plug_mm_init() constructor
-  dprint("_plug_mm_init() constructor")
+FBS_MODULE_CDTOR_SCOPE _
+sub _plug_mm_init cdecl () FBS_MODULE_CTOR
+  dprint("_plug_mm_init() module constructor")
   _Me.Plug.Plugname="mm"
 end sub
 
-sub _plug_mm_exit() destructor
-  dprint("_plug_mm_exit() destructor")
+FBS_MODULE_CDTOR_SCOPE _
+sub _plug_mm_exit cdecl () FBS_MODULE_DTOR
+  dprint("_plug_mm_exit() module destructor")
 end sub
 
 private _
@@ -334,6 +352,22 @@ function plug_exit() as boolean export
 end function
 
 private _
+sub setWaveFormatex(byref wf        as WAVEFORMATEX, _
+                    byval nRate     as integer, _
+                    byval nBits     as integer, _
+                    byval nChannels as integer)
+  with wf
+   .wFormatTag      = WAVE_FORMAT_PCM
+   .nChannels       = nChannels
+   .nSamplesPerSec  = nRate
+   .wBitsPerSample  = nBits
+   .nBlockAlign     = (nBits\8) * nChannels
+   .nAvgBytesPerSec = (nBits\8) * nChannels * nRate
+   .cbSize          = 0
+  end with
+end sub
+
+private _
 function MMInit(byref hDevice   as HWAVEOUT, _
                 byval nRate     as integer, _
                 byval nBits     as integer, _
@@ -482,5 +516,36 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   return true ' i like it
   
 end function
+
+#if __FB_OUT_DLL__ = 0
+private _
+function plug_filler_mm cdecl( byref p as FBS_PLUG ) as boolean
+	dprint( __FUNCTION__ )
+	p.plug_init  = procptr(plug_init)
+	p.plug_start = procptr(plug_start)
+	p.plug_stop  = procptr(plug_stop)
+	p.plug_exit  = procptr(plug_exit)
+    p.plug_error = procptr(plug_error)
+    return true
+end function
+
+public _
+sub ctor_plug_mm_init cdecl () FBS_MODULE_REGISTER_CDTOR
+	static ctx as fbsound.cdtor.cdtor_struct = _
+		( _
+			procptr(_plug_mm_init), _
+			procptr(_plug_mm_exit), _
+			@"plug_mm", _
+			fbsound.cdtor.MODULE_PLUGIN1, _
+			procptr(plug_filler_mm) _
+		)
+	dprint( __FUNCTION__ )
+	fbsound.cdtor.register( @ctx )
+end sub
+#endif
+
+#if __FB_OUT_DLL__ = 0
+end namespace ' fbsound.plug_mm
+#endif
 
 #endif ' NO_PLUG_MM

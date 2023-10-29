@@ -4,13 +4,21 @@
 ' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-#include once "fbsound/plug.bi"
+#include once "fbsound/fbs-config.bi"
+#include once "fbsound/fbstypes.bi"
 
 #ifndef NO_PLUG_ALSA
 
+#include once "fbsound/plug.bi"
+#include once "fbsound/plug-static.bi"
 #include once "fbsound/plug-alsa.bi"
 
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_alsa
+#endif
+
 #define MAX_BUFFERS 256
+
 type ALSA
   as FBS_PLUG      Plug
   as snd_pcm_t ptr hDevice
@@ -19,12 +27,14 @@ end type
 
 dim shared _Me as ALSA
 
-sub _plug_alsa_init() constructor
+FBS_MODULE_CDTOR_SCOPE _
+sub _plug_alsa_init cdecl () FBS_MODULE_CTOR
   dprint("_plug_alsa_init() module constructor")
   _Me.Plug.Plugname="ALSA"
 end sub
 
-sub _plug_alsa_exit() destructor
+FBS_MODULE_CDTOR_SCOPE _
+sub _plug_alsa_exit cdecl () FBS_MODULE_DTOR
   dprint("_plug_alsa_exit() module destructor")
 end sub
 
@@ -565,5 +575,37 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   dprint("alsa:plug_init~")
   return true ' i like it
 end function
+
+
+#if __FB_OUT_DLL__ = 0
+private _
+function plug_filler_ds cdecl( byref p as FBS_PLUG ) as boolean
+	dprint( __FUNCTION__ )
+	p.plug_init  = procptr(plug_init)
+	p.plug_start = procptr(plug_start)
+	p.plug_stop  = procptr(plug_stop)
+	p.plug_exit  = procptr(plug_exit)
+    p.plug_error = procptr(plug_error)
+    return true
+end function
+
+public _
+sub ctor_plug_alsa_init cdecl () FBS_MODULE_REGISTER_CDTOR
+	static ctx as fbsound.cdtor.cdtor_struct = _
+		( _
+			procptr(_plug_alsa_init), _
+			procptr(_plug_alsa_exit), _
+			@"plug_alsa", _
+			fbsound.cdtor.MODULE_PLUGIN, _
+			procptr(plug_filler_ds) _
+		)
+	dprint( __FUNCTION__ )
+	fbsound.cdtor.register( @ctx )
+end sub
+#endif
+
+#if __FB_OUT_DLL__ = 0
+end namespace ' fbsound.plug_alsa
+#endif
 
 #endif ' NO_PLUG_ALSA

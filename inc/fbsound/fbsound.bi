@@ -9,27 +9,71 @@
 
 #include once "fbstypes.bi"
 
+#if (__FB_OUT_EXE__ <> 0) or (__FB_OUT_LIB__ <> 0)
+#inclib "fbsound"
+#endif
+
+#ifndef NO_CPU
 #include once "fbscpu.bi"
+#endif
 
+#ifndef NO_DSP
 #include once "fbsdsp.bi"
-
-#ifndef NO_MOD
- #include once "dumb/dumb.bi"
 #endif
 
-#ifndef NO_MP3
- #include once "mad/mad.bi"
+'' when building a static library, pull in the other plug-ins.
+#if __FB_OUT_DLL__ = 0
+
+'' plug_XX.required are referenced to pull in the needed
+'' modules, even if they exist in a static library.
+
+#ifdef __FB_WIN32__
+#ifndef NO_PLUG_MM
+	namespace fbsound.plug_mm
+		extern "c"
+			extern required as long
+		end extern
+		private sub ctor cdecl () constructor
+			required = 1
+		end sub
+	end namespace
+#endif ' NO_PLUG_MM
+#ifndef NO_PLUG_DS
+	namespace fbsound.plug_ds
+		extern "c"
+			extern required as long
+		end extern
+		private sub ctor cdecl () constructor
+			required = 1
+		end sub
+	end namespace
+#endif ' NO_PLUG_DS
+#endif ' __FB_WIN32__
+
+#ifdef __FB_LINUX__
+#ifndef NO_PLUG_ALSO
+	namespace fbsound.plug_also
+		extern "c"
+			extern required as long
+		end extern
+		private sub ctor cdecl () constructor
+			required = 1
+		end sub
+	end namespace
+#endif ' NO_PLUG_ALSO
+#ifndef NO_PLUG_ARTS
+	namespace fbsound.plug_arts
+		extern "c"
+			extern required as long
+		end extern
+		private sub ctor cdecl () constructor
+			required = 1
+		end sub
+	end namespace
+#endif ' NO_PLUG_ARTS
 #endif
 
-#ifndef NO_SID
- #include once "csid/libcsidlight.bi"
-#endif
-
-#ifndef NO_OGG
- #include once "vorbis/codec.bi"
- #include once "vorbis/vorbisenc.bi"
- #include once "vorbis/vorbisfile.bi"
-#endif
+#endif ' __FB_OUT_DLL__ = 0
 
 
 declare function FBS_Init(byval nRate        as integer=44100, _
@@ -273,7 +317,7 @@ declare function FBS_Get_SIDAuthor() as string
 declare function FBS_Get_SIDInfo() as string
 declare function FBS_Get_SIDTitle() as string
 
- #ifndef NO_CALLBACK
+  #ifndef NO_CALLBACK
 declare function FBS_Set_SIDStreamCallback(byval cb as FBS_BUFFERCALLBACK)  as boolean
 declare function FBS_Enable_SIDStreamCallback() as boolean
 declare function FBS_Disable_SIDStreamCallback() as boolean

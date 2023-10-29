@@ -4,11 +4,18 @@
 ' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-#include once "fbsound/plug.bi"
+#include once "fbsound/fbs-config.bi"
+#include once "fbsound/fbstypes.bi"
 
 #ifndef NO_PLUG_ARTS
 
+#include once "fbsound/plug.bi"
+#include once "fbsound/plug-static.bi"
 #include once "fbsound/plug-arts.bi"
+
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_arts
+#endif
 
 type ARTS
   as FBS_PLUG      Plug
@@ -18,11 +25,10 @@ end type
 
 dim shared _Me as ARTS
 
-public _
-sub _init() constructor
+FBS_MODULE_CDTOR_SCOPE _
+sub _init() FBS_MODULE_CTOR
   _Me.Plug.Plugname="ARTS"
 end sub
-
 
 private _
 function ARTSWrite() as integer
@@ -318,5 +324,37 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   _Me.Plug.FillBuffer=Plug.FillBuffer
   return true ' i like it
 end function
+
+
+#if __FB_OUT_DLL__ = 0
+private _
+function plug_filler_arts cdecl( byref p as FBS_PLUG ) as boolean
+	dprint( __FUNCTION__ )
+	p.plug_init  = procptr(plug_init)
+	p.plug_start = procptr(plug_start)
+	p.plug_stop  = procptr(plug_stop)
+	p.plug_exit  = procptr(plug_exit)
+    p.plug_error = procptr(plug_error)
+    return true
+end function
+
+public_
+sub ctor_plug_arts_init cdecl () FBS_MODULE_REGISTER_CDTOR
+	static ctx as fbsound.cdtor.cdtor_struct = _
+		( _
+			procptr(_plug_arts_init), _
+			NULL, _
+			@"plug_arts", _
+			fbsound.cdtor.MODULE_PLUGIN, _
+			procptr(plug_filler_arts) _
+		)
+	dprint( __FUNCTION__ )
+	fbsound.cdtor.register( @ctx )
+end sub
+#endif
+
+#if __FB_OUT_DLL__ = 0
+end namespace ' fbsound.plug_arts
+#endif
 
 #endif ' NO_PLUG_ARTS

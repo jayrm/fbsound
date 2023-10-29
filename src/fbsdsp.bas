@@ -14,6 +14,9 @@
 
 ' FBSOUND digital signal math
 
+#include once "crt.bi"
+#include once "fbsound/fbs-config.bi"
+#include once "fbsound/fbstypes.bi"
 #include once "fbsound/fbsdsp.bi"
 
 

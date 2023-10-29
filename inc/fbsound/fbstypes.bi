@@ -7,49 +7,9 @@
 ' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-
-#include once "crt.bi"
-
-' disable some features and rebuild the lib
-'#define NO_ASM
-'#define NO_MP3
-'#define NO_OGG
-'#define NO_MOD
-'#define NO_SID
-'#define NO_DSP
-'#define NO_PITCHSHIFT
-'#define NO_3D
-'#define NO_CALLBACK
-
-#ifdef __FB_WIN32__
-' windows
-'#define NO_PLUG_MM
-'#define NO_PLUG_DS 
-#endif
-' linux
-#ifdef __FB_LINUX__
- #ifndef __FB_64BIT__
-  #define NO_PLUG_DSP
-  #define NO_PLUG_ARTS
- #endif  
-'#define NO_PLUG_ALSA 
-#endif
-
-
-#ifndef DEBUG 
- #if __FB_DEBUG__ 
-  #define DEBUG
- #endif 
-#endif
-
-'' !!!FIXME!!!: reorganize so we don't need to check if defined
-#ifndef dprint
-#ifdef DEBUG
- #define dprint(msg) open err for output as #99 : print #99,"debug: " & msg : close #99
-#else
- #define dprint(msg) :
-#endif
-#endif
+'' if fbs-config.bi wasn't included yet, be sure to 
+'' it now before anything else
+#include once "fbs-config.bi"
 
 #ifndef NULL
  #define NULL cptr(any ptr,0)
@@ -93,14 +53,11 @@ type FBS_FORMAT_t
 end type
 type FBS_FORMAT as FBS_FORMAT_t
 
-'' !!!FIXME!!!: reorganize so we don't need to check if defined 
-#ifndef FBS_SAMPLE
 type FBS_SAMPLE    as short
 type MONO_SAMPLE   as FBS_SAMPLE
 type STEREO_SAMPLE field=1
   as MONO_SAMPLE   l,r
 end type
-#endif
 
 ' plugin callback
 type FillCallback as sub (byval lpArgs as any ptr)

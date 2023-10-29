@@ -7,32 +7,11 @@
 ' FBSound V1.2 Copyright 2005 - 2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-'#define NO_MP3       ' no MP3 sound and stream 
-'#define NO_OGG       ' no Vorbis sound
-'#define NO_MOD       ' no tracker modules
-'#define NO_SID       ' no SID stream
-'#define NO_CALLBACK  ' no load or buffer callbacks
-'#define NO_DSP       ' no EQS Filter
-'#define NO_PITCHSHIFT ' no realtime pitch shifter
-
-'#define DEBUG
-
-#ifndef DEBUG 
- #if __FB_DEBUG__ ' -g has priority
-  #define DEBUG
- #endif 
-#endif
- 
-#ifdef DEBUG
-  #define dprint(msg) open err for output as #99 : print #99,"debug: " & msg : close #99
-#else
-  #define dprint(msg) :
-#endif
+#include once "fbstypes.bi"
 
 #ifndef NULL
  #define NULL cptr(any ptr,0)
 #endif
-
 
 const PI         as double = atn(1)*4
 const PI2        as double = atn(1)*8
@@ -40,11 +19,6 @@ const rad2deg    as double = 180.0/PI
 const deg2rad    as double = PI/180.0
 
 #ifndef NO_CALLBACK
-type FBS_SAMPLE    as short
-type MONO_SAMPLE   as FBS_SAMPLE
-type STEREO_SAMPLE field=1
-  as MONO_SAMPLE   l,r
-end type
 ' master,sound,stream callbacks
 type tFBS_BUFFERCALLBACK as sub (byval pSamples  as FBS_SAMPLE ptr, _
                                  byval nChannels as integer       , _
@@ -441,14 +415,14 @@ Sub RuntimeLoad Constructor
   dprint("fbsound-1.2 RuntimeLoad Constructor")
   if hFBS<>0 then exit sub
 #ifndef __FB_64BIT__
-  dprint("DyLibLoad( 'fbsound-32' )")
+  dprint("DyLibLoad( '" + FBSOUND_DLL_PATH + "fbsound-32' )")
   hFBS = DyLibLoad( FBSOUND_DLL_PATH + "fbsound-32" )
   if hFBS=0 then
     dprint("error: lib fbsound-32 not loaded !")
     exit sub
   end if  
 #else
-  dprint("DyLibLoad( 'fbsound-64' )") 
+  dprint("DyLibLoad( '" + FBSOUND_DLL_PATH + "fbsound-64' )") 
   hFBS = DyLibLoad( FBSOUND_DLL_PATH + "fbsound-64" )
   if hFBS=0 then
     dprint("error: lib fbsound-64 not loaded !")
@@ -617,4 +591,3 @@ end sub
 
 
 #endif ' __FBSOUND_DYNAMIC_BI__
-

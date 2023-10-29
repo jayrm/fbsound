@@ -4,11 +4,27 @@
 ' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-#include once "fbsound/plug.bi"
+#include once "fbsound/fbs-config.bi"
+#include once "fbsound/fbstypes.bi"
 
 #ifndef NO_PLUG_DSP
 
+#include once "fbsound/plug.bi"
+#include once "fbsound/plug-static.bi"
 #include once "fbsound/plug-dsp.bi"
+
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_dsp
+	extern "c"
+		extern required as long
+		dim shared required as long
+	end extern
+end namespace
+#endif
+
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_dsp
+#endif
 
 type DSP
   as FBS_PLUG      Plug
@@ -18,14 +34,14 @@ end type
 
 dim shared _Me as DSP
 
-public _
-sub _plug_dsp_init() constructor
-  dprint("plug_dsp_init()")
+FBS_MODULE_CDTOR_SCOPE _
+sub _plug_dsp_init cdecl () FBS_MODULE_CTOR
+  dprint("plug_dsp_init() module constructor")
   _Me.Plug.Plugname="DSP"
 end sub
 
-public _
-sub _plug_dsp_exit() destructor
+FBS_MODULE_CDTOR_SCOPE _
+sub _plug_dsp_exit cdecl () FBS_MODULE_DTOR
   dprint("plug_dsp_exit~")
 end sub
 
@@ -212,7 +228,7 @@ end function
 
 function  plug_init (byref Plug as FBS_PLUG) as boolean export
   dprint("dsp: plug_init()")
-  dim as integer ret,cmd,arg
+  dim as long ret,cmd,arg
 
   ' !!! fix it !!!!
   if _Me.hDevice<>NULL then 
@@ -428,5 +444,35 @@ function  plug_init (byref Plug as FBS_PLUG) as boolean export
   dprint("dsp: plug_init~")
   return true ' i like it :-)
 end function
+
+#if __FB_OUT_DLL__ = 0
+private _
+function plug_filler_dsp cdecl( byref p as FBS_PLUG ) as boolean
+	p.plug_init  = procptr(plug_init)
+	p.plug_start = procptr(plug_start)
+	p.plug_stop  = procptr(plug_stop)
+	p.plug_exit  = procptr(plug_exit)
+    p.plug_error = procptr(plug_error)
+    return true
+end function
+
+public _
+sub ctor_plug_dsp_init cdecl () FBS_MODULE_REGISTER_CDTOR
+	static ctx as fbsound.cdtor.cdtor_struct = _
+		( _
+			procptr(_plug_dsp_init), _
+			procptr(_plug_dsp_exit), _
+			@"plug_dsp", _
+			fbsound.cdtor.MODULE_PLUGIN3, _
+			procptr(plug_filler_dsp) _
+		)
+	dprint( __FUNCTION__ )
+	fbsound.cdtor.register( @ctx )
+end sub
+#endif
+
+#if __FB_OUT_DLL__ = 0
+end namespace ' fbsound.plug_dsp
+#endif
 
 #endif ' NO_PLUG_DSP

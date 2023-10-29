@@ -4,12 +4,27 @@
 ' Copyright 2005-2020 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
-#include once "fbsound/plug.bi"
+#include once "fbsound/fbs-config.bi"
+#include once "fbsound/fbstypes.bi"
 
 #ifndef NO_PLUG_DS
 
+#include once "fbsound/plug.bi"
+#include once "fbsound/plug-static.bi"
 #include once "fbsound/plug-ds.bi"
 
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_ds
+	extern "c"
+		extern required as long
+		dim shared required as long
+	end extern
+end namespace
+#endif
+
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_ds
+#endif
 
 ' GUID helper
 function Guid2String(byval pGuid as LPGUID) as string
@@ -24,10 +39,12 @@ function Guid2String(byval pGuid as LPGUID) as string
 end function
 
 ' WAVEFORMATEX helper
+private _
 sub setWaveFormatEx(byref wf        as WAVEFORMATEX, _
                     byval nRate     as integer     , _
                     byval nBits     as integer     , _
                     byval nChannels as integer)
+
   if nChannels<2 then nChannels=1 else nChannels=2
   wf.wFormatTag     = WAVE_FORMAT_PCM
   wf.nChannels      = nChannels
@@ -221,24 +238,25 @@ end type
 
 dim shared as DS _Me
 
-sub _plug_ds_init() constructor
-  dprint("ds: plug_ds_init()")
+FBS_MODULE_CDTOR_SCOPE _
+sub _plug_ds_init cdecl () FBS_MODULE_CTOR
+  dprint("ds: plug_ds_init() module constructor")
   dprint("ds: CoInitialize()")
   ' Initialize COM
   CoInitialize(NULL)
   _Me.Plug.Plugname="DirectSound"
 end sub
 
-sub _plug_ds_exit() destructor
+FBS_MODULE_CDTOR_SCOPE _
+sub _plug_ds_exit cdecl () FBS_MODULE_DTOR
   ' Uninitialize COM
   'dprint("ds: CoUninitialize()")
   'CoUninitialize()
-  dprint("ds: plug_ds_exit~")
+  dprint("ds: plug_ds_exit() module destructor")
   #ifdef DEBUG
   sleep 2000
   #endif
 end sub
-
 
 private _
 sub FillThread(byval unused as any ptr)
@@ -647,5 +665,39 @@ function plug_init(byref Plug as FBS_PLUG) as boolean export
   return true
   
 end function
+
+#if __FB_OUT_DLL__ = 0
+private _
+function plug_filler_ds cdecl( byref p as FBS_PLUG ) as boolean
+	dprint( __FUNCTION__ )
+	p.plug_init  = procptr(plug_init)
+	p.plug_start = procptr(plug_start)
+	p.plug_stop  = procptr(plug_stop)
+	p.plug_exit  = procptr(plug_exit)
+    p.plug_error = procptr(plug_error)
+    return true
+end function
+
+public _
+sub ctor_plug_ds_init cdecl () FBS_MODULE_REGISTER_CDTOR
+	static ctx as fbsound.cdtor.cdtor_struct = _
+		( _
+			procptr(_plug_ds_init), _
+			procptr(_plug_ds_exit), _
+			@"plug_ds", _
+			fbsound.cdtor.MODULE_PLUGIN2, _
+			procptr(plug_filler_ds) _
+		)
+	fbsound.cdtor.register( @ctx )
+	dprint( __FUNCTION__ )
+  dprint("ds: CoInitialize()")
+  ' Initialize COM
+  CoInitialize(NULL)
+end sub
+#endif
+
+#if __FB_OUT_DLL__ = 0
+end namespace ' fbsound.plug_ds
+#endif
 
 #endif ' NO_PLUG_DS

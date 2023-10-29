@@ -11,7 +11,12 @@
 '' if it is later built in to a shared library 
 #define API_EXPORT EXPORT
 
+#include once "fbsound/fbs-config.bi"
+#include once "fbsound/fbstypes.bi"
 #include once "fbsound/fbscpu.bi"
+#include once "fbsound/plug-cdtor.bi"
+
+'' !!!FIXME!!! namespacing
 
 '' ASM fill n bytes with 0
 private _
@@ -2650,6 +2655,10 @@ sub _CopySliceMP3FrameAsm16(byval pStart   as any ptr    , _ ' first sample
   end asm
 end sub
 
+#undef MAD_F_ONE
+#undef MAD_F_MIN
+#undef MAD_F_MAX
+
 #define MAD_F_ONE  &H10000000
 #define MAD_F_MIN -MAD_F_ONE
 #define MAD_F_MAX  MAD_F_ONE - 1
@@ -3161,8 +3170,8 @@ function _IsFPU() as boolean 'FPU aviable
   end if
 end function 
 
-
-sub fbscpu_init() constructor
+private _
+sub fbscpu_init cdecl () FBS_GLOBAL_CTOR
   dim as string   msg
   dim as long  ct,r
   dim as longint c1,c2,cd
@@ -3366,7 +3375,8 @@ me.mix16=@_mixAsm16
 
 end sub
 
-sub fbscpu_exit() destructor
+private _
+sub fbscpu_exit cdecl () FBS_GLOBAL_DTOR
   dprint("cpu:~")
 end sub
 

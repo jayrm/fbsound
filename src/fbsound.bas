@@ -4,9 +4,30 @@
 ' Copyright 2005-2018 by D.J.Peters (Joshy)
 ' d.j.peters@web.de
 
+#include once "fbsound/fbs-config.bi"
+#include once "fbsound/fbstypes.bi"
 #include once "fbsound/fbsound.bi"
 
+#ifndef NO_MOD
+ #include once "dumb/dumb.bi"
+#endif
+
+#ifndef NO_MP3
+ #include once "mad/mad.bi"
+#endif
+
+#ifndef NO_SID
+ #include once "csid/libcsidlight.bi"
+#endif
+
+#ifndef NO_OGG
+ #include once "vorbis/codec.bi"
+ #include once "vorbis/vorbisenc.bi"
+ #include once "vorbis/vorbisfile.bi"
+#endif
+
 #include once "fbsound/plug.bi"
+#include once "fbsound/plug-static.bi"
 
 #include once "fbsound/fbscpu.bi"
 
@@ -771,6 +792,8 @@ private function _Get_PlugPath() as string
   return tmp
 end function
 
+#if __FB_OUT_DLL__ <> 0
+
 private _
 function _InitPlugout(byval filename as string, _
                       byref p        as FBS_Plug) as boolean
@@ -859,6 +882,8 @@ data "libfbsound-alsa-64.so"
 
 data "" ' end of list
   
+#endif ' not( __FB_DLL_OUT__ <> 0 )
+
 private _
 sub _Enumerate_Plugs()
   dim as string  plugname
@@ -866,6 +891,19 @@ sub _Enumerate_Plugs()
   dprint("_Enumerate_Plugs()") 
   if _nPlugs>0 then exit sub
 
+#if __FB_OUT_DLL__ = 0
+  dim cdtor as const fbsound.cdtor.cdtor_struct ptr = any
+  cdtor = fbsound.cdtor.getfirst_plugin()
+  do while cdtor
+    dprint("_Enumerate_Plugs() call plug_filler(" & *cdtor->module & ")")
+    if cdtor->plug_filler(_new)=true then
+      redim preserve _Plugs(_nPlugs)
+      _Plugs(_nPlugs)=_new : _nPlugs+=1
+    end if
+    cdtor = fbsound.cdtor.getnext_plugin(cdtor)
+  loop 
+
+#else ' not( __FB_OUT_DLL__ = 0 )
   restore pluglist
   read plugname
   
@@ -878,11 +916,12 @@ sub _Enumerate_Plugs()
     end if
     read plugname 
   wend
-  
+#endif ' __FB_OUT_DLL__ = 0
+
 end sub
 
-private _
-sub _fbs_init() constructor
+FBS_MODULE_CDTOR_SCOPE _
+sub _fbs_init cdecl () FBS_MODULE_CTOR
   dprint("_fbs_init() module constructor")
   _PlugPath    =_Get_PlugPath()
   _Plug        =-1
@@ -894,8 +933,8 @@ sub _fbs_init() constructor
 #endif
 end sub
 
-private _
-sub _fbs_exit() destructor
+FBS_MODULE_CDTOR_SCOPE _
+sub _fbs_exit cdecl () FBS_MODULE_DTOR
   dprint("_fbs_exit() module destructor")
   if (_IsInit=true) then 
     if (_IsRunning=true) then
@@ -910,6 +949,20 @@ sub _fbs_exit() destructor
   dumb_exit()
 #endif
 end sub
+
+#if __FB_OUT_DLL__ = 0
+public _
+sub ctor_fbs_init cdecl () FBS_MODULE_REGISTER_CDTOR
+	static cdtor as fbsound.cdtor.cdtor_struct = _
+		( _
+			procptr(_fbs_init), _
+			procptr(_fbs_exit), _
+			@"fbs", _
+			fbsound.cdtor.MODULE_MAIN _
+		)
+	fbsound.cdtor.register( @cdtor )
+end sub
+#endif
 
 function FBS_Get_NumOfPlugouts() as integer  API_EXPORT
   return _nPlugs
@@ -1009,6 +1062,15 @@ function FBS_Init(byval nRate        as integer, _
   dim as integer     i
   dim as boolean  ret
   dim as FBS_Plug    _new
+
+#if __FB_OUT_DLL__ = 0
+  dprint("fbsound.cdtor.callctors()")
+  fbsound.cdtor.callctors()
+  #if defined( DEBUG ) or ( __FB_DEBUG__ <> 0 )
+    fbsound.cdtor.dump()
+  #endif
+#endif
+
   dprint("fbs_Init(" & nRate & ", " & nChannels & ", " & nBuffers & ", " & nFrames & ", " & nPlugIndex & ", " & nDeviceIndex & ")")
 
   if (_nPlugs<1) then
@@ -1222,8 +1284,11 @@ function FBS_Exit() as boolean  API_EXPORT
   dprint("FBS_Exit() call sleep(100,1)")
   sleep(100,1)
   if _Plugs(_Plug).plug_hLib <> NULL then
+
+#if __FB_OUT_DLL__ <> 0
     dprint("FBS_Exit() call dylibfree _Plugs(_Plug).plug_hLib")
     dylibfree _Plugs(_Plug).plug_hLib
+#endif
     dprint("FBS_Exit() call sleep(100,1)")
     sleep(100,1)
     _Plugs(_Plug).plug_hLib = NULL
@@ -1232,6 +1297,15 @@ function FBS_Exit() as boolean  API_EXPORT
   _Plug   = -1
   _IsInit = false
   dprint("FBS_Exit()~")
+
+#if __FB_OUT_DLL__ = 0
+  dprint("fbsound.cdtor.calldtors()")
+  fbsound.cdtor.calldtors()
+  #if defined( DEBUG ) or ( __FB_DEBUG__ <> 0 )
+    fbsound.cdtor.dump()
+  #endif
+#endif
+
   return true
 end function
 
@@ -1913,7 +1987,7 @@ function FBS_Create_SIDStream (byref Filename as string, _
   get #hFile,,*buffer,nBytes
   close #hFile
 
-  libcsid_init(_Plugs(_Plug).Fmt.nRate,DEFAULT_SIDMODEL)
+  libcsid_init(_Plugs(_Plug).Fmt.nRate, DEFAULT_SIDMODEL)
   if PlayTune<0 then PlayTune=0
   dim as integer nTunes = buffer[&H0f]
   if PlayTune<0 then

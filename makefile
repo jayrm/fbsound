@@ -84,6 +84,7 @@ ifeq ($(TARGET_OS),win32)
 			$(LIBDIR)/libfbsound.a
 		SRC_SRCS := \
 			$(SRCDIR)/fbsound.bas \
+			$(SRCDIR)/plug-static.bas \
 			$(SRCDIR)/plug-mm.bas \
 			$(SRCDIR)/plug-ds.bas
 	endif

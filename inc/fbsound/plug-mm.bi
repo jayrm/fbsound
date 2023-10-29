@@ -14,6 +14,10 @@
 #include once "windows.bi"
 #include once "win/mmsystem.bi"
 
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_mm
+#endif
+
 ' API helper section
 type WAVE_FORMATS as long
 
@@ -100,21 +104,9 @@ function InitWaveFormatEx( _
   end select  
 end function
 
-private _
-sub setWaveFormatex(byref wf        as WAVEFORMATEX, _
-                    byval nRate     as integer, _
-                    byval nBits     as integer, _
-                    byval nChannels as integer)
-  with wf
-   .wFormatTag      = WAVE_FORMAT_PCM
-   .nChannels       = nChannels
-   .nSamplesPerSec  = nRate
-   .wBitsPerSample  = nBits
-   .nBlockAlign     = (nBits\8) * nChannels
-   .nAvgBytesPerSec = (nBits\8) * nChannels * nRate
-   .cbSize          = 0
-  end with
-end sub
+#if __FB_OUT_DLL__ = 0
+end namespace ' fbsound.plug_mm
+#endif
 
 #endif ' NO_PLUG_MM
 

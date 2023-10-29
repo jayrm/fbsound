@@ -11,6 +11,10 @@
 
 #ifndef NO_PLUG_DSP
 
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_dsp
+#endif
+
 const _FBS_READ              = 3
 const _FBS_WRITE             = 4
 const _FBS_OPEN              = 5
@@ -136,6 +140,10 @@ asm
   mov [function],eax
 end asm
 end function
+
+#if __FB_OUT_DLL__ = 0
+end namespace ' fbsound.plug_dsp
+#endif
 
 #endif ' NO_PLUG_DSP
 

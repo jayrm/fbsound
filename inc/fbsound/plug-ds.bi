@@ -20,6 +20,14 @@
 #inclib "dxguid"
 #inclib "ole32"
 
+#if __FB_OUT_DLL__ = 0
+namespace fbsound.plug_mm
+#endif
+
+#if __FB_OUT_DLL__ = 0
+end namespace ' fbsound.plug_mm
+#endif
+
 #endif ' NO_PLUG_DS
 
 #endif ' __FBS_PLUGOUT_DS__
