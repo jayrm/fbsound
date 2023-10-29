@@ -9,7 +9,11 @@
 #   TARGET=win64   build for win32 x86_64
 #   TARGET=win32   build for linux x86
 #   TARGET=win64   build for linux x86_64
-#   SHARED=1       build as shared libraries
+#   SHARED=1       build as shared libraries, and set the usage for tests
+#
+# compile options that control building of tests
+#   -d FBSOUND_USE_DYNAMIC
+#   -d FBSOUND_USE_STATIC
 #
 
 FBC       = fbc
@@ -77,6 +81,7 @@ ifeq ($(TARGET_OS),win32)
 			$(BINDIR)/fbsound-ds-$(BITS).dll \
 			$(BINDIR)/fbsound-mm-$(BITS).dll \
 			buildlib-$(BITS).bat
+		FBCFLAGS += -d FBSOUND_USE_DYNAMIC
 	else
 		TARGETS += \
 			$(LIBDIR)/libfbscpu.a \
@@ -87,6 +92,7 @@ ifeq ($(TARGET_OS),win32)
 			$(SRCDIR)/plug-static.bas \
 			$(SRCDIR)/plug-mm.bas \
 			$(SRCDIR)/plug-ds.bas
+		FBCFLAGS += -d FBSOUND_USE_STATIC
 	endif
 else ifeq ($(TARGET_OS),linux)
 	TARGETS += \
