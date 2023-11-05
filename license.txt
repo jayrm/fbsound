@@ -1,0 +1,57 @@
+License
+-------
+
+Source code by D.J. Peters is released in to the public domain.
+Source code by Jeff Marshall is released in to the public domain.
+
+If you require a specific license to attach to your project, sources provided
+by the above listed authors are also dual licensed under MIT license.
+
+
+fbsound-1.2 - A free sound library for FreeBASIC compiler
+---------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2023 - D.J. Peters and other contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+Supporting works
+----------------
+
+Other open sources and open sourced libraries used retain their respective
+licenses.
+
+  + libogg - Reference implementation of the Ogg media container
+    * Copyright (c) 2002, Xiph.org Foundation
+
+  + libvorbis - Reference implementation of the Ogg Vorbis audio format
+    * Copyright (c) 2002-2020 Xiph.org Foundation
+
+  + libmad - MPEG audio decoder library
+     * Copyright (C) 2000-2004 Underbit Technologies, Inc.
+
+  + libdumb - Dynamic Universal Music Bibliotheque
+    * Copyright (C) 2001-2005 Ben Davis, Robert J Ohannessian
+    *                         and Julien Cugniere
+
+  + libcsidlight - SID Emulator for playing C64 SID streams
+    * various authors and contributors

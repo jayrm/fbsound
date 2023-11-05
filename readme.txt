@@ -1,31 +1,78 @@
 fbsound-1.2
 ===========
 
-A free sound library primarily for games and demos written by D.J. Peters. 
-It supports dynamically loadable plugin's. The API interface is written 
+A free sound library primarily for games and demos written by D.J. Peters.
+It supports dynamically loadable plugin's. The API interface is written
 for the open source FreeBASIC compiler.
 
-Copyright 2005-2020 by D.J.Peters (Joshy)
-d.j.peters@web.de
+Copyright 2005-2020 by D.J.Peters (Joshy) <d.j.peters[at]web.de>
 
--- Jeff M 
+Options for static library added by Jeff Marshall <coder[at]execulink.com>
 
 
 License
 -------
 
-https://www.freebasic.net/forum/viewtopic.php?p=264298#p264298
-Post by mrToad - Sep 14, 2019 20:13
-May I ask about the license? Now that it's matured so well, is it possible to 
-be used in a commercial project?
+Source code by D.J. Peters is released in to the public domain.
+Source code by Jeff Marshall is released in to the public domain.
 
-https://www.freebasic.net/forum/viewtopic.php?p=264303#p264303
-Post by D.J.Peters - Sep 15, 2019 0:29
-All my software and source code in the public domain can be modified, 
-distributed, or sold even without any attribution by anyone !
-For libMad (MP3), libDump (tracker modules) and libVorbis (OGG) take a look 
-at the doc folder.
-Joshy
+If you require a specific license to attach to your project, sources provided
+by the above listed authors are also dual licensed under MIT license.
+
+
+fbsound-1.2 - A free sound library for FreeBASIC compiler
+---------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2023 - D.J. Peters and other contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+Supporting works
+----------------
+
+Other open sources and open sourced libraries used by this project retain their
+respective licenses.
+
+  + libogg - Reference implementation of the Ogg media container
+    * Copyright Xiph.org Foundation
+
+  + libvorbis - Reference implementation of the Ogg Vorbis audio format
+    * Copyright Xiph.org Foundation
+
+  + libmad - MPEG audio decoder library
+     * Copyright Underbit Technologies, Inc.
+
+  + libdumb - Dynamic Universal Music Bibliotheque
+    * Copyright Ben Davis, Robert J Ohannessian
+    *           and Julien Cugniere
+
+  + libcsidlight - SID Emulator for playing C64 SID streams
+    * various authors and contributors
+
+
+TODO
+====
+- documentation for using static versus dynamic libraries
+- develop and test changes for linux (currently only win32 tested)
 
 
 Original Release Notices (on www.freebasic.net)
@@ -68,7 +115,7 @@ Ofcourse the include file "fbsound_dynamic.bi" on all systems :-)
 
 Test all examples from /tests folder and report any problems please !
 
-On Linux dylibfree() makes sometimes trouble i'm working on it 
+On Linux dylibfree() makes sometimes trouble i'm working on it
 (that is an old known FreeBASIC problem)
 
 Joshy
@@ -108,7 +155,7 @@ Why building fbsound-1.2 self ? "The question of the day :-)"
 Imagine you create a demo or a complete game and you like to publish it
 for Windows and Linux both 32/64-bit.
 
-For example if your game used only *.wav files you can edit the 
+For example if your game used only *.wav files you can edit the
 file: "fbsound-1.2-src/inc/fbstypes.bi" and disable all other file formats.
 
 Code: Select all
@@ -126,7 +173,7 @@ in "/fbsound-1.2/inc/fbsound-dynamic.bi"
 Code: Select all
 
 ' # fbsound_dynamic.bi #
-#define NO_MP3       ' no MP3 sound and stream 
+#define NO_MP3       ' no MP3 sound and stream
 #define NO_OOG       ' no Vorbis sound
 #define NO_MOD       ' no tracker modules
 #define NO_SID       ' no SID stream
@@ -193,7 +240,7 @@ Last edited by D.J.Peters on Oct 12, 2022 18:17, edited 8 times in total.
 fbsound 1.0 Win/Lin 32/64-bit (wav mp3 ogg mod it xm s3m)
 ---------------------------------------------------------
 https://freebasic.net/forum/viewtopic.php?t=17740
- 
+
 
 Post by D.J.Peters - Apr 28, 2011 13:50
 fbsound Version is 1.0 for Windows and Linux 32/64-bit
@@ -201,4 +248,5 @@ It's for free: Image;-)
 
 https://shiny3d.de/public/fbsound/fbsound-1.0.zip
 https://shiny3d.de/public/fbsound/fbsound-1.0-src.zip
+
 
