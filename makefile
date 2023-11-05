@@ -30,31 +30,31 @@ ifdef DEBUG
 endif
 
 ifeq ($(TARGET),win32)
-	FBCFLAGS += -target win32 -arch 686
-	# FBCFLAGS += -gen gas
-	TARGET_OS := win32
-	TARGET_CPU := x86
-	BITS := 32
+    FBCFLAGS += -target win32 -arch 686
+    # FBCFLAGS += -gen gas
+    TARGET_OS := win32
+    TARGET_CPU := x86
+    BITS := 32
 else ifeq ($(TARGET),win64)
-	FBCFLAGS += -target win64 -arch x86_64
-	# FBCFLAGS += -gen gcc
-	TARGET_OS := win32
-	TARGET_CPU := x86_64
-	BITS := 64
+    FBCFLAGS += -target win64 -arch x86_64
+    # FBCFLAGS += -gen gcc
+    TARGET_OS := win32
+    TARGET_CPU := x86_64
+    BITS := 64
 else ifeq ($(TARGET),lin32)
-	FBCFLAGS += -target linux -arch 686
-	# FBCFLAGS += -gen gas
-	TARGET_OS := linux
-	TARGET_CPU := x86
-	BITS := 32
+    FBCFLAGS += -target linux -arch 686
+    # FBCFLAGS += -gen gas
+    TARGET_OS := linux
+    TARGET_CPU := x86
+    BITS := 32
 else ifeq ($(TARGET),lin64)
-	FBCFLAGS += -target linux -arch x86_64 -pic
-	# FBCFLAGS += -gen gcc
-	TARGET_OS := linux
-	TARGET_CPU := x86_64
-	BITS := 64
+    FBCFLAGS += -target linux -arch x86_64 -pic
+    # FBCFLAGS += -gen gcc
+    TARGET_OS := linux
+    TARGET_CPU := x86_64
+    BITS := 64
 else
-	$(error need TARGET=win32|win64)
+    $(error need TARGET=win32|win64)
 endif
 
 FBCFLAGS += -i $(INCDIR)
@@ -73,30 +73,30 @@ TST_HDRS := $(wildcard $(TSTDIR)/*.bi)
 TARGETS :=
 
 ifeq ($(TARGET_OS),win32)
-	ifdef SHARED
-		TARGETS += \
-			$(LIBDIR)/libfbscpu.a \
-			$(LIBDIR)/libfbsdsp.a  \
-			$(BINDIR)/fbsound-$(BITS).dll \
-			$(BINDIR)/fbsound-ds-$(BITS).dll \
-			$(BINDIR)/fbsound-mm-$(BITS).dll \
-			buildlib-$(BITS).bat
-		FBCFLAGS += -d FBSOUND_USE_DYNAMIC
-	else
-		TARGETS += \
-			$(LIBDIR)/libfbscpu.a \
-			$(LIBDIR)/libfbsdsp.a  \
-			$(LIBDIR)/libfbsound.a
-		SRC_SRCS := \
-			$(SRCDIR)/fbsound.bas \
-			$(SRCDIR)/plug-static.bas \
-			$(SRCDIR)/plug-mm.bas \
-			$(SRCDIR)/plug-ds.bas
-		FBCFLAGS += -d FBSOUND_USE_STATIC
-	endif
+    ifdef SHARED
+        TARGETS += \
+            $(LIBDIR)/libfbscpu.a \
+            $(LIBDIR)/libfbsdsp.a  \
+            $(BINDIR)/fbsound-$(BITS).dll \
+            $(BINDIR)/fbsound-ds-$(BITS).dll \
+            $(BINDIR)/fbsound-mm-$(BITS).dll \
+            buildlib-$(BITS).bat
+        FBCFLAGS += -d FBSOUND_USE_DYNAMIC
+    else
+        TARGETS += \
+            $(LIBDIR)/libfbscpu.a \
+            $(LIBDIR)/libfbsdsp.a  \
+            $(LIBDIR)/libfbsound.a
+        SRC_SRCS := \
+            $(SRCDIR)/fbsound.bas \
+            $(SRCDIR)/plug-static.bas \
+            $(SRCDIR)/plug-mm.bas \
+            $(SRCDIR)/plug-ds.bas
+        FBCFLAGS += -d FBSOUND_USE_STATIC
+    endif
 else ifeq ($(TARGET_OS),linux)
-	TARGETS += \
-		buildlib-$(BITS).sh
+    TARGETS += \
+        buildlib-$(BITS).sh
 endif
 
 TEST_SRCS := $(wildcard tests/*.bas)
@@ -119,7 +119,7 @@ $(LIBDIR)/libfbsdsp.a : src/fbsdsp.bas $(INC_HDRS) $(SRC_HDRS) | $(LIBDIR)
 
 $(LIBDIR)/libfbsound.a : $(SRC_SRCS) $(INC_HDRS) $(SRC_HDRS) | $(LIBDIR)
 	$(FBC) $(FBCFLAGS) -lib $(SRC_SRCS) -x $@
- 
+
 $(BINDIR)/fbsound-$(BITS).dll : src/fbsound.bas $(INC_HDRS) $(SRC_HDRS) | $(BINDIR)
 	$(FBC) $(FBCFLAGS) -dll $< -p $(LIBDIR) -x $@
 
